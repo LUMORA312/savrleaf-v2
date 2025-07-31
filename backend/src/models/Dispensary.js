@@ -85,10 +85,10 @@ const DispensarySchema = new Schema(
       ref: 'User',
       required: true,
     },
-    subscriptionTier: {
-      type: String,
-      enum: ['free', 'basic', 'premium'],
-      default: 'free',
+    subscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subscription',
+      required: true,
     },
     adminNotes: {
       type: String,
