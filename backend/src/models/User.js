@@ -3,11 +3,15 @@ import bcrypt from 'bcryptjs';
 
 const userSchema = new mongoose.Schema(
   {
-    name: {
+    firstName: { 
       type: String,
-      required: true,
-      trim: true,
+      required: true
     },
+
+    lastName: {
+      type: String,
+      required: true
+     },
 
     email: {
       type: String,
@@ -59,6 +63,10 @@ userSchema.pre('save', async function (next) {
 userSchema.methods.matchPassword = async function (enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
+
+userSchema.virtual('fullName').get(function () {
+  return `${this.firstName} ${this.lastName}`;
+});
 
 const User = mongoose.models.User || mongoose.model('User', userSchema);
 export default User;
