@@ -22,7 +22,7 @@ const DispensarySchema = new Schema(
         type: String,
         required: true,
         match: [/^\d{5}(-\d{4})?$/, 'Please enter a valid zip code'],
-      }
+      },
     },
     coordinates: {
       type: {
@@ -41,34 +41,27 @@ const DispensarySchema = new Schema(
     },
     websiteUrl: {
       type: String,
-      required: false,
     },
     phoneNumber: {
       type: String,
-      match: [/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'], // E.164 format
-      required: false,
+      match: [/^\+?[1-9]\d{1,14}$/, 'Invalid phone number format'],
     },
     hours: {
       type: Map,
-      of: String, // e.g., { monday: "9am-5pm", tuesday: "Closed" }
-      required: false,
+      of: String,
     },
     description: {
       type: String,
-      required: false,
     },
     amenities: {
       type: [String],
-      required: false,
       default: [],
     },
     logo: {
-      type: String, // URL
-      required: false,
+      type: String,
     },
     images: {
-      type: [String], // URLs
-      required: false,
+      type: [String],
       default: [],
     },
     status: {
@@ -79,6 +72,7 @@ const DispensarySchema = new Schema(
     application: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Application',
+      required: true,
     },
     user: {
       type: mongoose.Schema.Types.ObjectId,
@@ -88,15 +82,13 @@ const DispensarySchema = new Schema(
     subscription: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Subscription',
-      required: true,
+      required: false,
     },
     adminNotes: {
       type: String,
-      required: false,
     },
     ratings: {
       type: [Number],
-      required: false,
       default: [],
     },
   },
