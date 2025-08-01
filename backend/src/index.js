@@ -4,6 +4,8 @@ import cors from 'cors';
 import mongoose from 'mongoose';
 
 import dealsRouter from '../src/routes/deals.js';
+import dispensariesRouter from '../src/routes/dispensaries.js';
+
 import './models/Application.js';
 import './models/Deal.js';
 import './models/Dispensary.js';
@@ -32,6 +34,8 @@ app.use((req, res, next) => {
 
 // Routes
 app.use('/deals', dealsRouter);
+app.use('/dispensaries', dispensariesRouter);
+
 
 app.get('/', (req, res) => res.send('Backend is running'));
 
