@@ -1,4 +1,11 @@
 require('dotenv').config();
+require('./models/Application');
+require('./models/Deal');
+require('./models/Dispensary');
+require('./models/Subscription');
+require('./models/SubscriptionTier');
+require('./models/User');
+
 const express = require('express');
 const mongoose = require('mongoose');
 const cors = require('cors');
