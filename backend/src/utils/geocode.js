@@ -30,3 +30,20 @@ export const getCoordinatesFromAddress = async (address) => {
     return null;
   }
 };
+
+// Helper function to calculate distance (in meters) between two [lng, lat] points
+export function getDistanceFromCoords(coord1, coord2) {
+  const toRad = (x) => (x * Math.PI) / 180;
+  const [lng1, lat1] = coord1;
+  const [lng2, lat2] = coord2;
+
+  const R = 6371000;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a =
+    Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+    Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  const dist = R * c;
+  return dist;
+}
