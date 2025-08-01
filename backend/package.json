@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "seed:dev": "NODE_ENV=development node scripts/seed.js",
+    "seed:prod": "NODE_ENV=production node scripts/seed.js",
     "start": "node index.js",
     "start:dev": "NODE_ENV=development node index.js",
     "start:prod": "NODE_ENV=production node index.js"
@@ -12,12 +14,14 @@
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "type": "commonjs",
+  "type": "module",
   "dependencies": {
     "@mapbox/mapbox-sdk": "^0.16.1",
+    "bcryptjs": "^3.0.2",
     "cors": "^2.8.5",
     "dotenv": "^17.2.1",
     "express": "^5.1.0",
-    "mongoose": "^8.17.0"
+    "mongoose": "^8.17.0",
+    "slugify": "^1.6.6"
   }
 }
