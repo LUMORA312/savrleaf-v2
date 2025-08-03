@@ -68,7 +68,6 @@ export default function Filters({
             onChange={(e) => handleChange('radius', e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           >
-            <option value="">All</option>
             <option value="5">5 miles</option>
             <option value="10">10 miles</option>
             <option value="25">25 miles</option>
