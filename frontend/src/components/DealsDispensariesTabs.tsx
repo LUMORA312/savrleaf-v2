@@ -1,0 +1,65 @@
+'use client';
+
+import { useState } from 'react';
+import { Deal, Dispensary } from '@/types';
+import DealCard from './DealCard';
+import DispensaryCard from './DispensaryCard';
+
+interface Props {
+  deals: Deal[];
+  dispensaries: Dispensary[];
+  loading?: boolean;
+}
+
+export default function DealsDispensariesTabs({ deals, dispensaries, loading = false }: Props) {
+  const [activeTab, setActiveTab] = useState<'deals' | 'dispensaries'>('deals');
+
+  const renderSkeletonCard = () => (
+    <div className="animate-pulse bg-gray-100 rounded-xl h-40 w-full" />
+  );
+
+  return (
+    <div className="max-w-7xl mx-auto px-6 my-10">
+      <div className="flex space-x-4 mb-6">
+        <button
+          className={`px-6 py-2 rounded-full text-sm font-semibold transition ${
+            activeTab === 'deals'
+              ? 'bg-orange-600 text-white shadow-md'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+          }`}
+          onClick={() => setActiveTab('deals')}
+        >
+          Deals
+        </button>
+        <button
+          className={`px-6 py-2 rounded-full text-sm font-semibold transition ${
+            activeTab === 'dispensaries'
+              ? 'bg-orange-600 text-white shadow-md'
+              : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+          }`}
+          onClick={() => setActiveTab('dispensaries')}
+        >
+          Dispensaries
+        </button>
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        {loading ? (
+          Array.from({ length: 6 }).map((_, i) => (
+            <div key={i} className="space-y-4">
+              {renderSkeletonCard()}
+              <div className="h-4 bg-gray-200 rounded w-2/3 animate-pulse" />
+              <div className="h-4 bg-gray-200 rounded w-1/2 animate-pulse" />
+            </div>
+          ))
+        ) : activeTab === 'deals' ? (
+          deals.map((deal) => <DealCard key={deal._id} deal={deal} />)
+        ) : (
+          dispensaries.map((dispensary) => (
+            <DispensaryCard key={dispensary._id} dispensary={dispensary} />
+          ))
+        )}
+      </div>
+    </div>
+  );
+}
