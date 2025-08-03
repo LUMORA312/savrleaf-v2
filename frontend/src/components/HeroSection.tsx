@@ -27,10 +27,13 @@ export default function HeroSection({
   return (
     <section className="relative bg-gradient-to-br from-orange-200 via-orange-100 to-orange-200 text-gray-900 pt-20 pb-12 font-sans">
       <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10 text-center">
-        <div className="flex justify-center mb-6">
+        <div className="flex justify-center mb-2">
           <img src={logo.src} alt="SavrLeaf Logo" className="w-20 h-20 object-contain" />
         </div>
-        <h2 className="text-3xl font-extrabold tracking-tight mb-10 leading-snug text-gray-900 max-w-lg mx-auto">
+        <span className="text-3xl font-semibold text-gray-900 tracking-tight">
+          SavrLeaf<sup className="text-xs align-super">™</sup>
+        </span>
+        <h2 className="text-3xl font-extrabold tracking-tight mt-4 mb-10 leading-snug text-gray-900 max-w-lg mx-auto">
           <span className="block">The First Cannabis Platform</span>
           <span className="block mt-1 text-gray-700 font-light">for Discounted and Sale Items Only</span>
         </h2>
