@@ -1,3 +1,4 @@
+import { AgeGateProvider } from "@/context/AgeGateContext";
 import "./globals.css";
 
 export const metadata = {
@@ -14,7 +15,9 @@ export default function RootLayout({
     <html lang="en">
       <head />
       <body className="antialiased">
-        {children}
+        <AgeGateProvider>
+          {children}
+        </AgeGateProvider>
       </body>
     </html>
   );
