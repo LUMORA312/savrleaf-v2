@@ -1,6 +1,5 @@
 'use client';
 
-import { useState } from 'react';
 import { Deal, Dispensary } from '@/types';
 import DealCard from './DealCard';
 import DispensaryCard from './DispensaryCard';
@@ -9,11 +8,11 @@ interface Props {
   deals: Deal[];
   dispensaries: Dispensary[];
   loading?: boolean;
+  activeTab: 'deals' | 'dispensaries';
+  setActiveTab: (tab: 'deals' | 'dispensaries') => void;
 }
 
-export default function DealsDispensariesTabs({ deals, dispensaries, loading = false }: Props) {
-  const [activeTab, setActiveTab] = useState<'deals' | 'dispensaries'>('deals');
-
+export default function DealsDispensariesTabs({ deals, dispensaries, loading = false, activeTab, setActiveTab }: Props) {
   const renderSkeletonCard = () => (
     <div className="animate-pulse bg-gray-100 rounded-xl h-40 w-full" />
   );
@@ -53,11 +52,11 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
             </div>
           ))
         ) : activeTab === 'deals' ? (
-          deals.map((deal) => <DealCard key={deal._id} deal={deal} />)
+          deals.length ? deals.map((deal) => <DealCard key={deal._id} deal={deal} />) : <p>No deals found.</p>
+        ) : dispensaries.length ? (
+          dispensaries.map((dispensary) => <DispensaryCard key={dispensary._id} dispensary={dispensary} />)
         ) : (
-          dispensaries.map((dispensary) => (
-            <DispensaryCard key={dispensary._id} dispensary={dispensary} />
-          ))
+          <p>No dispensaries found.</p>
         )}
       </div>
     </div>

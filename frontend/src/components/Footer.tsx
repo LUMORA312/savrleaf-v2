@@ -53,7 +53,7 @@ export default function Footer() {
                 ['Contact Us', '/contact'],
               ].map(([label, path]) => (
                 <li key={path}>
-                  <Link className="text-gray-300 hover:text-green-400 transition" href={path} legacyBehavior>
+                  <Link className="text-gray-300 hover:text-green-400 transition" href={path}>
                     {label}
                   </Link>
                 </li>
