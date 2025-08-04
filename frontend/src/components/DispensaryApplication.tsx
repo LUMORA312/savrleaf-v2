@@ -218,7 +218,7 @@ export default function DispensaryApplicationForm() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full sm:w-auto px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition"
+              className="w-full sm:w-auto px-6 py-3 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg shadow-md disabled:opacity-50 disabled:cursor-not-allowed transition cursor-pointer"
             >
               {isSubmitting ? 'Submitting...' : 'Submit Application'}
             </button>

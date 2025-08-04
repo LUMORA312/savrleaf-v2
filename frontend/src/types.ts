@@ -53,3 +53,18 @@ export interface Deal {
   createdAt?: string;
   updatedAt?: string;
 }
+
+export type SubscriptionTier = {
+  _id: string;
+  name: string;
+  displayName: string;
+  tier: number;
+  baseSKULimit: number;
+  monthlyPrice: number;
+  annualPrice: number;
+  annualBonusSKUs: number;
+  description?: string;
+  features: string[];
+  isActive: boolean;
+  sortOrder?: number;
+};
