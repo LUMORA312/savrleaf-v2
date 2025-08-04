@@ -5,6 +5,7 @@ import mongoose from 'mongoose';
 
 import dealsRouter from '../src/routes/deals.js';
 import dispensariesRouter from '../src/routes/dispensaries.js';
+import applicationsRouter from '../src/routes/applications.js';
 
 import './models/Application.js';
 import './models/Deal.js';
@@ -35,7 +36,7 @@ app.use((req, res, next) => {
 // Routes
 app.use('/deals', dealsRouter);
 app.use('/dispensaries', dispensariesRouter);
-
+app.use('/applications', applicationsRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 

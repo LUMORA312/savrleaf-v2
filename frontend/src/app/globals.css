@@ -1,9 +1,13 @@
 @import "tailwindcss";
 
 :root {
+  --primary: #f97316;
+  --primary-dark: #ea580c;
+  --primary-light: #fdba74;
   --background: #ffffff;
-  --foreground: #1f2937;
+  --foreground: #111827;
 }
+
 
 @theme inline {
   --color-background: var(--background);
@@ -38,4 +42,8 @@ body {
 
 .card-shake:hover {
   animation: subtleShake 0.4s ease-in-out;
+}
+
+.input {
+  @apply w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500;
 }

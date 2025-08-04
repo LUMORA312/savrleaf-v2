@@ -1,5 +1,6 @@
 import { AgeGateProvider } from "@/context/AgeGateContext";
 import "./globals.css";
+import { AuthProvider } from "@/context/AuthContext";
 
 export const metadata = {
   title: "SavrLeaf",
@@ -13,12 +14,14 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <head />
-      <body className="antialiased">
-        <AgeGateProvider>
-          {children}
-        </AgeGateProvider>
-      </body>
+      <AuthProvider>
+        <head />
+        <body className="antialiased">
+          <AgeGateProvider>
+            {children}
+          </AgeGateProvider>
+        </body>
+      </AuthProvider>
     </html>
   );
 }
