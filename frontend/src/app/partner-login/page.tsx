@@ -1,0 +1,88 @@
+'use client';
+
+import { useState } from 'react';
+import axios from 'axios';
+import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
+import Footer from '@/components/Footer';
+
+export default function PartnerLogin() {
+  const [email, setEmail] = useState<string>('');
+  const [password, setPassword] = useState<string>('');
+  const [error, setError] = useState<string>('');
+  const router = useRouter();
+
+  const handleSubmit = async (e: React.FormEvent) => {
+  e.preventDefault();
+  setError('');
+  try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
+      email,
+      password,
+      });
+      const { token, user } = res.data;
+      localStorage.setItem('token', token);
+      router.push('/partner-dashboard');
+  } catch (err: any) {
+      console.error('Login error:', err);
+
+      if (err.response?.data?.message) {
+      setError(err.response.data.message);
+      } else if (err.message) {
+      setError(err.message);
+      } else {
+      setError('Login failed');
+      }
+  }
+  };
+
+  return (
+    <>
+      <Header />
+      <main className="min-h-screen py-10 bg-gradient-to-br from-orange-50 to-white px-4 md:px-16 flex flex-col items-center">
+        <h1 className="text-3xl font-bold text-center text-orange-800 mb-8">
+          Partner Login
+        </h1>
+
+        {error && (
+          <div className="mb-4 p-3 bg-red-100 text-red-700 rounded w-full max-w-md text-center">
+            {error}
+          </div>
+        )}
+
+        <form
+          onSubmit={handleSubmit}
+          className="w-full max-w-md bg-white p-6 rounded shadow-md flex flex-col gap-4"
+        >
+          <input
+            type="email"
+            placeholder="Email"
+            className="border border-gray-300 rounded p-3"
+            value={email}
+            onChange={(e) => setEmail(e.target.value)}
+            required
+            autoComplete="email"
+          />
+          <input
+            type="password"
+            placeholder="Password"
+            className="border border-gray-300 rounded p-3"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
+            minLength={6}
+            autoComplete="current-password"
+          />
+
+          <button
+            type="submit"
+            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded transition"
+          >
+            Log In
+          </button>
+        </form>
+      </main>
+      <Footer />
+    </>
+  );
+}
