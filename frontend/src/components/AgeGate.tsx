@@ -40,13 +40,13 @@ export default function AgeGateOverlay() {
         </p>
         <div className="flex space-x-6">
           <button
-            className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-white text-lg font-semibold rounded-xl shadow-lg transition"
+            className="px-6 py-3 bg-orange-500 hover:bg-orange-400 text-white text-lg font-semibold rounded-xl shadow-lg transition cursor-pointer"
             onClick={() => setIs21(true)}
           >
             Yes, I am
           </button>
           <button
-            className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white text-lg font-semibold rounded-xl shadow-lg transition"
+            className="px-6 py-3 bg-gray-600 hover:bg-gray-500 text-white text-lg font-semibold rounded-xl shadow-lg transition cursor-pointer"
             onClick={() => setIs21(false)}
           >
             No
