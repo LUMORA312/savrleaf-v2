@@ -52,7 +52,7 @@ export default function PartnerLogin() {
 
         <form
           onSubmit={handleSubmit}
-          className="w-full max-w-md bg-white p-6 rounded shadow-md flex flex-col gap-4"
+          className="max-w-5xl mx-auto bg-white p-8 sm:p-10 rounded-3xl shadow-2xl border border-orange-100 flex flex-col gap-4"
         >
           <input
             type="email"
@@ -80,6 +80,17 @@ export default function PartnerLogin() {
           >
             Log In
           </button>
+
+          <div className="text-center mt-2">
+            <span className="text-sm text-gray-600">Not a partner yet? </span>
+            <button
+              type="button"
+              className="text-orange-700 font-medium hover:underline text-sm"
+              onClick={() => router.push('/partner-signup')}
+            >
+              Apply to be a partner instead
+            </button>
+          </div>
         </form>
       </main>
       <Footer />
