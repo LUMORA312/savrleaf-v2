@@ -8,48 +8,91 @@ import DealsList from './components/DealsList';
 import DealForm from './components/DealForm';
 import UserInfo from './components/UserInfo';
 import DispensaryInfo from './components/DispensaryInfo';
+import axios from 'axios';
+
+interface OverviewData {
+  totalDeals: number;
+  totalDispensaries: number;
+  activeDeals: number;
+}
 
 export default function PartnerDashboardPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
+
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showDealForm, setShowDealForm] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [overview, setOverview] = useState<OverviewData | null>(null);
+  const [dispensaries, setDispensaries] = useState<any[]>([]);
+  const [deals, setDeals] = useState<any[]>([]);
+  const [fetching, setFetching] = useState(true);
+  const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
     if (!loading) {
       if (!isAuthenticated || user?.role !== 'partner') {
         router.replace('/partner-login');
+        return;
       }
-    }
-    setLoading(false);
-  }, [isAuthenticated, user, router, loading]);
 
-  if (loading) {
+      // Fetch dashboard data
+      const fetchDashboard = async () => {
+        try {
+          const token = localStorage.getItem('token');
+          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          });
+
+          setOverview(res.data.overview);
+          setDispensaries(res.data.dispensaries);
+          setDeals(res.data.deals);
+          setFetching(false);
+        } catch (err) {
+          console.error('Dashboard fetch error:', err);
+          setFetchError('Failed to load dashboard data');
+          setFetching(false);
+        }
+      };
+
+      fetchDashboard();
+    }
+  }, [loading, isAuthenticated, user, router]);
+
+  if (loading || fetching) {
     return (
       <div className="flex items-center justify-center min-h-screen">
-        <p>Loading...</p>
+        <p>Loading dashboard...</p>
       </div>
     );
   }
 
-  if (!isAuthenticated || user?.role !== 'partner') {
-    return null;
+  if (fetchError) {
+    return (
+      <div className="flex items-center justify-center min-h-screen text-red-600">
+        <p>{fetchError}</p>
+      </div>
+    );
   }
 
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
       {activeTab === 'overview' && (
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white p-6 rounded-xl shadow">
+        <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center">
             <h3 className="text-lg font-semibold">Total Deals</h3>
-            <p className="text-3xl font-bold mt-2">8</p>
+            <p className="text-4xl font-bold mt-2">{overview?.totalDeals}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center">
+            <h3 className="text-lg font-semibold">Active Deals</h3>
+            <p className="text-4xl font-bold mt-2">{overview?.activeDeals}</p>
+          </div>
+          <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center">
             <h3 className="text-lg font-semibold">Dispensaries</h3>
-            <p className="text-3xl font-bold mt-2">1</p>
+            <p className="text-4xl font-bold mt-2">{overview?.totalDispensaries}</p>
           </div>
-          <div className="bg-white p-6 rounded-xl shadow">
+          <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center">
             <h3 className="text-lg font-semibold">Status</h3>
             <p className="text-lg mt-2 text-green-600 font-bold">Approved</p>
           </div>
@@ -67,12 +110,12 @@ export default function PartnerDashboardPage() {
               + Add Deal
             </button>
           </div>
-          <DealsList />
+          <DealsList deals={deals} />
         </>
       )}
 
-      {activeTab === 'dispensary' && <DispensaryInfo />}
-      {activeTab === 'user' && <UserInfo />}
+      {activeTab === 'dispensary' && <DispensaryInfo dispensaries={dispensaries} />}
+      {activeTab === 'user' && <UserInfo user={user} />}
 
       {showDealForm && <DealForm onClose={() => setShowDealForm(false)} />}
     </DashboardLayout>

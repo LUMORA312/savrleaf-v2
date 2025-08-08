@@ -1,34 +1,103 @@
-'use client';
+import { Dispensary } from '@/types';
+import React from 'react';
 
-export default function DispensaryInfo() {
-  const dispensary = {
-    name: 'GreenLeaf Dispensary',
-    legalName: 'GreenLeaf LLC',
-    status: 'Approved',
-    address: '123 Main St, Denver, CO 80205',
-    phone: '(123) 456-7890',
-    website: 'https://greenleaf.com',
-  };
+interface DispensaryInfoProps {
+  dispensaries: Dispensary[];
+}
+
+export default function DispensaryInfo({ dispensaries }: DispensaryInfoProps) {
+  if (!dispensaries || dispensaries.length === 0) {
+    return <p>No dispensaries found.</p>;
+  }
 
   return (
-    <div className="bg-white p-6 rounded-xl shadow space-y-4 max-w-lg">
-      <h2 className="text-2xl font-bold">Dispensary Information</h2>
-      <p><strong>Name:</strong> {dispensary.name}</p>
-      <p><strong>Legal Name:</strong> {dispensary.legalName}</p>
-      <p><strong>Status:</strong> <span className="text-green-600 font-semibold">{dispensary.status}</span></p>
-      <p><strong>Address:</strong> {dispensary.address}</p>
-      <p><strong>Phone:</strong> {dispensary.phone}</p>
-      <p>
-        <strong>Website:</strong>{' '}
-        <a href={dispensary.website} target="_blank" className="text-green-600 hover:underline">
-          {dispensary.website}
-        </a>
-      </p>
-      <div>
-        <button className="mt-2 bg-gray-200 px-3 py-1 rounded hover:bg-gray-300">
-          Contact Admin to Edit
-        </button>
-      </div>
+    <div className="space-y-6">
+      {dispensaries.map((dispensary) => (
+        <div
+          key={dispensary._id}
+          className="bg-white p-6 rounded-xl shadow-md flex flex-col md:flex-row gap-6"
+        >
+          {dispensary.logo && (
+            <img
+              src={dispensary.logo}
+              alt={`${dispensary.name} logo`}
+              className="w-32 h-32 object-contain rounded-md"
+            />
+          )}
+
+          <div className="flex-1">
+            <h2 className="text-2xl font-bold mb-2">{dispensary.name}</h2>
+            <p className="text-sm text-gray-600 mb-2 italic">{dispensary.legalName}</p>
+
+            <p className="mb-2">
+              <strong>Address:</strong>{' '}
+              {dispensary.address.street1}
+              {dispensary.address.street2 && `, ${dispensary.address.street2}`},{' '}
+              {dispensary.address.city}, {dispensary.address.state} {dispensary.address.zipCode}
+            </p>
+
+            {dispensary.phoneNumber && (
+              <p className="mb-2">
+                <strong>Phone:</strong> {dispensary.phoneNumber}
+              </p>
+            )}
+
+            {dispensary.websiteUrl && (
+              <p className="mb-2">
+                <strong>Website:</strong>{' '}
+                <a href={dispensary.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
+                  {dispensary.websiteUrl}
+                </a>
+              </p>
+            )}
+
+            {dispensary.status && (
+              <p className="mb-2">
+                <strong>Status:</strong>{' '}
+                <span
+                  className={`font-semibold ${
+                    dispensary.status === 'approved'
+                      ? 'text-green-600'
+                      : dispensary.status === 'pending'
+                      ? 'text-yellow-600'
+                      : 'text-red-600'
+                  }`}
+                >
+                  {dispensary.status.charAt(0).toUpperCase() + dispensary.status.slice(1)}
+                </span>
+              </p>
+            )}
+
+            {dispensary.description && (
+              <p className="mb-2">{dispensary.description}</p>
+            )}
+
+            {dispensary.amenities && dispensary.amenities.length > 0 && (
+              <div className="mb-2">
+                <strong>Amenities:</strong>
+                <ul className="list-disc list-inside">
+                  {dispensary.amenities.map((amenity, idx) => (
+                    <li key={idx}>{amenity}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+
+            {dispensary.hours && (
+              <div>
+                <strong>Hours:</strong>
+                <ul className="list-none">
+                  {Object.entries(dispensary.hours).map(([day, hours]) => (
+                    <li key={day}>
+                      <span className="capitalize">{day}:</span> {hours}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </div>
+        </div>
+      ))}
     </div>
   );
 }

@@ -68,3 +68,11 @@ export type SubscriptionTier = {
   isActive: boolean;
   sortOrder?: number;
 };
+
+export interface User {
+  id: string;
+  email: string;
+  role: string;
+  firstName?: string;
+  lastName?: string;
+}

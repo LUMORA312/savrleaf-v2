@@ -9,6 +9,7 @@ import dispensariesRouter from '../src/routes/dispensaries.js';
 import applicationsRouter from '../src/routes/applications.js';
 import subscriptionTiersRouter from '../src/routes/subscriptionTiers.js';
 import authRouter from '../src/routes/auth.js';
+import partnersRouter from '../src/routes/partners.js';
 
 import './models/Application.js';
 import './models/Deal.js';
@@ -55,6 +56,7 @@ app.use('/dispensaries', dispensariesRouter);
 app.use('/applications', applicationsRouter);
 app.use('/subscription-tiers', subscriptionTiersRouter);
 app.use('/auth', authRouter);
+app.use('/partner', partnersRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 
