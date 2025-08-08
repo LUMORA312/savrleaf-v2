@@ -18,10 +18,13 @@ router.get('/', async (req, res) => {
       sortBy = 'distance',
       limit = 50,
       page = 1,
+      dispensaryId
     } = req.query;
 
     const filters = {};
-
+    if (dispensaryId) {
+      filters.dispensary = dispensaryId;
+    }
     if (category) filters.category = category;
     if (brand) filters.brand = brand;
 

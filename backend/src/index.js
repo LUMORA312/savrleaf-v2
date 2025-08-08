@@ -2,6 +2,7 @@ import dotenv from 'dotenv';
 import express from 'express';
 import cors from 'cors';
 import mongoose from 'mongoose';
+import session from 'express-session';
 
 import dealsRouter from '../src/routes/deals.js';
 import dispensariesRouter from '../src/routes/dispensaries.js';
@@ -24,7 +25,20 @@ const app = express();
 
 app.use(cors({
   // TO DO: RESTRICT
-  origin: '*',
+  origin: 'http://localhost:3000',
+  credentials: true,
+}));
+
+app.use(session({
+  secret: process.env.JWT_SECRET,
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    httpOnly: true,
+    secure: false,
+    sameSite: 'lax',
+    maxAge: 24 * 60 * 60 * 1000,
+  },
 }));
 
 app.use(express.json());

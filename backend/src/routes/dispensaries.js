@@ -1,6 +1,8 @@
 import express from 'express';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
+import authMiddleware from '../middleware/authMiddleware.js';
+import mongoose from 'mongoose';
 
 const router = express.Router();
 
@@ -92,6 +94,21 @@ router.get('/', async (req, res) => {
   } catch (err) {
     console.error('Error fetching dispensaries:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+router.get('/my', authMiddleware, async (req, res) => {
+  try {
+    const dispensaries = await Dispensary.find({ user: req.user._id });
+
+    if (!dispensaries || dispensaries.length === 0) {
+      return res.status(404).json({ message: 'Dispensary not found for this user' });
+    }
+
+    res.json(dispensaries);
+  } catch (err) {
+    console.error('Error in /dispensaries/my:', err);
+    res.status(500).json({ message: 'Server error' });
   }
 });
 
