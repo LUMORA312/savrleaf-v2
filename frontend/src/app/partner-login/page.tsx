@@ -13,27 +13,28 @@ export default function PartnerLogin() {
   const router = useRouter();
 
   const handleSubmit = async (e: React.FormEvent) => {
-  e.preventDefault();
-  setError('');
-  try {
+    e.preventDefault();
+    setError('');
+    try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
-      email,
-      password,
+        email,
+        password,
       });
       const { token, user } = res.data;
-      localStorage.setItem('token', token);
-      router.push('/partner-dashboard');
-  } catch (err: any) {
-      console.error('Login error:', err);
 
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));  // <-- store user here
+      router.push('/partner-dashboard');
+    } catch (err: any) {
+      console.error('Login error:', err);
       if (err.response?.data?.message) {
-      setError(err.response.data.message);
+        setError(err.response.data.message);
       } else if (err.message) {
-      setError(err.message);
+        setError(err.message);
       } else {
-      setError('Login failed');
+        setError('Login failed');
       }
-  }
+    }
   };
 
   return (
