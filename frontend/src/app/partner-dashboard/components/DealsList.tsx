@@ -108,7 +108,7 @@ export default function DealsList({ deals, onEdit, onDelete }: DealsListProps) {
             <div className="mt-4 flex gap-3">
               <button
                 onClick={() => onEdit && onEdit(deal)}
-                className="flex-1 flex items-center justify-center gap-2 bg-orange-400 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 text-white py-2 rounded-lg text-sm font-semibold shadow-md transition"
+                className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 text-white py-2 rounded-lg text-sm font-semibold shadow-md transition"
                 aria-label={`Edit ${deal.title}`}
                 type="button"
               >

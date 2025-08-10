@@ -18,23 +18,23 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   ];
 
   return (
-    <aside className="w-64 bg-white shadow flex flex-col">
-      <div className="h-16 px-4 flex items-center">
+    <aside className="w-64 bg-white shadow-lg flex flex-col">
+      <div className="h-16 px-6 flex items-center">
         <Image src={logo} alt="SavrLeaf Logo" className="h-8 w-auto" priority />
-        <span className="ml-2 text-lg font-semibold text-gray-900">
+        <span className="ml-3 text-xl font-extrabold text-orange-700 tracking-wide select-none">
           SavrLeaf<sup className="text-xs align-super">™</sup>
         </span>
       </div>
 
-      <nav className="flex-1 p-4 space-y-2">
+      <nav className="flex-1 p-2 space-y-3 bg-white">
         {navItems.map((item) => (
           <button
             key={item.key}
             onClick={() => onTabChange(item.key)}
-            className={`w-full text-left px-3 py-2 rounded transition cursor-pointer ${
+            className={`w-full text-left px-4 py-3 rounded-lg cursor-pointer transition-all duration-200 flex items-center gap-3 text-sm font-semibold ${
               activeTab === item.key
-                ? 'bg-green-100 text-green-700 font-semibold'
-                : 'hover:bg-gray-100 text-gray-700'
+                ? 'bg-orange-100 text-orange-800 shadow-inner'
+                : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
             }`}
           >
             {item.label}
