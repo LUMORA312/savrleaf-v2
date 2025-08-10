@@ -29,35 +29,32 @@ export default function PartnerDashboardPage() {
   const [fetchError, setFetchError] = useState('');
 
   useEffect(() => {
-    if (!loading) {
+      if (loading) return;
+
       if (!isAuthenticated || user?.role !== 'partner') {
-        router.replace('/partner-login');
-        return;
+          router.replace('/partner-login');
+          return;
       }
 
-      // Fetch dashboard data
       const fetchDashboard = async () => {
-        try {
-          const token = localStorage.getItem('token');
-          const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          });
+          try {
+              const token = localStorage.getItem('token');
+              const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
+                  headers: { Authorization: `Bearer ${token}` },
+              });
 
-          setOverview(res.data.overview);
-          setDispensaries(res.data.dispensaries);
-          setDeals(res.data.deals);
-          setFetching(false);
-        } catch (err) {
-          console.error('Dashboard fetch error:', err);
-          setFetchError('Failed to load dashboard data');
-          setFetching(false);
-        }
+              setOverview(res.data.overview);
+              setDispensaries(res.data.dispensaries);
+              setDeals(res.data.deals);
+          } catch (err) {
+              console.error('Dashboard fetch error:', err);
+              setFetchError('Failed to load dashboard data');
+          } finally {
+              setFetching(false);
+          }
       };
 
       fetchDashboard();
-    }
   }, [loading, isAuthenticated, user, router]);
 
   if (loading || fetching) {

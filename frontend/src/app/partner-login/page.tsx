@@ -23,7 +23,7 @@ export default function PartnerLogin() {
       const { token, user } = res.data;
 
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));  // <-- store user here
+      localStorage.setItem('user', JSON.stringify(user));
       router.push('/partner-dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
