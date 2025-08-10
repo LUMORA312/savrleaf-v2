@@ -57,7 +57,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setUser(null);
       setIsAuthenticated(false);
     }
-    setLoading(false);  // <-- done loading after initial check
+    setLoading(false);
   }, []);
 
   const login = (token: string, userData: User) => {
