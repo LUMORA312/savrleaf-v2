@@ -3,11 +3,25 @@
 import { TabKey } from './DashboardLayout';
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
+import {
+  Home,
+  Tag,
+  Store,
+  User,
+} from 'lucide-react';
+import { JSX } from 'react';
 
 interface SidebarProps {
   activeTab: TabKey;
   onTabChange: (tabKey: TabKey) => void;
 }
+
+const iconMap: Record<TabKey, JSX.Element> = {
+  overview: <Home className="w-5 h-5" />,
+  deals: <Tag className="w-5 h-5" />,
+  dispensary: <Store className="w-5 h-5" />,
+  user: <User className="w-5 h-5" />,
+};
 
 export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   const navItems: { key: TabKey; label: string }[] = [
@@ -37,6 +51,13 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
                 : 'text-gray-700 hover:bg-orange-50 hover:text-orange-600'
             }`}
           >
+            <span
+              className={`flex items-center justify-center ${
+                activeTab === item.key ? 'text-orange-700' : 'text-gray-400'
+              }`}
+            >
+              {iconMap[item.key]}
+            </span>
             {item.label}
           </button>
         ))}
