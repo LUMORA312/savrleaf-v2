@@ -40,6 +40,7 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
         totalDeals,
         totalDispensaries,
         activeDeals,
+        isUserActive: user.isActive,
       },
       dispensaries,
       deals,
