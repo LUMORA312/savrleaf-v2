@@ -113,4 +113,77 @@ router.get('/', async (req, res) => {
   }
 });
 
+router.post('/', async (req, res) => {
+  try {
+    const {
+      title,
+      description,
+      originalPrice,
+      salePrice,
+      category,
+      brand,
+      startDate,
+      endDate,
+      accessType,
+      tags,
+      dispensary,
+      images
+    } = req.body;
+
+    const newDeal = new Deal({
+      title,
+      description,
+      originalPrice,
+      salePrice,
+      category,
+      brand,
+      startDate,
+      endDate,
+      accessType,
+      tags,
+      dispensary,
+      images
+    });
+
+    const savedDeal = await newDeal.save();
+    res.status(201).json({ success: true, deal: savedDeal });
+  } catch (err) {
+    console.error('Error creating deal:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+router.put('/:id', async (req, res) => {
+  try {
+    const updatedDeal = await Deal.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+      runValidators: true
+    });
+
+    if (!updatedDeal) {
+      return res.status(404).json({ success: false, message: 'Deal not found' });
+    }
+
+    res.json({ success: true, deal: updatedDeal });
+  } catch (err) {
+    console.error('Error updating deal:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+router.delete('/:id', async (req, res) => {
+  try {
+    const deletedDeal = await Deal.findByIdAndDelete(req.params.id);
+
+    if (!deletedDeal) {
+      return res.status(404).json({ success: false, message: 'Deal not found' });
+    }
+
+    res.json({ success: true, message: 'Deal deleted successfully' });
+  } catch (err) {
+    console.error('Error deleting deal:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
 export default router;

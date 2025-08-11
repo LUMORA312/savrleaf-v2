@@ -11,19 +11,30 @@ const dealSchema = new mongoose.Schema(
     salePrice: {
       type: Number,
       required: true,
-      validate: {
-        validator: function (v) {
-          return v <= this.originalPrice;
-        },
-        message: 'Sale price must be less than or equal to original price',
-      },
     },
     images: [{ type: String }],
     dispensary: { type: mongoose.Schema.Types.ObjectId, ref: 'Dispensary', required: true },
     startDate: {
       type: Date,
       required: true,
-      min: [new Date(), 'Start date must be today or in the future'],
+      validate: {
+        validator: function (value) {
+          if (!value) return false;
+
+          const inputDate = new Date(value);
+          const today = new Date();
+
+          // Compare year, month, day explicitly
+          return (
+            inputDate.getFullYear() > today.getFullYear() ||
+            (inputDate.getFullYear() === today.getFullYear() &&
+              (inputDate.getMonth() > today.getMonth() ||
+                (inputDate.getMonth() === today.getMonth() &&
+                  inputDate.getDate() >= today.getDate())))
+          );
+        },
+        message: 'Start date must be today or in the future',
+      },
     },
     endDate: { type: Date, required: true },
     accessType: {
@@ -92,6 +103,14 @@ dealSchema.pre('save', function (next) {
 dealSchema.pre('validate', function (next) {
   if (this.startDate >= this.endDate) {
     this.invalidate('startDate', 'Start date must be before end date');
+  }
+  next();
+});
+
+// Custom validation: salePrice must be <= originalPrice
+dealSchema.pre('validate', function (next) {
+  if (this.salePrice > this.originalPrice) {
+    this.invalidate('salePrice', 'Sale price must be less than or equal to original price');
   }
   next();
 });

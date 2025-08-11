@@ -5,10 +5,11 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout, { TabKey } from './components/DashboardLayout';
 import DealsList from './components/DealsList';
-import DealForm from './components/DealForm';
 import UserInfo from './components/UserInfo';
 import DispensaryInfo from './components/DispensaryInfo';
 import axios from 'axios';
+import Modal from '@/components/Modal';
+import DealForm from '@/components/DealForm';
 
 interface OverviewData {
   totalDeals: number;
@@ -23,6 +24,7 @@ export default function PartnerDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showDealForm, setShowDealForm] = useState(false);
+  const [selectedDeal, setSelectedDeal] = useState<any | null>(null);
   const [overview, setOverview] = useState<OverviewData | null>(null);
   const [dispensaries, setDispensaries] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
@@ -72,6 +74,24 @@ export default function PartnerDashboardPage() {
       </div>
     );
   }
+
+  const handleEditDeal = (deal: any) => {
+    setSelectedDeal(deal);
+    setShowDealForm(true);
+  };
+
+  const handleSaveDeal = (savedDeal: any) => {
+    if (selectedDeal) {
+      setDeals((prev) => prev.map((d) => (d._id === savedDeal._id ? savedDeal : d)));
+    } else {
+      setDeals((prev) => [savedDeal, ...prev]);
+    }
+    setShowDealForm(false);
+  };
+
+  const handleCancelForm = () => {
+    setShowDealForm(false);
+  };
 
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab}>
@@ -141,14 +161,23 @@ export default function PartnerDashboardPage() {
               Add Deal
             </button>
           </div>
-          <DealsList deals={deals} />
+          <DealsList deals={deals} setDeals={setDeals} onEdit={handleEditDeal} />
         </>
       )}
 
       {activeTab === 'dispensary' && <DispensaryInfo dispensaries={dispensaries} />}
       {activeTab === 'user' && <UserInfo user={user} />}
 
-      {showDealForm && <DealForm onClose={() => setShowDealForm(false)} />}
+      {showDealForm && (
+        <Modal isOpen={true} onClose={handleCancelForm}>
+          <DealForm
+            initialData={selectedDeal}
+            onSave={handleSaveDeal}
+            onCancel={handleCancelForm}
+            dispensaryOptions={dispensaries}
+          />
+        </Modal>
+      )}
     </DashboardLayout>
   );
 }
