@@ -14,6 +14,30 @@ const dealSchema = new mongoose.Schema(
     },
     images: [{ type: String }],
     dispensary: { type: mongoose.Schema.Types.ObjectId, ref: 'Dispensary', required: true },
+    category: {
+      type: String,
+      required: true,
+      enum: ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories', 'other'],
+      lowercase: true
+    },
+    subcategory: {
+      type: String,
+      trim: true
+    },
+    strain: {
+      type: String,
+      trim: true
+    },
+    thcContent: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
+    cbdContent: {
+      type: Number,
+      min: 0,
+      max: 100
+    },
     startDate: {
       type: Date,
       required: true,
