@@ -91,6 +91,33 @@ export default function PublicHomepage() {
       result = result.filter(d => d.accessType === filters.accessType);
     }
 
+    // THC filter
+    if (filters.thcMin !== undefined) {
+      result = result.filter(d => d.thcContent !== undefined && d.thcContent >= filters.thcMin!);
+    }
+    if (filters.thcMax !== undefined) {
+      result = result.filter(d => d.thcContent !== undefined && d.thcContent <= filters.thcMax!);
+    }
+
+    // CBD filter
+    if (filters.cbdMin !== undefined) {
+      result = result.filter(d => d.cbdContent !== undefined && d.cbdContent >= filters.cbdMin!);
+    }
+    if (filters.cbdMax !== undefined) {
+      result = result.filter(d => d.cbdContent !== undefined && d.cbdContent <= filters.cbdMax!);
+    }
+
+    // Strain filter
+    if (filters.strain) {
+      const term = filters.strain.toLowerCase();
+      result = result.filter(d => d.strain?.toLowerCase().includes(term));
+    }
+
+    // Category filter
+    if (filters.category) {
+      result = result.filter(d => d.category === filters.category);
+    }
+
     if (filters.searchTerm && filters.searchTerm.length > 0) {
       const term = filters.searchTerm.toLowerCase();
       result = result.filter(d =>

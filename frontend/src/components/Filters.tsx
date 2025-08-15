@@ -17,6 +17,12 @@ export interface FilterValues {
   amenities: string[];
   searchTerm?: string;
   zipCode?: string;
+  thcMin?: number;
+  thcMax?: number;
+  cbdMin?: number;
+  cbdMax?: number;
+  strain?: string;
+  category?: string;
 }
 
 export default function Filters({
@@ -55,6 +61,87 @@ export default function Filters({
               <option value="both">Both</option>
               <option value="medical">Medical</option>
               <option value="recreational">Recreational</option>
+            </select>
+          </div>
+        )}
+
+        {/* THC % */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">THC %</label>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                placeholder="Min"
+                value={localFilters.thcMin || ''}
+                onChange={(e) => handleChange('thcMin', e.target.value ? Number(e.target.value) : undefined)}
+                className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                value={localFilters.thcMax || ''}
+                onChange={(e) => handleChange('thcMax', e.target.value ? Number(e.target.value) : undefined)}
+                className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* CBD % */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">CBD %</label>
+            <div className="flex space-x-2">
+              <input
+                type="number"
+                placeholder="Min"
+                value={localFilters.cbdMin || ''}
+                onChange={(e) => handleChange('cbdMin', e.target.value ? Number(e.target.value) : undefined)}
+                className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+              <input
+                type="number"
+                placeholder="Max"
+                value={localFilters.cbdMax || ''}
+                onChange={(e) => handleChange('cbdMax', e.target.value ? Number(e.target.value) : undefined)}
+                className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
+              />
+            </div>
+          </div>
+        )}
+
+        {/* Strain */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">Strain</label>
+            <input
+              type="text"
+              placeholder="Enter strain"
+              value={localFilters.strain || ''}
+              onChange={(e) => handleChange('strain', e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+
+        {/* Category */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">Category</label>
+            <select
+              value={localFilters.category || ''}
+              onChange={(e) => handleChange('category', e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            >
+              <option value="">All</option>
+              <option value="flower">Flower</option>
+              <option value="edibles">Edibles</option>
+              <option value="concentrates">Concentrates</option>
+              <option value="vapes">Vapes</option>
+              <option value="topicals">Topicals</option>
+              <option value="accessories">Accessories</option>
+              <option value="other">Other</option>
             </select>
           </div>
         )}

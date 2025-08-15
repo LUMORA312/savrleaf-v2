@@ -50,6 +50,11 @@ export interface Deal {
   accessType: 'medical' | 'recreational' | 'both';
   slug?: string;
   manuallyActivated: boolean;
+  category: 'flower' | 'edibles' | 'concentrates' | 'vapes' | 'topicals' | 'accessories' | 'other';
+  subcategory?: string;
+  strain?: string;
+  thcContent?: number;
+  cbdContent?: number;
   createdAt?: string;
   updatedAt?: string;
 }
