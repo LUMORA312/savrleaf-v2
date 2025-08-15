@@ -123,7 +123,11 @@ export default function PublicHomepage() {
       result = result.filter(d =>
         d.title.toLowerCase().includes(term) ||
         (d.brand?.toLowerCase().includes(term)) ||
-        d.tags.some(tag => tag.toLowerCase().includes(term))
+        d.tags.some(tag => tag.toLowerCase().includes(term)) ||
+        (d.description?.toLowerCase().includes(term)) ||
+        (d.strain?.toLowerCase().includes(term)) ||
+        (d.category?.toLowerCase().includes(term)) ||
+        (d.subcategory?.toLowerCase().includes(term))
       );
     }
 
