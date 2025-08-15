@@ -1,5 +1,4 @@
 'use client';
-
 import React from 'react';
 
 interface Column<T> {
@@ -12,37 +11,44 @@ interface AdminTableProps<T> {
   columns: Column<T>[];
   data: T[];
   actions?: (item: T) => React.ReactNode;
+  onRowClick?: any;
 }
 
 export default function AdminTable<T extends { _id: string }>({
   columns,
   data,
   actions,
+  onRowClick,
 }: AdminTableProps<T>) {
   return (
-    <table className="min-w-full bg-white shadow rounded-xl overflow-hidden">
-      <thead>
-        <tr className="bg-orange-100">
-          {columns.map((col) => (
-            <th key={col.key as string} className="px-4 py-2 text-left">
-              {col.label}
-            </th>
-          ))}
-          {actions && <th className="px-4 py-2">Actions</th>}
-        </tr>
-      </thead>
-      <tbody>
-        {data.map((item) => (
-          <tr key={item._id} className="border-b hover:bg-orange-50">
-            {columns.map((col) => (
-              <td key={col.key as string} className="px-4 py-2">
-                {col.render ? col.render(item) : (item as any)[col.key]}
-              </td>
-            ))}
-            {actions && <td className="px-4 py-2 flex gap-2">{actions(item)}</td>}
-          </tr>
+    <div className="w-full space-y-2">
+      <div className="hidden md:grid bg-orange-100 rounded-xl p-4 md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:gap-4 font-semibold text-gray-700">
+        {columns.map((col) => (
+          <div key={col.key as string}>{col.label}</div>
         ))}
-      </tbody>
-    </table>
+        {actions && <div>Actions</div>}
+      </div>
+
+      <div className="space-y-4">
+        {data.map((item) => (
+          <div
+            key={item._id}
+            onClick={() => onRowClick?.(item)}
+            className="bg-white shadow-md rounded-xl p-4 md:grid md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:gap-4 hover:shadow-lg transition cursor-pointer"
+          >
+            {columns.map((col) => (
+              <div key={col.key as string} className="flex flex-col md:flex-row md:items-center">
+                <span className="text-sm font-semibold text-gray-500 md:hidden">{col.label}</span>
+                <span className="text-gray-900">
+                  {col.render ? col.render(item) : (item as any)[col.key]}
+                </span>
+              </div>
+            ))}
+
+            {actions && <div className="flex gap-2 mt-2 md:mt-0">{actions(item)}</div>}
+          </div>
+        ))}
+      </div>
+    </div>
   );
 }

@@ -31,6 +31,9 @@ export default function AdminDashboardPage() {
   const [dispensaries, setDispensaries] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
   const [applications, setApplications] = useState<any[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
+  const handleViewApplication = (app: any) => setSelectedApplication(app);
+  const handleCloseApplicationModal = () => setSelectedApplication(null);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -197,18 +200,25 @@ export default function AdminDashboardPage() {
               <>
                 <button
                   className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={() => handleApproveApplication(app._id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleApproveApplication(app._id);
+                  }}
                 >
                   Approve
                 </button>
                 <button
                   className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={() => handleRejectApplication(app._id)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleRejectApplication(app._id);
+                  }}
                 >
                   Reject
                 </button>
               </>
             )}
+            onRowClick={handleViewApplication}
           />
         </>
       )}
@@ -221,6 +231,43 @@ export default function AdminDashboardPage() {
             onCancel={handleCancelForm}
             dispensaryOptions={dispensaries}
           />
+        </Modal>
+      )}
+      {selectedApplication && (
+        <Modal isOpen={true} onClose={handleCloseApplicationModal}>
+          <div className="space-y-4">
+            <h2 className="text-2xl font-bold text-orange-700">
+              {selectedApplication.firstName} {selectedApplication.lastName}
+            </h2>
+            <p><strong>Email:</strong> {selectedApplication.email}</p>
+            <p><strong>Dispensary:</strong> {selectedApplication.dispensaryName}</p>
+            <p><strong>Status:</strong> {selectedApplication.status}</p>
+            <p><strong>License Number:</strong> {selectedApplication.licenseNumber}</p>
+            <p><strong>Address:</strong> {selectedApplication.address.street1}, {selectedApplication.address.city}, {selectedApplication.address.state} {selectedApplication.address.zipCode}</p>
+            <p><strong>Amenities:</strong> {selectedApplication.amenities.join(', ')}</p>
+            <p><strong>Description:</strong> {selectedApplication.description}</p>
+
+            <div className="flex gap-2 mt-4">
+              <button
+                className="bg-green-600 text-white px-3 py-1 rounded"
+                onClick={() => {
+                  handleApproveApplication(selectedApplication._id);
+                  handleCloseApplicationModal();
+                }}
+              >
+                Approve
+              </button>
+              <button
+                className="bg-red-600 text-white px-3 py-1 rounded"
+                onClick={() => {
+                  handleRejectApplication(selectedApplication._id);
+                  handleCloseApplicationModal();
+                }}
+              >
+                Reject
+              </button>
+            </div>
+          </div>
         </Modal>
       )}
     </DashboardLayout>
