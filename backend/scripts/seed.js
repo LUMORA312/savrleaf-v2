@@ -14,7 +14,6 @@ import Dispensary from '../src/models/Dispensary.js';
 import Subscription from '../src/models/Subscription.js';
 import SubscriptionTier from '../src/models/SubscriptionTier.js';
 
-// Remove unique index on email for applications
 async function fixEmailIndex() {
   await mongoose.connect(process.env.MONGODB_URI);
 
@@ -108,6 +107,7 @@ async function seed() {
   const categories = ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories'];
   const brands = ['High Spirits', 'Green Wave', 'Herbal Bliss', 'Cloud Nine', 'Pure Leaf'];
   const strains = ['OG Kush', 'Sour Diesel', 'Blue Dream', 'Pineapple Express', 'Gelato'];
+  const selectedTier = tiers[Math.floor(Math.random() * tiers.length)];
 
   async function createDispensaryWithDeals(user, appIndex, suffix = '') {
     const application = await Application.create({
@@ -131,6 +131,7 @@ async function seed() {
       amenities: ['Parking', 'Wheelchair Accessible'],
       status: 'approved',
       adminNotes: 'Seed data',
+      subscriptionTier: selectedTier._id,
     });
 
     const dispensary = await Dispensary.create({
@@ -148,11 +149,9 @@ async function seed() {
       adminNotes: 'Created from seed',
     });
 
-    const subscriptionTier = tiers[(appIndex - 1) % tiers.length];
-
     const subscription = await Subscription.create({
       dispensary: dispensary._id,
-      tier: subscriptionTier._id,
+      tier: application.subscriptionTier,
       stripeSubscriptionId: `sub_${appIndex}${suffix}_abcdef123456`,
       stripeCustomerId: `cus_${appIndex}${suffix}_abcdef123456`,
       status: 'active',

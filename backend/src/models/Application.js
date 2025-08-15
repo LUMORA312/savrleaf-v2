@@ -25,7 +25,11 @@ const applicationSchema = new mongoose.Schema(
       required: true,
       minlength: 6,
     },
-
+    subscriptionTier: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'SubscriptionTier',
+      required: true,
+    },
     dispensaryName: {
       type: String,
       required: true,
