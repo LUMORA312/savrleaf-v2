@@ -81,3 +81,24 @@ export interface User {
   firstName?: string;
   lastName?: string;
 }
+
+export interface Application {
+  _id: string;
+  firstName: string;
+  lastName: string;
+  email: string;
+  password: string;
+  subscriptionTier: SubscriptionTier | string;
+  dispensaryName: string;
+  legalName: string;
+  address: Address;
+  licenseNumber: string;
+  phoneNumber?: string;
+  websiteUrl?: string;
+  description?: string;
+  amenities: string[];
+  status: 'pending' | 'approved' | 'rejected';
+  adminNotes?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}

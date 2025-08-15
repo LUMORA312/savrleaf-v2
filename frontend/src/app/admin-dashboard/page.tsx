@@ -11,6 +11,7 @@ import DealsList from '../partner-dashboard/components/DealsList';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
+import ApplicationModal from '@/components/ApplicationModal';
 
 interface OverviewData {
   totalUsers: number;
@@ -234,41 +235,13 @@ export default function AdminDashboardPage() {
         </Modal>
       )}
       {selectedApplication && (
-        <Modal isOpen={true} onClose={handleCloseApplicationModal}>
-          <div className="space-y-4">
-            <h2 className="text-2xl font-bold text-orange-700">
-              {selectedApplication.firstName} {selectedApplication.lastName}
-            </h2>
-            <p><strong>Email:</strong> {selectedApplication.email}</p>
-            <p><strong>Dispensary:</strong> {selectedApplication.dispensaryName}</p>
-            <p><strong>Status:</strong> {selectedApplication.status}</p>
-            <p><strong>License Number:</strong> {selectedApplication.licenseNumber}</p>
-            <p><strong>Address:</strong> {selectedApplication.address.street1}, {selectedApplication.address.city}, {selectedApplication.address.state} {selectedApplication.address.zipCode}</p>
-            <p><strong>Amenities:</strong> {selectedApplication.amenities.join(', ')}</p>
-            <p><strong>Description:</strong> {selectedApplication.description}</p>
-
-            <div className="flex gap-2 mt-4">
-              <button
-                className="bg-green-600 text-white px-3 py-1 rounded"
-                onClick={() => {
-                  handleApproveApplication(selectedApplication._id);
-                  handleCloseApplicationModal();
-                }}
-              >
-                Approve
-              </button>
-              <button
-                className="bg-red-600 text-white px-3 py-1 rounded"
-                onClick={() => {
-                  handleRejectApplication(selectedApplication._id);
-                  handleCloseApplicationModal();
-                }}
-              >
-                Reject
-              </button>
-            </div>
-          </div>
-        </Modal>
+        <ApplicationModal
+          application={selectedApplication}
+          isOpen={!!selectedApplication}
+          onClose={handleCloseApplicationModal}
+          onApprove={handleApproveApplication}
+          onReject={handleRejectApplication}
+        />
       )}
     </DashboardLayout>
   );
