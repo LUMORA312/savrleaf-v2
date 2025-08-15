@@ -10,6 +10,7 @@ import {
   User,
 } from 'lucide-react';
 import { JSX } from 'react';
+import Link from 'next/link';
 
 interface SidebarProps {
   activeTab: TabKey;
@@ -34,10 +35,12 @@ export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
   return (
     <aside className="w-64 bg-white shadow-lg flex flex-col">
       <div className="h-16 px-6 flex items-center">
-        <Image src={logo} alt="SavrLeaf Logo" className="h-8 w-auto" priority />
-        <span className="ml-3 text-xl font-extrabold text-orange-700 tracking-wide select-none">
-          SavrLeaf<sup className="text-xs align-super">™</sup>
-        </span>
+        <Link href="/" className="flex items-center">
+          <Image src={logo} alt="SavrLeaf Logo" className="h-8 w-auto" priority />
+          <span className="ml-3 text-xl font-extrabold text-orange-700 tracking-wide select-none">
+            SavrLeaf<sup className="text-xs align-super">™</sup>
+          </span>
+        </Link>
       </div>
 
       <nav className="flex-1 p-2 space-y-3 bg-white">
