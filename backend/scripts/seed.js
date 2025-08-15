@@ -2,15 +2,10 @@ import dotenv from 'dotenv';
 import path from 'path';
 import mongoose from 'mongoose';
 
-const envFileName = process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
+const envFileName =
+  process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development';
 const envPath = path.resolve(process.cwd(), envFileName);
-const result = dotenv.config({ path: envPath });
-if (result.error) {
-  console.error('Failed to load env file:', result.error);
-  process.exit(1);
-} else {
-  console.log('Env loaded');
-}
+dotenv.config({ path: envPath });
 
 import User from '../src/models/User.js';
 import Application from '../src/models/Application.js';
@@ -19,10 +14,35 @@ import Dispensary from '../src/models/Dispensary.js';
 import Subscription from '../src/models/Subscription.js';
 import SubscriptionTier from '../src/models/SubscriptionTier.js';
 
+// Remove unique index on email for applications
+async function fixEmailIndex() {
+  await mongoose.connect(process.env.MONGODB_URI);
+
+  const collection = mongoose.connection.collection('applications');
+  const indexes = await collection.indexes();
+  const emailIndex = indexes.find(idx => idx.name === 'email_1');
+  if (emailIndex) {
+    console.log('Dropping unique email index...');
+    await collection.dropIndex('email_1');
+  }
+
+  console.log('Creating non-unique index on email...');
+  await collection.createIndex({ email: 1 });
+
+  console.log('✅ Done fixing email index');
+  await mongoose.disconnect();
+}
+
+// Slug generator using short random string
+function randomSlug(base, dispensaryId, dealIndex) {
+  const randStr = Math.random().toString(36).substring(2, 8);
+  return `${base.toLowerCase().replace(/\s+/g, '-')}-${dispensaryId.toString().slice(-5)}-${dealIndex}-${randStr}`;
+}
+
 async function seed() {
   await mongoose.connect(process.env.MONGODB_URI);
 
-  // Clear collections
+  console.log('📦 Clearing collections...');
   await Promise.all([
     User.deleteMany(),
     Application.deleteMany(),
@@ -32,122 +52,176 @@ async function seed() {
     SubscriptionTier.deleteMany(),
   ]);
 
-  const adminUser = new User({
+  // Drop indexes on deals to avoid unique slug conflicts
+  const dealCollection = mongoose.connection.collection('deals');
+  try {
+    await dealCollection.dropIndexes();
+    console.log('Dropped indexes on deals collection');
+  } catch (err) {
+    if (err.codeName === 'NamespaceNotFound') {
+      console.log('No indexes to drop on deals collection');
+    } else {
+      throw err;
+    }
+  }
+
+  console.log('👑 Creating admin user...');
+  await User.create({
     firstName: 'Admin',
     lastName: 'User',
     email: 'admin@example.com',
     password: 'password123',
     role: 'admin',
   });
-  await adminUser.save();
 
-  const application = new Application({
-    firstName: 'Partner',
-    lastName: 'User',
-    email: 'partner@example.com',
-    password: 'password123',
-    dispensaryName: 'Green Leaf Dispensary',
-    legalName: 'Green Leaf LLC',
-    address: {
-      street1: '123 Bud Lane',
-      street2: '',
-      city: 'New York',
-      state: 'NY',
-      zipCode: '10001',
+  console.log('💎 Creating subscription tiers...');
+  const tiers = await SubscriptionTier.insertMany([
+    {
+      name: 'bronze',
+      displayName: 'Bronze Tier',
+      tier: 1,
+      monthlyPrice: 9.99,
+      annualPrice: 99.99,
+      baseSKULimit: 5,
+      features: ['Up to 5 active deals'],
     },
-    licenseNumber: 'ABC123456',
-    phoneNumber: '+1234567890',
-    websiteUrl: 'https://greenleaf.example.com',
-    description: 'A quality dispensary',
-    amenities: ['Parking', 'Wheelchair Accessible'],
-    status: 'approved',
-    adminNotes: 'Seed data',
-  });
-  await application.save();
+    {
+      name: 'silver',
+      displayName: 'Silver Tier',
+      tier: 2,
+      monthlyPrice: 19.99,
+      annualPrice: 199.99,
+      baseSKULimit: 8,
+      features: ['Up to 8 active deals', 'Basic Deal Management'],
+    },
+    {
+      name: 'gold',
+      displayName: 'Gold Tier',
+      tier: 3,
+      monthlyPrice: 29.99,
+      annualPrice: 299.99,
+      baseSKULimit: 10,
+      features: ['Up to 10 active deals', 'Full Deal Management'],
+    },
+  ]);
 
-  const partnerUser = new User({
-    firstName: 'Partner',
-    lastName: 'User',
-    email: 'partner@example.com',
-    password: 'password123',
-    role: 'partner',
-  });
-  await partnerUser.save();
+  const categories = ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories'];
+  const brands = ['High Spirits', 'Green Wave', 'Herbal Bliss', 'Cloud Nine', 'Pure Leaf'];
+  const strains = ['OG Kush', 'Sour Diesel', 'Blue Dream', 'Pineapple Express', 'Gelato'];
 
-  const tier = new SubscriptionTier({
-    name: 'gold',
-    displayName: 'Gold Tier',
-    tier: 2,
-    monthlyPrice: 29.99,
-    annualPrice: 299.99,
-    baseSKULimit: 10,
-    features: [
-      "Up to 10 active deals",
-      "Deal Management"
-    ]
-  });
-  await tier.save();
+  async function createDispensaryWithDeals(user, appIndex, suffix = '') {
+    const application = await Application.create({
+      firstName: user.firstName,
+      lastName: user.lastName,
+      email: user.email,
+      password: 'password123',
+      dispensaryName: `Dispensary ${appIndex}${suffix}`,
+      legalName: `Dispensary ${appIndex}${suffix} LLC`,
+      address: {
+        street1: `${100 + appIndex} Bud Lane`,
+        street2: '',
+        city: 'New York',
+        state: 'NY',
+        zipCode: `1000${appIndex}`,
+      },
+      licenseNumber: `LIC${appIndex}${suffix}23456`,
+      phoneNumber: `+12345678${appIndex}0`,
+      websiteUrl: `https://dispensary${appIndex}${suffix}.example.com`,
+      description: `A great dispensary number ${appIndex}${suffix}`,
+      amenities: ['Parking', 'Wheelchair Accessible'],
+      status: 'approved',
+      adminNotes: 'Seed data',
+    });
 
-  const dispensary = new Dispensary({
-    name: application.dispensaryName,
-    legalName: application.legalName,
-    address: application.address,
-    licenseNumber: application.licenseNumber,
-    status: 'approved',
-    application: application._id,
-    user: partnerUser._id,
-    phoneNumber: application.phoneNumber,
-    websiteUrl: application.websiteUrl,
-    description: application.description,
-    amenities: application.amenities,
-    adminNotes: 'Created from seed',
-  });
-  await dispensary.save();
+    const dispensary = await Dispensary.create({
+      name: application.dispensaryName,
+      legalName: application.legalName,
+      address: application.address,
+      licenseNumber: application.licenseNumber,
+      status: 'approved',
+      application: application._id,
+      user: user._id,
+      phoneNumber: application.phoneNumber,
+      websiteUrl: application.websiteUrl,
+      description: application.description,
+      amenities: application.amenities,
+      adminNotes: 'Created from seed',
+    });
 
-  const subscription = new Subscription({
-    dispensary: dispensary._id,
-    tier: tier._id,
-    stripeSubscriptionId: 'sub_1234567890abcdef',
-    stripeCustomerId: 'cus_1234567890abcdef',
-    status: 'active',
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-    billingInterval: 'month',
-    bonusSkus: 2,
-    metadata: { source: 'seed script' },
-  });
-  await subscription.save();
+    const subscriptionTier = tiers[(appIndex - 1) % tiers.length];
 
-  dispensary.subscription = subscription._id;
-  await dispensary.save();
+    const subscription = await Subscription.create({
+      dispensary: dispensary._id,
+      tier: subscriptionTier._id,
+      stripeSubscriptionId: `sub_${appIndex}${suffix}_abcdef123456`,
+      stripeCustomerId: `cus_${appIndex}${suffix}_abcdef123456`,
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      billingInterval: 'month',
+      bonusSkus: 2,
+      metadata: { source: 'seed script' },
+    });
 
-  const deal = new Deal({
-    title: 'Buy 1 Get 1 Free Flower',
-    description: 'Happy Hour Special: 4pm - 7pm daily',
-    brand: 'High Spirits',
-    category: 'flower',
-    subcategory: 'indica',
-    strain: 'OG Kush',
-    thcContent: 22,
-    cbdContent: 0.5,
-    tags: ['happy hour', 'bogo', 'flower'],
-    originalPrice: 20,
-    salePrice: 10,
-    images: ['https://example.com/deal-image.jpg'],
-    dispensary: dispensary._id,
-    startDate: new Date(),
-    endDate: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
-    accessType: 'both',
-    manuallyActivated: false,
-  });
-  await deal.save();
+    dispensary.subscription = subscription._id;
+    await dispensary.save();
+
+    for (let d = 1; d <= 5; d++) {
+      const category = categories[Math.floor(Math.random() * categories.length)];
+      const brand = brands[Math.floor(Math.random() * brands.length)];
+      const strain = strains[Math.floor(Math.random() * strains.length)];
+      const originalPrice = Math.floor(Math.random() * 50) + 10;
+      const salePrice = Math.floor(originalPrice * 0.7);
+
+      await Deal.create({
+        title: `${brand} ${strain} Deal ${d}`,
+        slug: randomSlug(`${brand}-${strain}-deal`, dispensary._id, d),
+        description: `Special deal ${d} at ${application.dispensaryName}`,
+        brand,
+        category,
+        subcategory: category === 'flower' ? 'indica' : '',
+        strain,
+        thcContent: Math.floor(Math.random() * 30),
+        cbdContent: Math.floor(Math.random() * 10),
+        tags: ['discount', category, 'limited time'],
+        originalPrice,
+        salePrice,
+        images: [`https://picsum.photos/seed/${appIndex}${suffix}-${d}/400/300`],
+        dispensary: dispensary._id,
+        startDate: new Date(),
+        endDate: new Date(Date.now() + (7 + d) * 24 * 60 * 60 * 1000),
+        accessType: 'both',
+        manuallyActivated: false,
+      });
+    }
+  }
+
+  console.log('🤝 Creating partners, dispensaries, and deals...');
+  for (let i = 1; i <= 3; i++) {
+    const partner = await User.create({
+      firstName: `Partner${i}`,
+      lastName: 'User',
+      email: `partner${i}@example.com`,
+      password: 'password123',
+      role: 'partner',
+    });
+
+    await createDispensaryWithDeals(partner, i);
+
+    if (i === 1) {
+      await createDispensaryWithDeals(partner, i, '-B');
+    }
+  }
 
   console.log('✅ Seeded all data successfully');
   await mongoose.disconnect();
 }
 
-seed().catch(err => {
-  console.error(err);
-  process.exit(1);
-});
+// First fix email index, then seed
+fixEmailIndex()
+  .then(() => seed())
+  .catch(err => {
+    console.error(err);
+    process.exit(1);
+  });
