@@ -10,6 +10,8 @@ import applicationsRouter from '../src/routes/applications.js';
 import subscriptionTiersRouter from '../src/routes/subscriptionTiers.js';
 import authRouter from '../src/routes/auth.js';
 import partnersRouter from '../src/routes/partners.js';
+import adminAuthRoutes from '../src/routes/adminAuth.js';
+import adminRoutes from '../src/routes/adminRoutes.js';
 
 import './models/Application.js';
 import './models/Deal.js';
@@ -57,6 +59,8 @@ app.use('/applications', applicationsRouter);
 app.use('/subscription-tiers', subscriptionTiersRouter);
 app.use('/auth', authRouter);
 app.use('/partner', partnersRouter);
+app.use('/admin/auth', adminAuthRoutes);
+app.use('/admin', adminRoutes);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 

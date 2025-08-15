@@ -3,18 +3,14 @@
 import { TabKey } from './DashboardLayout';
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
-import {
-  Home,
-  Tag,
-  Store,
-  User,
-} from 'lucide-react';
+import { Home, Tag, Store, User } from 'lucide-react';
 import { JSX } from 'react';
 import Link from 'next/link';
 
 interface SidebarProps {
   activeTab: TabKey;
   onTabChange: (tabKey: TabKey) => void;
+  isAdmin?: boolean;
 }
 
 const iconMap: Record<TabKey, JSX.Element> = {
@@ -22,15 +18,24 @@ const iconMap: Record<TabKey, JSX.Element> = {
   deals: <Tag className="w-5 h-5" />,
   dispensary: <Store className="w-5 h-5" />,
   user: <User className="w-5 h-5" />,
+  users: <User className="w-5 h-5" />,
+  adminOverview: <Home className="w-5 h-5" />,
 };
 
-export default function Sidebar({ activeTab, onTabChange }: SidebarProps) {
-  const navItems: { key: TabKey; label: string }[] = [
-    { key: 'overview', label: 'Overview' },
-    { key: 'deals', label: 'Deals' },
-    { key: 'dispensary', label: 'Dispensary Info' },
-    { key: 'user', label: 'User Info' },
-  ];
+export default function Sidebar({ activeTab, onTabChange, isAdmin = false }: SidebarProps) {
+  const navItems: { key: TabKey; label: string }[] = isAdmin
+    ? [
+        { key: 'adminOverview', label: 'Overview' },
+        { key: 'deals', label: 'Deals' },
+        { key: 'users', label: 'Users' },
+        { key: 'dispensary', label: 'Dispensaries' },
+      ]
+    : [
+        { key: 'overview', label: 'Overview' },
+        { key: 'deals', label: 'Deals' },
+        { key: 'dispensary', label: 'Dispensary Info' },
+        { key: 'user', label: 'User Info' },
+      ];
 
   return (
     <aside className="w-64 bg-white shadow-lg flex flex-col">

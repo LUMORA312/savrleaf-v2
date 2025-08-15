@@ -6,30 +6,32 @@ import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user';
+export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user' | 'users' | 'adminOverview';
 
 interface DashboardLayoutProps {
   children: ReactNode;
   activeTab: TabKey;
   onTabChange: (tabKey: TabKey) => void;
+  isAdmin?: boolean;
 }
 
 export default function DashboardLayout({
   children,
   activeTab,
   onTabChange,
+  isAdmin = false,
 }: DashboardLayoutProps) {
   const { user, logout } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
     await logout();
-    router.push('/partner-login');
+    router.push(isAdmin ? '/admin-login' : '/partner-login');
   };
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      <Sidebar activeTab={activeTab} onTabChange={onTabChange} />
+      <Sidebar activeTab={activeTab} onTabChange={onTabChange} isAdmin={isAdmin} />
       <div className="flex flex-col flex-1">
         <Topbar partnerName={user?.name} onLogout={handleLogout} />
         <main className="p-6">{children}</main>
