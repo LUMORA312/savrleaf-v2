@@ -9,6 +9,7 @@ import { SubscriptionTier } from '@/types';
 
 export default function PartnerSignupPage() {
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
+  const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
 
   useEffect(() => {
     const fetchTiers = async () => {
@@ -37,7 +38,10 @@ export default function PartnerSignupPage() {
             {tiers.map((tier) => (
               <div
                 key={tier._id}
-                className="w-full sm:w-64 border border-orange-200 rounded-lg p-4 shadow-sm bg-white"
+                onClick={() => setSelectedTier(tier)}
+                className={`w-full sm:w-64 border rounded-lg p-4 shadow-sm cursor-pointer ${
+                  selectedTier?._id === tier._id ? 'border-orange-600 bg-orange-50' : 'border-orange-200 bg-white'
+                }`}
               >
                 <h3 className="text-lg font-bold text-orange-800">{tier.displayName}</h3>
                 <p className="text-sm text-gray-600 mb-2">${tier.monthlyPrice} / month</p>
@@ -50,9 +54,8 @@ export default function PartnerSignupPage() {
             ))}
           </div>
         </div>
-
         {/* Application Form */}
-        <DispensaryApplicationForm />
+        <DispensaryApplicationForm selectedTier={selectedTier} />
       </div>
       <Footer />
     </>

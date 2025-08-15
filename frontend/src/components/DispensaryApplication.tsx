@@ -3,6 +3,11 @@
 import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useState } from 'react';
+import { SubscriptionTier } from '@/types';
+
+type DispensaryApplicationFormProps = {
+  selectedTier: SubscriptionTier | null;
+};
 
 type ApplicationFormData = {
   firstName: string;
@@ -23,9 +28,10 @@ type ApplicationFormData = {
   websiteUrl?: string;
   description?: string;
   amenities: string[];
+  subscriptionTier: string;
 };
 
-export default function DispensaryApplicationForm() {
+export default function DispensaryApplicationForm({ selectedTier }: DispensaryApplicationFormProps) {
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ApplicationFormData>({
     defaultValues: { amenities: [] }
   });
@@ -37,12 +43,18 @@ export default function DispensaryApplicationForm() {
   async function onSubmit(data: ApplicationFormData) {
     setErrorMessage(null);
     setSuccessMessage(null);
+    if (!selectedTier) {
+      setErrorMessage('Please select a subscription tier');
+      return;
+    }
+    const payload = { ...data, subscriptionTier: selectedTier._id };
+
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications`, data, {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications`, payload, {
         headers: { 'Content-Type': 'application/json' }
       });
       setSuccessMessage('Application submitted successfully!');
-      setSubmittedData(data);
+      setSubmittedData(payload);
       reset();
     } catch (err: any) {
       const message =
@@ -90,6 +102,7 @@ export default function DispensaryApplicationForm() {
           <p><strong>Description:</strong> {submittedData.description || 'N/A'}</p>
           <p><strong>Address:</strong> {`${submittedData.address.street1}${submittedData.address.street2 ? ', ' + submittedData.address.street2 : ''}, ${submittedData.address.city}, ${submittedData.address.state} ${submittedData.address.zipCode}`}</p>
           <p><strong>Amenities:</strong> {submittedData.amenities.length ? submittedData.amenities.join(', ') : 'None'}</p>
+          <p><strong>Subscription Tier:</strong> {selectedTier?.displayName}</p>
         </div>
       </div>
     );
