@@ -3,7 +3,8 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout, { TabKey } from '../partner-dashboard/components/DashboardLayout';
+import AdminTable from '@/components/AdminTable';
+import DashboardLayout, { TabKey } from '../../components/dashboard/DashboardLayout';
 // import UsersList from '../partner-dashboard/components/UsersList';
 import DealsList from '../partner-dashboard/components/DealsList';
 // import DispensariesList from './components/DispensariesList';
@@ -21,7 +22,7 @@ export default function AdminDashboardPage() {
   const { user, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
-  const [activeTab, setActiveTab] = useState<TabKey>('overview');
+  const [activeTab, setActiveTab] = useState<TabKey>('adminOverview');
   const [showDealForm, setShowDealForm] = useState(false);
   const [selectedDeal, setSelectedDeal] = useState<any | null>(null);
 
@@ -29,6 +30,7 @@ export default function AdminDashboardPage() {
   const [users, setUsers] = useState<any[]>([]);
   const [dispensaries, setDispensaries] = useState<any[]>([]);
   const [deals, setDeals] = useState<any[]>([]);
+  const [applications, setApplications] = useState<any[]>([]);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -52,6 +54,7 @@ export default function AdminDashboardPage() {
         setUsers(res.data.users);
         setDispensaries(res.data.dispensaries);
         setDeals(res.data.deals);
+        setApplications(res.data.applications);
       } catch (err) {
         console.error('Dashboard fetch error:', err);
         setFetchError('Failed to load dashboard data');
@@ -95,9 +98,31 @@ export default function AdminDashboardPage() {
 
   const handleCancelForm = () => setShowDealForm(false);
 
+  const handleApproveApplication = async (id: string) => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/approve`, null, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setApplications((prev) => prev.map(a => a._id === id ? { ...a, status: 'approved' } : a));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  const handleRejectApplication = async (id: string) => {
+    try {
+      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/reject`, null, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
+      });
+      setApplications((prev) => prev.map(a => a._id === id ? { ...a, status: 'rejected' } : a));
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab} isAdmin>
-      {activeTab === 'overview' && (
+      {activeTab === 'adminOverview' && (
         <>
           <h2 className="mb-6 text-3xl font-extrabold text-orange-700 tracking-tight">
             Admin Overview
@@ -121,19 +146,19 @@ export default function AdminDashboardPage() {
         </>
       )}
 
-      {/* {activeTab === 'users' && (
+      {activeTab === 'users' && (
         <>
           <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Users</h2>
-          <UsersList users={users} />
+          {/* <UsersList users={users} /> */}
         </>
-      )} */}
+      )}
 
-      {/* {activeTab === 'dispensaries' && (
+      {activeTab === 'dispensary' && (
         <>
           <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Dispensaries</h2>
-          <DispensariesList dispensaries={dispensaries} />
+          {/* <DispensariesList dispensaries={dispensaries} /> */}
         </>
-      )} */}
+      )}
 
       {activeTab === 'deals' && (
         <>
@@ -150,6 +175,41 @@ export default function AdminDashboardPage() {
             </button>
           </div>
           <DealsList deals={deals} setDeals={setDeals} onEdit={handleEditDeal} />
+        </>
+      )}
+
+      {activeTab === 'applications' && (
+        <>
+          <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Applications</h2>
+          <AdminTable
+            data={applications}
+            columns={[
+              { key: 'firstName', label: 'First Name' },
+              { key: 'lastName', label: 'Last Name' },
+              { key: 'email', label: 'Email' },
+              { key: 'status', label: 'Status' },
+              {
+                key: 'dispensaryName',
+                label: 'Dispensary',
+              },
+            ]}
+            actions={(app) => (
+              <>
+                <button
+                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={() => handleApproveApplication(app._id)}
+                >
+                  Approve
+                </button>
+                <button
+                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={() => handleRejectApplication(app._id)}
+                >
+                  Reject
+                </button>
+              </>
+            )}
+          />
         </>
       )}
 

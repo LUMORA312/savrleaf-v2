@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
-import DashboardLayout, { TabKey } from './components/DashboardLayout';
+import DashboardLayout, { TabKey } from '../../components/dashboard/DashboardLayout';
 import DealsList from './components/DealsList';
 import UserInfo from './components/UserInfo';
 import DispensaryInfo from './components/DispensaryInfo';
