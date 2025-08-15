@@ -19,6 +19,7 @@ router.post('/', async (req, res) => {
     websiteUrl,
     description,
     amenities,
+    subscriptionTier
   } = req.body;
 
   try {
@@ -37,6 +38,7 @@ router.post('/', async (req, res) => {
       websiteUrl,
       description,
       amenities,
+      subscriptionTier,
     });
 
     await application.save();
