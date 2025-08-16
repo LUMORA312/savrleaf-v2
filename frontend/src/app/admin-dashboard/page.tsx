@@ -250,38 +250,41 @@ export default function AdminDashboardPage() {
               { key: 'name', label: 'Name' },
               { key: 'legalName', label: 'Legal Name' },
               { key: 'licenseNumber', label: 'License Number' },
-              { key: 'status', label: 'Status' },
+              {
+                key: 'status',
+                label: 'Status',
+                render: (disp: Dispensary) => (
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      disp.status === 'approved'
+                        ? 'bg-green-100 text-green-800'
+                        : disp.status === 'rejected'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {disp.status.toUpperCase()}
+                  </span>
+                ),
+              },
             ]}
             actions={(disp) => (
-              <div className="flex gap-2">
-                <button
-                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await updateDispensaryStatus(disp._id, 'approved');
-                  }}
-                >
-                  Approve
-                </button>
-                <button
-                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await updateDispensaryStatus(disp._id, 'rejected');
-                  }}
-                >
-                  Reject
-                </button>
-                <button
-                  className="bg-yellow-400 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await updateDispensaryStatus(disp._id, 'pending');
-                  }}
-                >
-                  Pending
-                </button>
-              </div>
+              <button
+                className={`px-3 py-1 rounded cursor-pointer ${
+                  disp.status === 'approved'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-green-600 text-white'
+                }`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await updateDispensaryStatus(
+                    disp._id,
+                    disp.status === 'approved' ? 'rejected' : 'approved'
+                  );
+                }}
+              >
+                {disp.status === 'approved' ? 'Deactivate' : 'Activate'}
+              </button>
             )}
             onRowClick={handleViewDispensary}
           />
