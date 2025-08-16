@@ -12,6 +12,7 @@ import authRouter from '../src/routes/auth.js';
 import partnersRouter from '../src/routes/partners.js';
 import adminAuthRoutes from '../src/routes/adminAuth.js';
 import adminRoutes from '../src/routes/adminRoutes.js';
+import usersRouter from '../src/routes/users.js';
 
 import './models/Application.js';
 import './models/Deal.js';
@@ -61,6 +62,7 @@ app.use('/auth', authRouter);
 app.use('/partner', partnersRouter);
 app.use('/admin/auth', adminAuthRoutes);
 app.use('/admin', adminRoutes);
+app.use('/users', usersRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 

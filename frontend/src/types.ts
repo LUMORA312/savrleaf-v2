@@ -75,11 +75,13 @@ export type SubscriptionTier = {
 };
 
 export interface User {
-  id: string;
+  _id: string;
+  firstName: string;
+  lastName: string;
   email: string;
-  role: string;
-  firstName?: string;
-  lastName?: string;
+  role: 'partner' | 'admin';
+  isActive: boolean;
+  dispensaries?: string[];
 }
 
 export interface Application {

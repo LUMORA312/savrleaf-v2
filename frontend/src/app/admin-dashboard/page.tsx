@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { SetStateAction, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import AdminTable from '@/components/AdminTable';
@@ -12,8 +12,9 @@ import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
 import ApplicationModal from '@/components/ApplicationModal';
-import { Dispensary } from '@/types';
+import { Dispensary, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
+import UserModal from '@/components/UserModal';
 
 interface OverviewData {
   totalUsers: number;
@@ -40,6 +41,7 @@ export default function AdminDashboardPage() {
   const [selectedDispensary, setSelectedDispensary] = useState<Dispensary | null>(null);
   const handleViewDispensary = (disp: Dispensary) => setSelectedDispensary(disp);
   const handleCloseDispensaryModal = () => setSelectedDispensary(null);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -145,6 +147,23 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const updateUserStatus = async (id: string, status: 'active' | 'inactive') => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/status`,
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, isActive: status === 'active' } : u))
+      );
+    } catch (err) {
+      console.error('Failed to update user status', err);
+    }
+  };
+
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab} isAdmin>
       {activeTab === 'adminOverview' && (
@@ -174,7 +193,51 @@ export default function AdminDashboardPage() {
       {activeTab === 'users' && (
         <>
           <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Users</h2>
-          {/* <UsersList users={users} /> */}
+          <AdminTable
+            data={users}
+            columns={[
+              { key: 'firstName', label: 'First Name' },
+              { key: 'lastName', label: 'Last Name' },
+              { key: 'email', label: 'Email' },
+              { key: 'role', label: 'Role' },
+              {
+                key: 'isActive', 
+                label: 'Is Active?', 
+                render: (user: User) => (user.isActive ? 'Active' : 'Inactive') 
+              },
+            ]}
+            actions={(user) => (
+              <div className="flex flex-wrap gap-2">
+                <button
+                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await updateUserStatus(user._id, 'active');
+                  }}
+                >
+                  Activate
+                </button>
+                <button
+                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await updateUserStatus(user._id, 'inactive');
+                  }}
+                >
+                  Deactivate
+                </button>
+              </div>
+            )}
+            onRowClick={(user: SetStateAction<User | null>) => setSelectedUser(user)}
+          />
+
+          {selectedUser && (
+            <UserModal
+              user={selectedUser}
+              isOpen={!!selectedUser}
+              onClose={() => setSelectedUser(null)}
+            />
+          )}
         </>
       )}
 
