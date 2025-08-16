@@ -20,7 +20,12 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
       overview: { totalDeals, totalUsers, totalDispensaries, totalApplications },
       users: await User.find().lean(),
       deals: await Deal.find().lean(),
-      dispensaries: await Dispensary.find().lean(),
+      dispensaries: await Dispensary.find()
+        .populate({
+          path: 'subscription',
+          populate: { path: 'tier' }
+        })
+        .lean(),
       applications,
     });
   } catch (err) {

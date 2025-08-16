@@ -12,7 +12,7 @@ import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
 import ApplicationModal from '@/components/ApplicationModal';
-import { Dispensary, User } from '@/types';
+import { Dispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
 
@@ -163,6 +163,42 @@ export default function AdminDashboardPage() {
       console.error('Failed to update user status', err);
     }
   };
+
+  async function handleUpdateSubscription(id: string, adminSkuOverride: Number) {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscriptions/${id}`, {
+        method: 'PATCH',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ adminSkuOverride }),
+      });
+
+      if (!res.ok) throw new Error('Failed to update subscription');
+
+      const updatedSubscription: Subscription = await res.json();
+
+      // Update the selected dispensary
+      setSelectedDispensary((prev) =>
+        prev
+          ? { ...prev, subscription: updatedSubscription }
+          : prev
+      );
+
+      // Update the dispensaries list by matching dispensary._id
+      setDispensaries((prev) =>
+        prev.map((d) =>
+          d._id === selectedDispensary?._id
+            ? { ...d, subscription: updatedSubscription }
+            : d
+        )
+      );
+    } catch (err) {
+      console.error('Subscription update failed:', err);
+    }
+  }
 
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab} isAdmin>
@@ -376,6 +412,8 @@ export default function AdminDashboardPage() {
           dispensary={selectedDispensary}
           isOpen={!!selectedDispensary}
           onClose={handleCloseDispensaryModal}
+          onUpdateSubscription={handleUpdateSubscription}
+          subscription={selectedDispensary.subscription || null}
         />
       )}
     </DashboardLayout>

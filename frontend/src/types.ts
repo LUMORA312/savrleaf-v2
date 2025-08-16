@@ -28,7 +28,7 @@ export interface Dispensary {
   status: 'pending' | 'approved' | 'rejected';
   application: string;
   user: string;
-  subscription?: string;
+  subscription?: Subscription | null;
   adminNotes?: string;
   ratings: number[];
   createdAt?: string;
@@ -103,4 +103,32 @@ export interface Application {
   adminNotes?: string;
   createdAt?: string;
   updatedAt?: string;
+}
+
+export type SubscriptionStatus =
+  | "inactive"
+  | "active"
+  | "trialing"
+  | "past_due"
+  | "unpaid"
+  | "canceled";
+
+export type BillingInterval = "month" | "year";
+
+export interface Subscription {
+  _id: string;
+  dispensary: string;
+  tier: SubscriptionTier;
+  stripeSubscriptionId: string;
+  stripeCustomerId: string;
+  status: SubscriptionStatus;
+  startDate?: string;
+  endDate?: string;
+  currentPeriodEnd?: string;
+  billingInterval: BillingInterval;
+  bonusSkus: number;
+  adminSkuOverride?: number | null;
+  metadata: Record<string, any>;
+  createdAt: string;
+  updatedAt: string;
 }
