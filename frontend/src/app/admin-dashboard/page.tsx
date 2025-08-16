@@ -12,6 +12,8 @@ import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
 import ApplicationModal from '@/components/ApplicationModal';
+import { Dispensary } from '@/types';
+import DispensaryModal from '@/components/DispensaryModal';
 
 interface OverviewData {
   totalUsers: number;
@@ -35,6 +37,9 @@ export default function AdminDashboardPage() {
   const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
   const handleViewApplication = (app: any) => setSelectedApplication(app);
   const handleCloseApplicationModal = () => setSelectedApplication(null);
+  const [selectedDispensary, setSelectedDispensary] = useState<Dispensary | null>(null);
+  const handleViewDispensary = (disp: Dispensary) => setSelectedDispensary(disp);
+  const handleCloseDispensaryModal = () => setSelectedDispensary(null);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -124,6 +129,22 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const updateDispensaryStatus = async (id: string, status: 'approved' | 'rejected' | 'pending') => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/dispensaries/${id}/status`,
+        { status },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setDispensaries((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, status } : d))
+      );
+    } catch (err) {
+      console.error('Failed to update dispensary status', err);
+    }
+  };
+
   return (
     <DashboardLayout activeTab={activeTab} onTabChange={setActiveTab} isAdmin>
       {activeTab === 'adminOverview' && (
@@ -160,7 +181,47 @@ export default function AdminDashboardPage() {
       {activeTab === 'dispensary' && (
         <>
           <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Dispensaries</h2>
-          {/* <DispensariesList dispensaries={dispensaries} /> */}
+          <AdminTable
+            data={dispensaries}
+            columns={[
+              { key: 'name', label: 'Name' },
+              { key: 'legalName', label: 'Legal Name' },
+              { key: 'licenseNumber', label: 'License Number' },
+              { key: 'status', label: 'Status' },
+            ]}
+            actions={(disp) => (
+              <div className="flex gap-2">
+                <button
+                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await updateDispensaryStatus(disp._id, 'approved');
+                  }}
+                >
+                  Approve
+                </button>
+                <button
+                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await updateDispensaryStatus(disp._id, 'rejected');
+                  }}
+                >
+                  Reject
+                </button>
+                <button
+                  className="bg-yellow-400 text-white px-3 py-1 rounded cursor-pointer"
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    await updateDispensaryStatus(disp._id, 'pending');
+                  }}
+                >
+                  Pending
+                </button>
+              </div>
+            )}
+            onRowClick={handleViewDispensary}
+          />
         </>
       )}
 
@@ -241,6 +302,14 @@ export default function AdminDashboardPage() {
           onClose={handleCloseApplicationModal}
           onApprove={handleApproveApplication}
           onReject={handleRejectApplication}
+        />
+      )}
+
+      {selectedDispensary && (
+        <DispensaryModal
+          dispensary={selectedDispensary}
+          isOpen={!!selectedDispensary}
+          onClose={handleCloseDispensaryModal}
         />
       )}
     </DashboardLayout>

@@ -5,6 +5,7 @@ interface Column<T> {
   key: keyof T | string;
   label: string;
   render?: (item: T) => React.ReactNode;
+  width?: string;
 }
 
 interface AdminTableProps<T> {
@@ -20,24 +21,38 @@ export default function AdminTable<T extends { _id: string }>({
   actions,
   onRowClick,
 }: AdminTableProps<T>) {
+  const gridTemplateColumns = [
+    ...columns.map(col => col.width || 'minmax(150px, 1fr)'),
+    ...(actions ? ['auto'] : []),
+  ].join(' ');
+
   return (
-    <div className="w-full space-y-2">
-      <div className="hidden md:grid bg-orange-100 rounded-xl p-4 md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:gap-4 font-semibold text-gray-700">
+    <div className="w-full overflow-x-auto">
+      {/* Header */}
+      <div
+        className="hidden md:grid bg-orange-100 rounded-t-xl p-4 font-semibold text-gray-700 mb-2 border-b border-orange-200"
+        style={{ gridTemplateColumns }}
+      >
         {columns.map((col) => (
-          <div key={col.key as string}>{col.label}</div>
+          <div key={col.key as string} className="truncate">
+            {col.label}
+          </div>
         ))}
         {actions && <div>Actions</div>}
       </div>
 
+      {/* Rows */}
       <div className="space-y-4">
         {data.map((item) => (
           <div
             key={item._id}
             onClick={() => onRowClick?.(item)}
-            className="bg-white shadow-md rounded-xl p-4 md:grid md:grid-cols-[repeat(auto-fit,minmax(150px,1fr))] md:gap-4 hover:shadow-lg transition cursor-pointer"
+            className="bg-white shadow-md p-4 md:grid md:gap-4 hover:shadow-lg transition cursor-pointer"
+            style={{ gridTemplateColumns }}
           >
             {columns.map((col) => (
-              <div key={col.key as string} className="flex flex-col md:flex-row md:items-center">
+              <div key={col.key as string} className="truncate">
+                {/* Show label on mobile */}
                 <span className="text-sm font-semibold text-gray-500 md:hidden">{col.label}</span>
                 <span className="text-gray-900">
                   {col.render ? col.render(item) : (item as any)[col.key]}
@@ -45,7 +60,11 @@ export default function AdminTable<T extends { _id: string }>({
               </div>
             ))}
 
-            {actions && <div className="flex gap-2 mt-2 md:mt-0">{actions(item)}</div>}
+            {actions && (
+              <div className="flex flex-wrap justify-start gap-2 mt-2 md:mt-0">
+                {actions(item)}
+              </div>
+            )}
           </div>
         ))}
       </div>

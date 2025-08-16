@@ -112,4 +112,32 @@ router.get('/my', authMiddleware, async (req, res) => {
   }
 });
 
+router.post('/:id/status', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!['approved', 'rejected', 'pending'].includes(status)) {
+      return res.status(400).json({ message: 'Invalid status' });
+    }
+
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) {
+      return res.status(404).json({ message: 'Dispensary not found' });
+    }
+
+    if (req.user.role !== 'admin') {
+      return res.status(403).json({ message: 'Not authorized' });
+    }
+
+    dispensary.status = status;
+    await dispensary.save();
+
+    res.json({ success: true, dispensary });
+  } catch (err) {
+    console.error('Error updating dispensary status:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 export default router;
