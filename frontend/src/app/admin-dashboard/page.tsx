@@ -5,9 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import AdminTable from '@/components/AdminTable';
 import DashboardLayout, { TabKey } from '../../components/dashboard/DashboardLayout';
-// import UsersList from '../partner-dashboard/components/UsersList';
 import DealsList from '../partner-dashboard/components/DealsList';
-// import DispensariesList from './components/DispensariesList';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
@@ -111,10 +109,26 @@ export default function AdminDashboardPage() {
 
   const handleApproveApplication = async (id: string) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/approve`, null, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      setApplications((prev) => prev.map(a => a._id === id ? { ...a, status: 'approved' } : a));
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/approve`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+
+      const updatedApp = res.data.application;
+      const updatedDisp = res.data.dispensary;
+
+      // Update applications
+      setApplications((prev) =>
+        prev.map((a) => (a._id === id ? updatedApp : a))
+      );
+
+      // Update dispensaries if there’s an associated dispensary
+      if (updatedDisp) {
+        setDispensaries((prev) =>
+          prev.map((d) => (d._id === updatedDisp._id ? updatedDisp : d))
+        );
+      }
     } catch (err) {
       console.error(err);
     }
@@ -122,10 +136,24 @@ export default function AdminDashboardPage() {
 
   const handleRejectApplication = async (id: string) => {
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/reject`, null, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` },
-      });
-      setApplications((prev) => prev.map(a => a._id === id ? { ...a, status: 'rejected' } : a));
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/reject`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+
+      const updatedApp = res.data.application;
+      const updatedDisp = res.data.dispensary;
+
+      setApplications((prev) =>
+        prev.map((a) => (a._id === id ? updatedApp : a))
+      );
+
+      if (updatedDisp) {
+        setDispensaries((prev) =>
+          prev.map((d) => (d._id === updatedDisp._id ? updatedDisp : d))
+        );
+      }
     } catch (err) {
       console.error(err);
     }
@@ -142,6 +170,7 @@ export default function AdminDashboardPage() {
       setDispensaries((prev) =>
         prev.map((d) => (d._id === id ? { ...d, status } : d))
       );
+      setSelectedDispensary(prev => prev?._id === id ? { ...prev, status } : prev);
     } catch (err) {
       console.error('Failed to update dispensary status', err);
     }
@@ -159,6 +188,7 @@ export default function AdminDashboardPage() {
       setUsers((prev) =>
         prev.map((u) => (u._id === id ? { ...u, isActive: status === 'active' } : u))
       );
+      setSelectedUser(prev => prev?._id === id ? { ...prev, isActive: status === 'active' } : prev);
     } catch (err) {
       console.error('Failed to update user status', err);
     }
@@ -180,19 +210,12 @@ export default function AdminDashboardPage() {
 
       const updatedSubscription: Subscription = await res.json();
 
-      // Update the selected dispensary
-      setSelectedDispensary((prev) =>
-        prev
-          ? { ...prev, subscription: updatedSubscription }
-          : prev
+      setSelectedDispensary(prev =>
+        prev && prev._id === id ? { ...prev, subscription: updatedSubscription } : prev
       );
-
-      // Update the dispensaries list by matching dispensary._id
-      setDispensaries((prev) =>
-        prev.map((d) =>
-          d._id === selectedDispensary?._id
-            ? { ...d, subscription: updatedSubscription }
-            : d
+      setDispensaries(prev =>
+        prev.map(d =>
+          d._id === id ? { ...d, subscription: updatedSubscription } : d
         )
       );
     } catch (err) {
@@ -237,36 +260,36 @@ export default function AdminDashboardPage() {
               { key: 'email', label: 'Email' },
               { key: 'role', label: 'Role' },
               {
-                key: 'isActive', 
-                label: 'Is Active?', 
-                render: (user: User) => (user.isActive ? 'Active' : 'Inactive') 
+                key: 'isActive',
+                label: 'Is Active?',
+                render: (user: User) => (
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      user.isActive
+                        ? 'bg-green-100 text-green-800'
+                        : 'bg-red-100 text-red-800'
+                    }`}
+                  >
+                    {user.isActive ? 'Active' : 'Inactive'}
+                  </span>
+                ),
               },
             ]}
             actions={(user) => (
-              <div className="flex flex-wrap gap-2">
-                <button
-                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await updateUserStatus(user._id, 'active');
-                  }}
-                >
-                  Activate
-                </button>
-                <button
-                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={async (e) => {
-                    e.stopPropagation();
-                    await updateUserStatus(user._id, 'inactive');
-                  }}
-                >
-                  Deactivate
-                </button>
-              </div>
+              <button
+                className={`px-3 py-1 rounded cursor-pointer text-white ${
+                  user.isActive ? 'bg-red-600' : 'bg-green-600'
+                }`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await updateUserStatus(user._id, user.isActive ? 'inactive' : 'active');
+                }}
+              >
+                {user.isActive ? 'Deactivate' : 'Activate'}
+              </button>
             )}
             onRowClick={(user: SetStateAction<User | null>) => setSelectedUser(user)}
           />
-
           {selectedUser && (
             <UserModal
               user={selectedUser}
@@ -354,33 +377,43 @@ export default function AdminDashboardPage() {
               { key: 'firstName', label: 'First Name' },
               { key: 'lastName', label: 'Last Name' },
               { key: 'email', label: 'Email' },
-              { key: 'status', label: 'Status' },
               {
-                key: 'dispensaryName',
-                label: 'Dispensary',
+                key: 'status',
+                label: 'Status',
+                render: (app: any) => (
+                  <span
+                    className={`px-2 py-1 rounded-full text-xs font-semibold ${
+                      app.status === 'approved'
+                        ? 'bg-green-100 text-green-800'
+                        : app.status === 'rejected'
+                        ? 'bg-red-100 text-red-800'
+                        : 'bg-yellow-100 text-yellow-800'
+                    }`}
+                  >
+                    {app.status.toUpperCase()}
+                  </span>
+                ),
               },
+              { key: 'dispensaryName', label: 'Dispensary' },
             ]}
             actions={(app) => (
-              <>
-                <button
-                  className="bg-green-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleApproveApplication(app._id);
-                  }}
-                >
-                  Approve
-                </button>
-                <button
-                  className="bg-red-600 text-white px-3 py-1 rounded cursor-pointer"
-                  onClick={(e) => {
-                    e.stopPropagation();
+              <button
+                className={`px-3 py-1 rounded cursor-pointer ${
+                  app.status === 'approved'
+                    ? 'bg-red-600 text-white'
+                    : 'bg-green-600 text-white'
+                }`}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  if (app.status === 'approved') {
                     handleRejectApplication(app._id);
-                  }}
-                >
-                  Reject
-                </button>
-              </>
+                  } else {
+                    handleApproveApplication(app._id);
+                  }
+                }}
+              >
+                {app.status === 'approved' ? 'Reject' : 'Approve'}
+              </button>
             )}
             onRowClick={handleViewApplication}
           />

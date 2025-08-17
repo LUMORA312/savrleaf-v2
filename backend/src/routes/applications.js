@@ -1,6 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
 import Application from '../models/Application.js';
+import Dispensary from '../models/Dispensary.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -60,13 +61,17 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
     const app = await Application.findById(req.params.id);
     if (!app) return res.status(404).json({ message: 'Application not found' });
 
+    const dispensary = await Dispensary.findOne({ application: app._id });
+
     app.status = 'approved';
     await app.save();
 
-    // TO DO: IMPLEMENT PAYMENT
-    // sendEmail(app.email, 'Your application is approved! Proceed with payment.');
+    if (dispensary) {
+      dispensary.status = 'approved';
+      await dispensary.save();
+    }
 
-    res.json({ message: 'Application approved', application: app });
+    res.json({ message: 'Application and dispensary approved', application: app, dispensary });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });
@@ -78,13 +83,17 @@ router.post('/:id/reject', authMiddleware, adminMiddleware, async (req, res) => 
     const app = await Application.findById(req.params.id);
     if (!app) return res.status(404).json({ message: 'Application not found' });
 
+    const dispensary = await Dispensary.findOne({ application: app._id });
+
     app.status = 'rejected';
     await app.save();
 
-    // TO DO: IMPLEMENT PAYMENT & EMAIL
-    // sendEmail(app.email, 'Your application has been rejected.');
+    if (dispensary) {
+      dispensary.status = 'rejected';
+      await dispensary.save();
+    }
 
-    res.json({ message: 'Application rejected', application: app });
+    res.json({ message: 'Application and dispensary rejected', application: app, dispensary });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

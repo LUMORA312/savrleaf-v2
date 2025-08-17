@@ -1,8 +1,7 @@
 import express from 'express';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
-import authMiddleware from '../middleware/authMiddleware.js';
-import mongoose from 'mongoose';
+import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -112,7 +111,7 @@ router.get('/my', authMiddleware, async (req, res) => {
   }
 });
 
-router.post('/:id/status', authMiddleware, async (req, res) => {
+router.post('/:id/status', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { id } = req.params;
     const { status } = req.body;
@@ -121,19 +120,18 @@ router.post('/:id/status', authMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'Invalid status' });
     }
 
-    const dispensary = await Dispensary.findById(id);
-    if (!dispensary) {
-      return res.status(404).json({ message: 'Dispensary not found' });
-    }
-
-    if (req.user.role !== 'admin') {
-      return res.status(403).json({ message: 'Not authorized' });
-    }
+    const dispensary = await Dispensary.findById(id).populate('application');
+    if (!dispensary) return res.status(404).json({ message: 'Dispensary not found' });
 
     dispensary.status = status;
     await dispensary.save();
 
-    res.json({ success: true, dispensary });
+    if (dispensary.application) {
+      dispensary.application.status = status === 'pending' ? 'pending' : status;
+      await dispensary.application.save();
+    }
+
+    res.json({ success: true, dispensary, application: dispensary.application });
   } catch (err) {
     console.error('Error updating dispensary status:', err);
     res.status(500).json({ success: false, message: 'Server error' });
