@@ -47,7 +47,7 @@ export default function Header() {
               <li>
                 <button
                   onClick={handleLogout}
-                  className="font-bold text-orange-600 hover:text-orange-700 transition-colors"
+                  className="font-bold text-orange-600 hover:text-orange-700 transition-colors cursor-pointer"
                 >
                   Logout
                 </button>
