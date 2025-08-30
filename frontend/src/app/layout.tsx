@@ -14,14 +14,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en">
-      <AuthProvider>
-        <head />
-        <body className="antialiased">
-          <AgeGateProvider>
-            {children}
-          </AgeGateProvider>
-        </body>
-      </AuthProvider>
+      <body className="antialiased">
+        <AuthProvider>
+          <AgeGateProvider>{children}</AgeGateProvider>
+        </AuthProvider>
+      </body>
     </html>
   );
 }
