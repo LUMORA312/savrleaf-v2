@@ -33,7 +33,12 @@ export default function SearchBar({
             placeholder="Search products, brands, dispensaries..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
             className="w-full pl-14 pr-2 py-4 rounded-2xl bg-white border border-gray-300 shadow-sm text-gray-900 text-lg placeholder:text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-1 transition"
             aria-label="Search products, brands, dispensaries"
           />
@@ -47,6 +52,12 @@ export default function SearchBar({
             value={zipCode}
             onChange={handleZipCodeChange}
             maxLength={5}
+            onKeyDown={(e) => {
+              if (e.key === 'Enter') {
+                e.preventDefault();
+                handleSearch();
+              }
+            }}
             className="w-28 px-4 py-4 rounded-2xl bg-white border border-gray-300 shadow-sm text-gray-900 text-lg placeholder:text-sm placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-orange-600 focus:ring-offset-1 transition"
             aria-label="Enter ZIP code"
           />
