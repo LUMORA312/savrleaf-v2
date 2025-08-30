@@ -62,7 +62,7 @@ function DispensaryCard({
             />
           </div>
         ) : (
-          <div className="h-14 w-14 rounded-full bg-gray-200 flex items-center justify-center text-xs text-gray-400 font-semibold flex-shrink-0 border border-gray-300">
+          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-400 font-semibold flex-shrink-0">
             No Logo
           </div>
         )}
