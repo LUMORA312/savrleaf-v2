@@ -7,6 +7,7 @@ import HeroSection from './HeroSection';
 import DealsDispensariesTabs from './DealsDispensariesTabs';
 import Filters, { FilterValues } from '@/components/Filters';
 import { calculateDistanceInMiles, getCoordinatesForZip } from '@/utils/distance';
+import { amenitiesOptions } from '@/constants/amenities';
 
 export default function PublicHomepage() {
   const [deals, setDeals] = useState<Deal[]>([]);
@@ -232,7 +233,7 @@ export default function PublicHomepage() {
         filterValues={filters}
         onFilterChange={setFilters}
         forType={activeTab}
-        dispensaryAmenities={['Parking', 'Delivery', 'Wheelchair Accessible']}
+        dispensaryAmenities={amenitiesOptions}
       />
 
       <DealsDispensariesTabs

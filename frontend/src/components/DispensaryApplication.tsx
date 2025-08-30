@@ -4,6 +4,7 @@ import { useForm } from 'react-hook-form';
 import axios from 'axios';
 import { useState } from 'react';
 import { SubscriptionTier } from '@/types';
+import { amenitiesOptions } from '@/constants/amenities';
 
 type DispensaryApplicationFormProps = {
   selectedTier: SubscriptionTier | null;
@@ -66,21 +67,6 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
       setErrorMessage(message);
     }
   }
-
-  const amenitiesOptions = [
-    'Parking',
-    'Wi-Fi',
-    'Wheelchair Accessible',
-    'Outdoor Seating',
-    'Delivery',
-    'Curbside Pickup',
-    'Lounge Area',
-    'Pet Friendly',
-    'Cash Accepted',
-    'ATM On-Site',
-    'Private Consultation',
-    'Educational Materials',
-  ];
 
   if (submittedData) {
     return (
