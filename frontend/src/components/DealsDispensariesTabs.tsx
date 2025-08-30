@@ -21,7 +21,7 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
     <div className="max-w-7xl mx-auto px-3 my-10">
       <div className="flex space-x-4 mb-6">
         <button
-          className={`px-6 py-2 rounded-full text-sm font-semibold transition ${
+          className={`px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer ${
             activeTab === 'deals'
               ? 'bg-orange-600 text-white shadow-md'
               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
@@ -31,7 +31,7 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
           Deals
         </button>
         <button
-          className={`px-6 py-2 rounded-full text-sm font-semibold transition ${
+          className={`px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer ${
             activeTab === 'dispensaries'
               ? 'bg-orange-600 text-white shadow-md'
               : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
