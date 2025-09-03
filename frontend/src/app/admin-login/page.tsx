@@ -80,7 +80,7 @@ export default function AdminLogin() {
 
           <button
             type="submit"
-            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded transition"
+            className="bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 rounded transition cursor-pointer"
           >
             Log In
           </button>
