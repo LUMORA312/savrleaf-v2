@@ -32,7 +32,7 @@ app.use(cors({
   // TO DO: RESTRICT
   origin: [
     'http://localhost:3000',
-    'https://savrleaf-v2-oyg8-ajp28avh9-rose-m-ramoss-projects.vercel.app/'
+    'https://savrleaf-v2-oyg8-ajp28avh9-rose-m-ramoss-projects.vercel.app',
   ],
   credentials: true,
 }));
