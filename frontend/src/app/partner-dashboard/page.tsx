@@ -10,6 +10,7 @@ import DispensaryInfo from './components/DispensaryInfo';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
+import { User } from '@/types';
 
 interface OverviewData {
   totalDeals: number;
@@ -166,7 +167,19 @@ export default function PartnerDashboardPage() {
       )}
 
       {activeTab === 'dispensary' && <DispensaryInfo dispensaries={dispensaries} />}
-      {activeTab === 'user' && <UserInfo user={user} />}
+      {activeTab === 'user' && user && (
+        <UserInfo
+          user={{
+            _id: user.id,
+            firstName: user.name?.split(' ')[0] || '',
+            lastName: user.name?.split(' ')[1] || '',
+            email: user.email,
+            role: user.role as 'partner' | 'admin',
+            isActive: true,
+            dispensaries: [],
+          }}
+        />
+      )}
 
       {showDealForm && (
         <Modal isOpen={true} onClose={handleCancelForm}>
