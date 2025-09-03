@@ -28,33 +28,34 @@ dotenv.config({
 
 const app = express();
 
+// Allowed origins
 const allowedOrigins = [
   'http://localhost:3000',
   'https://savrleaf.com',
 ];
+
+// Regex to match any Vercel deployment domain
 const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
 
-app.use(
-  cors({
-    origin: (origin, callback) => {
-      console.log('🔎 Incoming origin:', origin);
+// CORS middleware
+app.use(cors({
+  origin: (origin, callback) => {
+    console.log('🔎 Incoming origin:', origin);
 
-      if (!origin) return callback(null, true);
+    // Allow non-browser requests like Postman or server-to-server
+    if (!origin) return callback(null, true);
 
-      if (
-        allowedOrigins.includes(origin) ||
-        vercelRegex.test(origin)
-      ) {
-        console.log('✅ CORS allowed:', origin);
-        callback(null, true);
-      } else {
-        console.log('❌ CORS blocked:', origin);
-        callback(new Error('Not allowed by CORS'));
-      }
-    },
-    credentials: true,
-  })
-);
+    if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
+      console.log('✅ CORS allowed:', origin);
+      callback(null, true);
+    } else {
+      console.log('❌ CORS blocked:', origin);
+      // Instead of throwing error, just reject with null origin so browser sees correct header
+      callback(null, false);
+    }
+  },
+  credentials: true,
+}));
 
 app.use(session({
   secret: process.env.JWT_SECRET,
@@ -62,7 +63,7 @@ app.use(session({
   saveUninitialized: false,
   cookie: {
     httpOnly: true,
-    secure: false,
+    secure: process.env.NODE_ENV === 'production',
     sameSite: 'lax',
     maxAge: 24 * 60 * 60 * 1000,
   },
@@ -70,7 +71,6 @@ app.use(session({
 
 app.use(express.json());
 
-// Log every request for debugging
 app.use((req, res, next) => {
   console.log(`${req.method} ${req.url}`);
   next();
