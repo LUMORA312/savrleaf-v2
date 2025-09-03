@@ -10,7 +10,7 @@ import DispensaryInfo from './components/DispensaryInfo';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
-import { User } from '@/types';
+import { Deal, Dispensary } from '@/types';
 
 interface OverviewData {
   totalDeals: number;
@@ -25,10 +25,10 @@ export default function PartnerDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
   const [showDealForm, setShowDealForm] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<any | null>(null);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
   const [overview, setOverview] = useState<OverviewData | null>(null);
-  const [dispensaries, setDispensaries] = useState<any[]>([]);
-  const [deals, setDeals] = useState<any[]>([]);
+  const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
+  const [deals, setDeals] = useState<Deal[]>([]);
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
 
@@ -76,12 +76,12 @@ export default function PartnerDashboardPage() {
     );
   }
 
-  const handleEditDeal = (deal: any) => {
+  const handleEditDeal = (deal: Deal) => {
     setSelectedDeal(deal);
     setShowDealForm(true);
   };
 
-  const handleSaveDeal = (savedDeal: any) => {
+  const handleSaveDeal = (savedDeal: Deal) => {
     if (selectedDeal) {
       setDeals((prev) => prev.map((d) => (d._id === savedDeal._id ? savedDeal : d)));
     } else {

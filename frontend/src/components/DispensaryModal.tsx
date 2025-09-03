@@ -8,7 +8,7 @@ interface DispensaryModalProps {
   subscription?: Subscription | null;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateSubscription?: (id: string, adminSkuOverride: Number) => Promise<void>;
+  onUpdateSubscription?: (id: string, adminSkuOverride: number) => Promise<void>;
 }
 
 export default function DispensaryModal({

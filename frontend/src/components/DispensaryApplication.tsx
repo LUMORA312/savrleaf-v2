@@ -1,7 +1,7 @@
 'use client';
 
 import { useForm } from 'react-hook-form';
-import axios from 'axios';
+import axios, { AxiosError } from 'axios';
 import { useState } from 'react';
 import { SubscriptionTier } from '@/types';
 import { amenitiesOptions } from '@/constants/amenities';
@@ -44,10 +44,12 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
   async function onSubmit(data: ApplicationFormData) {
     setErrorMessage(null);
     setSuccessMessage(null);
+
     if (!selectedTier) {
       setErrorMessage('Please select a subscription tier');
       return;
     }
+
     const payload = { ...data, subscriptionTier: selectedTier._id };
 
     try {
@@ -57,12 +59,16 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
       setSuccessMessage('Application submitted successfully!');
       setSubmittedData(payload);
       reset();
-    } catch (err: any) {
-      const message =
-        err.response?.data?.error ||
-        err.response?.data?.message ||
-        err.message ||
-        'Failed to submit application';
+    } catch (err) {
+      let message = 'Failed to submit application';
+
+      if (axios.isAxiosError(err)) {
+        const axiosErr = err as AxiosError<{ error?: string; message?: string }>;
+        message = axiosErr.response?.data?.error
+          || axiosErr.response?.data?.message
+          || axiosErr.message
+          || message;
+      }
 
       setErrorMessage(message);
     }

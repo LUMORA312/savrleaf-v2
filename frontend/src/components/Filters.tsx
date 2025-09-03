@@ -32,13 +32,13 @@ export default function Filters({
   dispensaryAmenities = [],
   forType,
 }: FiltersProps) {
-  const [localFilters, setLocalFilters] = useState(filterValues);
+  const [localFilters, setLocalFilters] = useState<FilterValues>(filterValues);
 
   useEffect(() => {
     setLocalFilters(filterValues);
   }, [filterValues]);
 
-  const handleChange = (field: keyof FilterValues, value: any) => {
+  const handleChange = <K extends keyof FilterValues>(field: K, value: FilterValues[K]) => {
     const updatedFilters = { ...localFilters, [field]: value };
     setLocalFilters(updatedFilters);
     onFilterChange(updatedFilters);
@@ -47,14 +47,14 @@ export default function Filters({
   return (
     <section className="max-w-7xl mx-auto px-6 py-6 bg-white rounded-lg shadow-md my-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
-        {/* Access Type - deals only */}
+        {/* Access Type */}
         {forType === 'deal' && (
           <div>
             <label htmlFor="accessType" className="block text-sm font-semibold mb-1">Access Type</label>
             <select
               id="accessType"
               value={localFilters.accessType}
-              onChange={(e) => handleChange('accessType', e.target.value)}
+              onChange={(e) => handleChange('accessType', e.target.value as FilterValues['accessType'])}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
             >
               <option value="">All</option>
@@ -73,14 +73,14 @@ export default function Filters({
               <input
                 type="number"
                 placeholder="Min"
-                value={localFilters.thcMin || ''}
+                value={localFilters.thcMin ?? ''}
                 onChange={(e) => handleChange('thcMin', e.target.value ? Number(e.target.value) : undefined)}
                 className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
               />
               <input
                 type="number"
                 placeholder="Max"
-                value={localFilters.thcMax || ''}
+                value={localFilters.thcMax ?? ''}
                 onChange={(e) => handleChange('thcMax', e.target.value ? Number(e.target.value) : undefined)}
                 className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
               />
@@ -96,14 +96,14 @@ export default function Filters({
               <input
                 type="number"
                 placeholder="Min"
-                value={localFilters.cbdMin || ''}
+                value={localFilters.cbdMin ?? ''}
                 onChange={(e) => handleChange('cbdMin', e.target.value ? Number(e.target.value) : undefined)}
                 className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
               />
               <input
                 type="number"
                 placeholder="Max"
-                value={localFilters.cbdMax || ''}
+                value={localFilters.cbdMax ?? ''}
                 onChange={(e) => handleChange('cbdMax', e.target.value ? Number(e.target.value) : undefined)}
                 className="w-1/2 border border-gray-300 rounded-md px-3 py-2 text-sm"
               />
@@ -118,7 +118,7 @@ export default function Filters({
             <input
               type="text"
               placeholder="Enter strain"
-              value={localFilters.strain || ''}
+              value={localFilters.strain ?? ''}
               onChange={(e) => handleChange('strain', e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
@@ -130,7 +130,7 @@ export default function Filters({
           <div>
             <label className="block text-sm font-semibold mb-1">Category</label>
             <select
-              value={localFilters.category || ''}
+              value={localFilters.category ?? ''}
               onChange={(e) => handleChange('category', e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             >
@@ -162,7 +162,7 @@ export default function Filters({
           </select>
         </div>
 
-        {/* Amenities - dispensaries only */}
+        {/* Amenities */}
         {forType === 'dispensary' && (
           <div className="col-span-1 md:col-span-2">
             <label className="block text-sm font-semibold mb-1">Amenities</label>
@@ -199,7 +199,7 @@ export default function Filters({
           <select
             id="sortBy"
             value={localFilters.sortBy}
-            onChange={(e) => handleChange('sortBy', e.target.value)}
+            onChange={(e) => handleChange('sortBy', e.target.value as FilterValues['sortBy'])}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
           >
             <option value="">Default</option>

@@ -68,10 +68,16 @@ export default function PublicHomepage() {
 
         setDeals(dealsRes.data?.deals || []);
         setDispensaries(dispensariesRes.data?.dispensaries || []);
-      } catch (err: any) {
-        console.error('Fetch error:', err);
-        setError(err.message || 'Failed to fetch data');
-      } finally {
+      } catch (err: unknown) {
+        if (axios.isAxiosError(err)) {
+          setError(err.response?.data?.message || err.message);
+        } else if (err instanceof Error) {
+          setError(err.message);
+        } else {
+          setError('Failed to fetch data');
+        }
+      }
+      finally {
         setLoading(false);
       }
     };
@@ -135,7 +141,7 @@ export default function PublicHomepage() {
     if (currentLocation) {
       result = result.filter(d => {
         const dispensary = d.dispensary;
-        if (!dispensary?.coordinates) return false;
+        if (typeof dispensary === 'string') return false;
         const [longitude, latitude] = dispensary.coordinates.coordinates;
         const distance = calculateDistanceInMiles(
           currentLocation.latitude,

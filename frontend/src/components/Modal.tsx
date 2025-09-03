@@ -1,6 +1,12 @@
 'use client';
 
-export default function Modal({ isOpen, onClose, children }: any) {
+interface ModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  children: React.ReactNode;
+}
+
+export default function Modal({ isOpen, onClose, children }: ModalProps) {
   if (!isOpen) return null;
 
   return (

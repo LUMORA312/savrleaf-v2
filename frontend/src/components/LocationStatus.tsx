@@ -3,7 +3,7 @@
 import { MapPin } from 'lucide-react';
 
 interface LocationStatusProps {
-  userLocation: any;
+  userLocation: GeolocationPosition | GeolocationCoordinates | null;
   locationError: string | null;
   className?: string;
 }

@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { useAuth } from '@/context/AuthContext';
+import { User } from '@/types';
 
 export default function AdminLogin() {
   const [email, setEmail] = useState('');
@@ -25,18 +26,31 @@ export default function AdminLogin() {
     setError('');
 
     try {
-      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/admin/auth/login`, {
-        email,
-        password,
-      });
+      const res = await axios.post<{ token: string; user: User }>(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/auth/login`,
+        { email, password }
+      );
 
-      const { token, user } = res.data;
-
-      login(token, user);
+      const { token, user: backendUser } = res.data;
+      const contextUser = {
+        id: backendUser._id,
+        email: backendUser.email,
+        role: backendUser.role,
+        name: `${backendUser.firstName} ${backendUser.lastName}`,
+      };
+      login(token, contextUser);
       router.push('/admin-dashboard');
-    } catch (err: any) {
-      console.error('Admin login error:', err);
-      setError(err.response?.data?.message || err.message || 'Login failed');
+    } catch (err: unknown) {
+      let message = 'Login failed';
+
+      if (axios.isAxiosError(err)) {
+        message = err.response?.data?.message || err.message || message;
+      } else if (err instanceof Error) {
+        message = err.message;
+      }
+
+      console.error('Admin login error:', message);
+      setError(message);
     }
   };
 

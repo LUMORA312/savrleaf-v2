@@ -6,7 +6,7 @@ import SearchBar from './SearchBar';
 import logo from '../assets/logo.png';
 
 interface HeroSectionProps {
-  userLocation: any;
+  userLocation: GeolocationPosition | GeolocationCoordinates | null;
   locationError: string | null;
   searchTerm: string;
   setSearchTerm: (value: string) => void;

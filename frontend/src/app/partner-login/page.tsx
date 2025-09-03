@@ -14,23 +14,27 @@ export default function PartnerLogin() {
   const router = useRouter();
   const { login } = useAuth();
 
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/auth/login`, {
         email,
         password,
       });
+
       const { token, user } = res.data;
 
       login(token, user);
       router.push('/partner-dashboard');
-    } catch (err: any) {
+    } catch (err: unknown) {
       console.error('Login error:', err);
-      if (err.response?.data?.message) {
-        setError(err.response.data.message);
-      } else if (err.message) {
+
+      if (axios.isAxiosError(err)) {
+        setError(err.response?.data?.message || err.message || 'Login failed');
+      } else if (err instanceof Error) {
         setError(err.message);
       } else {
         setError('Login failed');

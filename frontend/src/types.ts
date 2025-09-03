@@ -44,7 +44,7 @@ export interface Deal {
   originalPrice: number;
   salePrice: number;
   images: string[];
-  dispensary: Dispensary;
+  dispensary: Dispensary | string;
   startDate: string;
   endDate: string;
   accessType: 'medical' | 'recreational' | 'both';
@@ -128,7 +128,7 @@ export interface Subscription {
   billingInterval: BillingInterval;
   bonusSkus: number;
   adminSkuOverride?: number | null;
-  metadata: Record<string, any>;
+  metadata: Record<string, string | number | boolean | object | null>;
   createdAt: string;
   updatedAt: string;
 }

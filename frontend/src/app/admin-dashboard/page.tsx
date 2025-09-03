@@ -10,7 +10,7 @@ import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
 import ApplicationModal from '@/components/ApplicationModal';
-import { Dispensary, Subscription, User } from '@/types';
+import { Application, Deal, Dispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
 
@@ -26,15 +26,15 @@ export default function AdminDashboardPage() {
 
   const [activeTab, setActiveTab] = useState<TabKey>('adminOverview');
   const [showDealForm, setShowDealForm] = useState(false);
-  const [selectedDeal, setSelectedDeal] = useState<any | null>(null);
+  const [selectedDeal, setSelectedDeal] = useState<Deal | null>(null);
 
   const [overview, setOverview] = useState<OverviewData | null>(null);
-  const [users, setUsers] = useState<any[]>([]);
-  const [dispensaries, setDispensaries] = useState<any[]>([]);
-  const [deals, setDeals] = useState<any[]>([]);
-  const [applications, setApplications] = useState<any[]>([]);
-  const [selectedApplication, setSelectedApplication] = useState<any | null>(null);
-  const handleViewApplication = (app: any) => setSelectedApplication(app);
+  const [users, setUsers] = useState<User[]>([]);
+  const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
+  const [deals, setDeals] = useState<Deal[]>([]);
+  const [applications, setApplications] = useState<Application[]>([]);
+  const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
+  const handleViewApplication = (app: Application) => setSelectedApplication(app);
   const handleCloseApplicationModal = () => setSelectedApplication(null);
   const [selectedDispensary, setSelectedDispensary] = useState<Dispensary | null>(null);
   const handleViewDispensary = (disp: Dispensary) => setSelectedDispensary(disp);
@@ -91,12 +91,12 @@ export default function AdminDashboardPage() {
     );
   }
 
-  const handleEditDeal = (deal: any) => {
+  const handleEditDeal = (deal: Deal) => {
     setSelectedDeal(deal);
     setShowDealForm(true);
   };
 
-  const handleSaveDeal = (savedDeal: any) => {
+  const handleSaveDeal = (savedDeal: Deal) => {
     if (selectedDeal) {
       setDeals((prev) => prev.map((d) => (d._id === savedDeal._id ? savedDeal : d)));
     } else {
@@ -194,7 +194,7 @@ export default function AdminDashboardPage() {
     }
   };
 
-  async function handleUpdateSubscription(id: string, adminSkuOverride: Number) {
+  async function handleUpdateSubscription(id: string, adminSkuOverride: number) {
     try {
       const token = localStorage.getItem('token');
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/subscriptions/${id}`, {
@@ -380,7 +380,7 @@ export default function AdminDashboardPage() {
               {
                 key: 'status',
                 label: 'Status',
-                render: (app: any) => (
+                render: (app: Application) => (
                   <span
                     className={`px-2 py-1 rounded-full text-xs font-semibold ${
                       app.status === 'approved'

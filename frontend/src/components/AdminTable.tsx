@@ -12,7 +12,7 @@ interface AdminTableProps<T> {
   columns: Column<T>[];
   data: T[];
   actions?: (item: T) => React.ReactNode;
-  onRowClick?: any;
+  onRowClick?: (item: T) => void;
 }
 
 export default function AdminTable<T extends { _id: string }>({
@@ -55,7 +55,11 @@ export default function AdminTable<T extends { _id: string }>({
                 {/* Show label on mobile */}
                 <span className="text-sm font-semibold text-gray-500 md:hidden">{col.label}</span>
                 <span className="text-gray-900">
-                  {col.render ? col.render(item) : (item as any)[col.key]}
+                  {col.render
+                    ? col.render(item)
+                    : col.key in item
+                    ? String(item[col.key as keyof T])
+                    : null}
                 </span>
               </div>
             ))}

@@ -2,11 +2,12 @@
 
 import { format } from 'date-fns';
 import defaultDealImg from '@/assets/deal.jpg';
+import { Deal } from '@/types';
 
 interface DealsListProps {
-  deals: any[];
-  setDeals: (deals: any[]) => void;
-  onEdit?: (deal: any) => void;
+  deals: Deal[];
+  setDeals: (deals: Deal[]) => void;
+  onEdit?: (deal: Deal) => void;
 }
 
 export default function DealsList({ deals, setDeals, onEdit }: DealsListProps) {
@@ -106,7 +107,12 @@ export default function DealsList({ deals, setDeals, onEdit }: DealsListProps) {
                 <p><strong>Tags:</strong> {deal.tags.join(', ')}</p>
               )}
               {deal.dispensary && (
-                <p><strong>Dispensary:</strong> {deal.dispensary.name || deal.dispensary}</p>
+                <p>
+                  <strong>Dispensary:</strong>{' '}
+                  {typeof deal.dispensary === 'string'
+                    ? deal.dispensary
+                    : deal.dispensary.name}
+                </p>
               )}
             </div>
 

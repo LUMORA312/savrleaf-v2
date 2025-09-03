@@ -1,6 +1,7 @@
 import { AgeGateProvider } from "@/context/AgeGateContext";
 import "./globals.css";
 import { AuthProvider } from "@/context/AuthContext";
+import { poppins } from "@/fonts";
 
 export const metadata = {
   title: "SavrLeaf",
@@ -13,7 +14,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={poppins.className}>
       <body className="antialiased">
         <AuthProvider>
           <AgeGateProvider>{children}</AgeGateProvider>

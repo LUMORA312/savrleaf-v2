@@ -1,11 +1,12 @@
 'use client';
 
+import { Deal } from '@/types';
 import { useState, useEffect } from 'react';
 
 interface DealFormProps {
-  initialData?: any;
+  initialData?: Deal | null;
   dispensaryOptions: { _id: string; name: string }[];
-  onSave: (deal: any) => void;
+  onSave: (deal: Deal) => void;
   onCancel: () => void;
 }
 
@@ -36,7 +37,9 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         accessType: initialData.accessType || 'both',
         tags: initialData.tags?.join(', ') || '',
         images: initialData.images?.join(', ') || '',
-        dispensary: initialData.dispensary?._id || initialData.dispensary || '',
+        dispensary: typeof initialData.dispensary === 'string'
+          ? initialData.dispensary
+          : initialData.dispensary?._id || '',
         startDate: initialData.startDate ? initialData.startDate.slice(0, 10) : '',
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
@@ -49,12 +52,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
   ) => {
     const { name, value, type } = e.target;
 
-    let fieldValue: any;
-    if (type === 'checkbox') {
-      fieldValue = (e.target as HTMLInputElement).checked;
-    } else {
-      fieldValue = value;
-    }
+    const fieldValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
 
     setForm((prev) => ({
       ...prev,
