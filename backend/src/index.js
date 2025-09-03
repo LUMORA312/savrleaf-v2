@@ -30,22 +30,25 @@ const app = express();
 
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://savrleaf-v2-oyg8.vercel.app',
-  /^https:\/\/.*\.vercel\.app$/,
-  'https://savrleaf.com'
+  'https://savrleaf.com',
 ];
+const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
 
 app.use(
   cors({
     origin: (origin, callback) => {
+      console.log('🔎 Incoming origin:', origin);
+
       if (!origin) return callback(null, true);
+
       if (
-        allowedOrigins.some(o =>
-          o instanceof RegExp ? o.test(origin) : o === origin
-        )
+        allowedOrigins.includes(origin) ||
+        vercelRegex.test(origin)
       ) {
+        console.log('✅ CORS allowed:', origin);
         callback(null, true);
       } else {
+        console.log('❌ CORS blocked:', origin);
         callback(new Error('Not allowed by CORS'));
       }
     },
