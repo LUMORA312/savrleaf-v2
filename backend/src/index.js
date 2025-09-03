@@ -34,15 +34,13 @@ const allowedOrigins = [
   'https://savrleaf.com',
 ];
 
-// Regex to match any Vercel deployment domain
 const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
 
-// CORS middleware
 app.use(cors({
   origin: (origin, callback) => {
     console.log('🔎 Incoming origin:', origin);
 
-    // Allow non-browser requests like Postman or server-to-server
+    // Allow non-browser requests (Postman, server-to-server)
     if (!origin) return callback(null, true);
 
     if (allowedOrigins.includes(origin) || vercelRegex.test(origin)) {
@@ -50,12 +48,19 @@ app.use(cors({
       callback(null, true);
     } else {
       console.log('❌ CORS blocked:', origin);
-      // Instead of throwing error, just reject with null origin so browser sees correct header
-      callback(null, false);
+      // Throw an error so browser sees proper CORS failure
+      return callback(new Error('Not allowed by CORS'));
     }
   },
   credentials: true,
 }));
+
+// Ensure OPTIONS requests (preflight) are handled
+app.options('*', cors({
+  origin: allowedOrigins.concat('https://*.vercel.app'),
+  credentials: true,
+}));
+
 
 app.use(session({
   secret: process.env.JWT_SECRET,
