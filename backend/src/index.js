@@ -28,15 +28,30 @@ dotenv.config({
 
 const app = express();
 
-app.use(cors({
-  origin: [
-    'http://localhost:3000',
-    'https://savrleaf-v2-oyg8-ajp28avh9-rose-m-ramoss-projects.vercel.app',
-    'https://savrleaf-v2-oyg8-2btm1l6ly-rose-m-ramoss-projects.vercel.app',
-    'https://savrleaf-v2-oyg8.vercel.app/'
-  ],
-  credentials: true,
-}));
+const allowedOrigins = [
+  'http://localhost:3000',
+  'https://savrleaf-v2.vercel.app',
+  /\.vercel\.app$/,
+  'https://savrleaf.com'
+];
+
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      if (!origin) return callback(null, true);
+      if (
+        allowedOrigins.some(o =>
+          o instanceof RegExp ? o.test(origin) : o === origin
+        )
+      ) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    credentials: true,
+  })
+);
 
 app.use(session({
   secret: process.env.JWT_SECRET,
