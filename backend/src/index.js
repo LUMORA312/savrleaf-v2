@@ -32,6 +32,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://savrleaf.com',
+  'https://savrleaf-v2-oyg8.vercel.app/'
 ];
 
 const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
@@ -54,13 +55,6 @@ app.use(cors({
   },
   credentials: true,
 }));
-
-// Ensure OPTIONS requests (preflight) are handled
-app.options('*', cors({
-  origin: allowedOrigins.concat('https://*.vercel.app'),
-  credentials: true,
-}));
-
 
 app.use(session({
   secret: process.env.JWT_SECRET,
