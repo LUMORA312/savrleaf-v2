@@ -255,8 +255,11 @@ export default function AdminDashboardPage() {
           <AdminTable
             data={users}
             columns={[
-              { key: 'firstName', label: 'First Name' },
-              { key: 'lastName', label: 'Last Name' },
+              {
+                key: 'fullName',
+                label: 'Full Name',
+                render: (user: User) => `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+              },
               { key: 'email', label: 'Email' },
               { key: 'role', label: 'Role' },
               {
@@ -374,8 +377,11 @@ export default function AdminDashboardPage() {
           <AdminTable
             data={applications}
             columns={[
-              { key: 'firstName', label: 'First Name' },
-              { key: 'lastName', label: 'Last Name' },
+              {
+                key: 'fullName',
+                label: 'Full Name',
+                render: (app: Application) => `${app.firstName || ''} ${app.lastName || ''}`.trim(),
+              },
               { key: 'email', label: 'Email' },
               {
                 key: 'status',
