@@ -79,11 +79,6 @@ const DispensarySchema = new Schema(
       ref: 'User',
       required: true,
     },
-    subscription: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: 'Subscription',
-      required: false,
-    },
     adminNotes: {
       type: String,
     },

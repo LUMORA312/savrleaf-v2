@@ -24,6 +24,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     startDate: '',
     endDate: '',
     manuallyActivated: false,
+    category: ''
   });
 
   useEffect(() => {
@@ -43,6 +44,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         startDate: initialData.startDate ? initialData.startDate.slice(0, 10) : '',
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
+        category: initialData?.category || '',
       });
     }
   }, [initialData]);
@@ -129,6 +131,29 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           placeholder="Brand name"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
+      </div>
+
+      {/* Category */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category *
+        </label>
+        <select
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          required
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        >
+          <option value="" disabled>Select a category</option>
+          <option value="flower">Flower</option>
+          <option value="edibles">Edibles</option>
+          <option value="concentrates">Concentrates</option>
+          <option value="vapes">Vapes</option>
+          <option value="topicals">Topicals</option>
+          <option value="accessories">Accessories</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       {/* Description */}

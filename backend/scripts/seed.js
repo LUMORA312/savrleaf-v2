@@ -104,11 +104,11 @@ async function seed() {
     },
   ]);
 
-  const categories = ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories'];
+  const categories = ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories', 'other'];
   const brands = ['High Spirits', 'Green Wave', 'Herbal Bliss', 'Cloud Nine', 'Pure Leaf'];
   const strains = ['OG Kush', 'Sour Diesel', 'Blue Dream', 'Pineapple Express', 'Gelato'];
-  const selectedTier = tiers[Math.floor(Math.random() * tiers.length)];
 
+  // create a dispensary + 5 deals for a given partner
   async function createDispensaryWithDeals(user, appIndex, suffix = '') {
     const application = await Application.create({
       firstName: user.firstName,
@@ -131,7 +131,8 @@ async function seed() {
       amenities: ['Parking', 'Wheelchair Accessible'],
       status: 'approved',
       adminNotes: 'Seed data',
-      subscriptionTier: selectedTier._id,
+      // store the tier used for this partner for visibility in the application record
+      subscriptionTier: user.subscription ? user.subscription.tier : null,
     });
 
     const dispensary = await Dispensary.create({
@@ -149,23 +150,7 @@ async function seed() {
       adminNotes: 'Created from seed',
     });
 
-    const subscription = await Subscription.create({
-      dispensary: dispensary._id,
-      tier: application.subscriptionTier,
-      stripeSubscriptionId: `sub_${appIndex}${suffix}_abcdef123456`,
-      stripeCustomerId: `cus_${appIndex}${suffix}_abcdef123456`,
-      status: 'active',
-      startDate: new Date(),
-      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      billingInterval: 'month',
-      bonusSkus: 2,
-      metadata: { source: 'seed script' },
-    });
-
-    dispensary.subscription = subscription._id;
-    await dispensary.save();
-
+    // create some deals for the dispensary
     for (let d = 1; d <= 5; d++) {
       const category = categories[Math.floor(Math.random() * categories.length)];
       const brand = brands[Math.floor(Math.random() * brands.length)];
@@ -194,10 +179,18 @@ async function seed() {
         manuallyActivated: false,
       });
     }
+
+    // add dispensary to user's dispensaries array
+    user.dispensaries = user.dispensaries || [];
+    user.dispensaries.push(dispensary._id);
+    await user.save();
+
+    return dispensary;
   }
 
-  console.log('🤝 Creating partners, dispensaries, and deals...');
+  console.log('🤝 Creating partners, subscriptions, dispensaries, and deals...');
   for (let i = 1; i <= 3; i++) {
+    // create partner
     const partner = await User.create({
       firstName: `Partner${i}`,
       lastName: 'User',
@@ -206,8 +199,33 @@ async function seed() {
       role: 'partner',
     });
 
+    // pick a random tier for this partner
+    const chosenTier = tiers[Math.floor(Math.random() * tiers.length)];
+
+    // create ONE subscription per partner
+    const subscription = await Subscription.create({
+      // use a user field on the subscription (you said you'd move subscription to user)
+      user: partner._id,
+      tier: chosenTier._id,
+      stripeSubscriptionId: `sub_${i}_abcdef123456`,
+      stripeCustomerId: `cus_${i}_abcdef123456`,
+      status: 'active',
+      startDate: new Date(),
+      endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+      billingInterval: 'month',
+      bonusSkus: 2,
+      metadata: { source: 'seed script' },
+    });
+
+    // attach subscription to the partner
+    partner.subscription = subscription._id;
+    await partner.save();
+
+    // create one dispensary (and deals)
     await createDispensaryWithDeals(partner, i);
 
+    // optionally create a second dispensary for partner 1 to test multi-dispensary owner
     if (i === 1) {
       await createDispensaryWithDeals(partner, i, '-B');
     }
@@ -217,7 +235,6 @@ async function seed() {
   await mongoose.disconnect();
 }
 
-// First fix email index, then seed
 fixEmailIndex()
   .then(() => seed())
   .catch(err => {

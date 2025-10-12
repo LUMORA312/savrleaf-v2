@@ -2,11 +2,10 @@ import mongoose from 'mongoose';
 
 const subscriptionSchema = new mongoose.Schema(
   {
-    dispensary: {
+    user: {
       type: mongoose.Schema.Types.ObjectId,
-      ref: 'Dispensary',
+      ref: 'User',
       required: true,
-      unique: true,
     },
 
     tier: {

@@ -115,6 +115,32 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
+    const userId = req.user._id; // auth middleware sets this
+    const user = await User.findById(userId).populate({
+      path: 'dispensaries subscription',
+      populate: { path: 'tier' }
+    });
+
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+    if (!user.subscription) return res.status(400).json({ success: false, message: 'No subscription found for partner' });
+
+    const dispensaryIds = user.dispensaries.map(d => d._id);
+
+    const dealCount = await Deal.countDocuments({ dispensary: { $in: dispensaryIds } });
+
+    const baseLimit = user.subscription.tier?.baseSKULimit || 0;
+    const bonusSkus = user.subscription.bonusSkus || 0;
+    const adminBonusSkus = user.subscription.adminBonusSkus || 0;
+
+    const maxLimit = baseLimit + bonusSkus + adminBonusSkus;
+
+    if (dealCount >= maxLimit) {
+      return res.status(400).json({
+        success: false,
+        message: `Deal limit reached for your subscription tier. You can only create ${maxLimit} deals (current: ${dealCount})`
+      });
+    }
+
     const {
       title,
       description,
@@ -147,6 +173,7 @@ router.post('/', async (req, res) => {
 
     const savedDeal = await newDeal.save();
     res.status(201).json({ success: true, deal: savedDeal });
+
   } catch (err) {
     console.error('Error creating deal:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
