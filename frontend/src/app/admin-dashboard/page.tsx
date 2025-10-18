@@ -359,13 +359,13 @@ export default function AdminDashboardPage() {
             <h2 className="text-3xl font-extrabold text-orange-700 tracking-tight">
               Deals
             </h2>
-            <button
+            {/* <button
               onClick={() => setShowDealForm(true)}
               className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400"
               type="button"
             >
               Add Deal
-            </button>
+            </button> */}
           </div>
           <DealsList deals={deals} setDeals={setDeals} onEdit={handleEditDeal} />
         </>
@@ -380,7 +380,7 @@ export default function AdminDashboardPage() {
               {
                 key: 'fullName',
                 label: 'Full Name',
-                render: (app: Application) => `${app.firstName || ''} ${app.lastName || ''}`.trim(),
+                render: (app: Application) => `${app?.firstName || ''} ${app?.lastName || ''}`.trim(),
               },
               { key: 'email', label: 'Email' },
               {
@@ -426,7 +426,7 @@ export default function AdminDashboardPage() {
         </>
       )}
 
-      {showDealForm && (
+      {/* {showDealForm && (
         <Modal isOpen={true} onClose={handleCancelForm}>
           <DealForm
             initialData={selectedDeal}
@@ -435,7 +435,7 @@ export default function AdminDashboardPage() {
             dispensaryOptions={dispensaries}
           />
         </Modal>
-      )}
+      )} */}
       {selectedApplication && (
         <ApplicationModal
           application={selectedApplication}

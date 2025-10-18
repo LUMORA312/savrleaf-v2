@@ -10,7 +10,7 @@ import DispensaryInfo from './components/DispensaryInfo';
 import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
-import { Deal, Dispensary } from '@/types';
+import { Deal, Dispensary, User } from '@/types';
 
 interface OverviewData {
   totalDeals: number;
@@ -20,7 +20,7 @@ interface OverviewData {
 }
 
 export default function PartnerDashboardPage() {
-  const { user, isAuthenticated, loading } = useAuth();
+  const { user: authUser, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
   const [activeTab, setActiveTab] = useState<TabKey>('overview');
@@ -31,34 +31,38 @@ export default function PartnerDashboardPage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
+  const [user, setUser] = useState<User | null>(null);
 
   useEffect(() => {
-      if (loading) return;
+    if (loading) return;
 
-      if (!isAuthenticated || user?.role !== 'partner') {
-          router.replace('/partner-login');
-          return;
+    if (!isAuthenticated || authUser?.role !== 'partner') {
+      router.replace('/partner-login');
+      return;
+    }
+
+    const fetchDashboard = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+
+        setUser(res.data.user);
+
+        setOverview(res.data.overview);
+        setDispensaries(res.data.dispensaries);
+        setDeals(res.data.deals);
+      } catch (err) {
+        console.error('Dashboard fetch error:', err);
+        setFetchError('Failed to load dashboard data');
+      } finally {
+        setFetching(false);
       }
+    };
 
-      const fetchDashboard = async () => {
-          try {
-              const token = localStorage.getItem('token');
-              const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
-                  headers: { Authorization: `Bearer ${token}` },
-              });
-              setOverview(res.data.overview);
-              setDispensaries(res.data.dispensaries);
-              setDeals(res.data.deals);
-          } catch (err) {
-              console.error('Dashboard fetch error:', err);
-              setFetchError('Failed to load dashboard data');
-          } finally {
-              setFetching(false);
-          }
-      };
-
-      fetchDashboard();
-  }, [loading, isAuthenticated, user, router]);
+    fetchDashboard();
+  }, [loading, isAuthenticated, authUser, router]);
 
   if (loading || fetching) {
     return (
@@ -144,7 +148,10 @@ export default function PartnerDashboardPage() {
               My Deals
             </h2>
             <button
-              onClick={() => setShowDealForm(true)}
+              onClick={() => {
+                if (!user) return;
+                setShowDealForm(true);
+              }}
               className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400"
               type="button"
             >
@@ -167,27 +174,19 @@ export default function PartnerDashboardPage() {
       )}
 
       {activeTab === 'dispensary' && <DispensaryInfo dispensaries={dispensaries} />}
+
       {activeTab === 'user' && user && (
-        <UserInfo
-          user={{
-            _id: user.id,
-            firstName: user.name?.split(' ')[0] || '',
-            lastName: user.name?.split(' ')[1] || '',
-            email: user.email,
-            role: user.role as 'partner' | 'admin',
-            isActive: true,
-            dispensaries: [],
-          }}
-        />
+        <UserInfo user={user} /> // pass full backend user
       )}
 
-      {showDealForm && (
+      {user && showDealForm && (
         <Modal isOpen={true} onClose={handleCancelForm}>
           <DealForm
             initialData={selectedDeal}
             onSave={handleSaveDeal}
             onCancel={handleCancelForm}
             dispensaryOptions={dispensaries}
+            userId={user?.id}
           />
         </Modal>
       )}

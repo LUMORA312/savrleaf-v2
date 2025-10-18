@@ -10,6 +10,19 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
   try {
     const userId = req.user._id;
 
+    const user = await User.findById(userId)
+      .populate({
+        path: 'subscription',
+        populate: { path: 'tier' }
+      })
+      .lean();
+
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    if (!user.isActive) {
+      return res.status(403).json({ message: 'User is deactivated. Contact support.' });
+    }
+
     // Get dispensaries owned by user
     const dispensaries = await Dispensary.find({ user: userId }).lean();
     const dispensaryIds = dispensaries.map((d) => d._id);
@@ -23,10 +36,16 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
       (deal) => new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date()
     ).length;
 
-    // Fetch user info separately
-    const user = await User.findById(userId).lean();
+    // Subscription calculations
+    const subscription = user.subscription || null;
+    let maxSKUs = 0;
 
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (subscription?.tier) {
+      const baseLimit = subscription.tier.baseSKULimit || 0;
+      const bonus = subscription.bonusSkus || 0;
+      const adminAdditions = subscription.adminSkuOverride || 0;
+      maxSKUs = baseLimit + bonus + adminAdditions;
+    }
 
     res.json({
       user: {
@@ -35,6 +54,9 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
         firstName: user.firstName,
         lastName: user.lastName,
         role: user.role,
+        subscription,
+        maxSKUs,
+        usedSKUs: totalDeals
       },
       overview: {
         totalDeals,

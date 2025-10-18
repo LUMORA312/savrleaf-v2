@@ -16,16 +16,23 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
 
     const applications = await Application.find().lean();
 
+    // ✅ Populate subscription from USER
+    const users = await User.find()
+      .populate({
+        path: 'subscription',
+        populate: { path: 'tier' }
+      })
+      .lean();
+
+    const dispensaries = await Dispensary.find().lean(); // ❌ Do not populate here
+
+    const deals = await Deal.find().lean();
+
     res.json({
       overview: { totalDeals, totalUsers, totalDispensaries, totalApplications },
-      users: await User.find().lean(),
-      deals: await Deal.find().lean(),
-      dispensaries: await Dispensary.find()
-        .populate({
-          path: 'subscription',
-          populate: { path: 'tier' }
-        })
-        .lean(),
+      users,
+      deals,
+      dispensaries,
       applications,
     });
   } catch (err) {

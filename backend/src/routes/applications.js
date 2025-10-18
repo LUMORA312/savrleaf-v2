@@ -1,5 +1,7 @@
 import express from 'express';
 import bcrypt from 'bcryptjs';
+import User from '../models/User.js';
+import Subscription from '../models/Subscription.js';
 import Application from '../models/Application.js';
 import Dispensary from '../models/Dispensary.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
@@ -71,7 +73,11 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
         email: application.email,
         password: application.password,
         role: 'partner',
+        isActive: true
       });
+    } else {
+      user.isActive = true;
+      await user.save();
     }
 
     // 2️⃣ Create Dispensary for this application
@@ -128,6 +134,7 @@ router.post('/:id/reject', authMiddleware, adminMiddleware, async (req, res) => 
     const app = await Application.findById(req.params.id);
     if (!app) return res.status(404).json({ message: 'Application not found' });
 
+    const user = await User.findOne({ email: app.email });
     const dispensary = await Dispensary.findOne({ application: app._id });
 
     app.status = 'rejected';
@@ -138,7 +145,12 @@ router.post('/:id/reject', authMiddleware, adminMiddleware, async (req, res) => 
       await dispensary.save();
     }
 
-    res.json({ message: 'Application and dispensary rejected', application: app, dispensary });
+    if (user) {
+      user.isActive = false;
+      await user.save();
+    }
+
+    res.json({ message: 'Application, user, and dispensary rejected', application: app });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error' });

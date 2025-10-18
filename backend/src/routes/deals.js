@@ -1,4 +1,5 @@
 import express from 'express';
+import User from '../models/User.js';
 import Deal from '../models/Deal.js';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
@@ -115,11 +116,30 @@ router.get('/', async (req, res) => {
 
 router.post('/', async (req, res) => {
   try {
-    const userId = req.user._id; // auth middleware sets this
-    const user = await User.findById(userId).populate({
-      path: 'dispensaries subscription',
-      populate: { path: 'tier' }
-    });
+    const {
+      title,
+      description,
+      originalPrice,
+      salePrice,
+      category,
+      brand,
+      startDate,
+      endDate,
+      accessType,
+      tags,
+      dispensary,
+      images,
+      userId
+    } = req.body;
+
+    const user = await User.findById(userId)
+      .populate({
+        path: 'subscription',
+        populate: { path: 'tier' },
+        strictPopulate: false
+      })
+      .populate('dispensaries');
+
 
     if (!user) return res.status(404).json({ success: false, message: 'User not found' });
     if (!user.subscription) return res.status(400).json({ success: false, message: 'No subscription found for partner' });
@@ -140,21 +160,6 @@ router.post('/', async (req, res) => {
         message: `Deal limit reached for your subscription tier. You can only create ${maxLimit} deals (current: ${dealCount})`
       });
     }
-
-    const {
-      title,
-      description,
-      originalPrice,
-      salePrice,
-      category,
-      brand,
-      startDate,
-      endDate,
-      accessType,
-      tags,
-      dispensary,
-      images
-    } = req.body;
 
     const newDeal = new Deal({
       title,
