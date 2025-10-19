@@ -16,7 +16,6 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
 
     const applications = await Application.find().lean();
 
-    // ✅ Populate subscription from USER
     const users = await User.find()
       .populate({
         path: 'subscription',
@@ -24,7 +23,7 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
       })
       .lean();
 
-    const dispensaries = await Dispensary.find().lean(); // ❌ Do not populate here
+    const dispensaries = await Dispensary.find().lean();
 
     const deals = await Deal.find().lean();
 

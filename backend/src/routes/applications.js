@@ -80,25 +80,37 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
       await user.save();
     }
 
-    // 2️⃣ Create Dispensary for this application
-    const dispensary = await Dispensary.create({
-      name: application.dispensaryName,
-      legalName: application.legalName,
-      address: application.address,
-      licenseNumber: application.licenseNumber,
-      status: 'approved',
-      application: application._id,
-      user: user._id,
-      phoneNumber: application.phoneNumber,
-      websiteUrl: application.websiteUrl,
-      description: application.description,
-      amenities: application.amenities,
-      adminNotes: 'Created on approval',
-    });
+    // 2️⃣ Find or Create Dispensary
+    let dispensary = await Dispensary.findOne({ application: application._id });
+
+    if (!dispensary) {
+      // Create only if not exists
+      dispensary = await Dispensary.create({
+        name: application.dispensaryName,
+        legalName: application.legalName,
+        address: application.address,
+        licenseNumber: application.licenseNumber,
+        status: 'approved',
+        application: application._id,
+        user: user._id,
+        phoneNumber: application.phoneNumber,
+        websiteUrl: application.websiteUrl,
+        description: application.description,
+        amenities: application.amenities,
+        adminNotes: 'Created on approval',
+      });
+    } else {
+      // If it already exists, reactivate it
+      dispensary.status = 'approved';
+      dispensary.user = user._id;
+      await dispensary.save();
+    }
 
     // 3️⃣ Add dispensary to user's array
     user.dispensaries = user.dispensaries || [];
-    user.dispensaries.push(dispensary._id);
+    if (!user.dispensaries.includes(dispensary._id)) {
+      user.dispensaries.push(dispensary._id);
+    }
     await user.save();
 
     // 4️⃣ Attach subscription (optional for now, Stripe later)

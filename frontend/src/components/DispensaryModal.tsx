@@ -5,7 +5,6 @@ import { Dispensary, Subscription } from '@/types';
 
 interface DispensaryModalProps {
   dispensary: Dispensary;
-  subscription?: Subscription | null;
   isOpen: boolean;
   onClose: () => void;
   onUpdateSubscription?: (id: string, adminSkuOverride: number) => Promise<void>;
@@ -13,7 +12,6 @@ interface DispensaryModalProps {
 
 export default function DispensaryModal({
   dispensary,
-  subscription,
   isOpen,
   onClose,
   onUpdateSubscription
@@ -172,83 +170,6 @@ export default function DispensaryModal({
               ).toFixed(1)}{' '}
               ⭐ ({dispensary.ratings.length} ratings)
             </p>
-          </div>
-        )}
-        {/* Subscription & SKUs */}
-        {subscription && (
-          <div className="bg-gray-50 rounded-xl shadow-sm p-4">
-            <h3 className="text-sm font-semibold text-gray-700 mb-2">Subscription</h3>
-
-            <p className="text-gray-700">
-              <span className="font-medium">Tier:</span> {subscription.tier?.displayName || '—'}
-            </p>
-            <p className="text-gray-700">
-              <span className="font-medium">Status:</span>{' '}
-              <span
-                className={`px-2 py-1 rounded-full text-xs font-medium ${
-                  subscription.status === 'active'
-                    ? 'bg-green-100 text-green-700'
-                    : 'bg-gray-100 text-gray-700'
-                }`}
-              >
-                {subscription.status.toUpperCase()}
-              </span>
-            </p>
-
-            <div className="mt-3">
-              <span className="font-medium text-gray-700">Total SKUs Breakdown:</span>
-              <ul className="ml-4 mt-1 text-gray-700 text-sm space-y-1">
-                <li>
-                  Base SKUs: {subscription.tier?.baseSKULimit || 0}
-                </li>
-                <li>
-                  Annual Bonus SKUs: {subscription.tier?.annualBonusSKUs || 0}
-                </li>
-                <li>
-                  Extra Bonus SKUs: {subscription.bonusSkus || 0}
-                </li>
-                <li>
-                  Admin Override: {subscription.adminSkuOverride || 0}
-                </li>
-                <li className="font-semibold mt-1">
-                  Total:{" "}
-                  {(
-                    (subscription.tier?.baseSKULimit || 0) +
-                    (subscription.tier?.annualBonusSKUs || 0) +
-                    (subscription.bonusSkus || 0) +
-                    (subscription.adminSkuOverride || 0)
-                  )}
-                </li>
-              </ul>
-            </div>
-
-            {/* Admin Override Buttons */}
-            <div className="flex items-center gap-3 mt-4">
-              <span className="font-medium text-gray-700">Adjust Admin Override:</span>
-              <button
-                className="px-3 py-1 bg-red-600 text-white rounded shadow-sm hover:bg-red-700"
-                onClick={() =>
-                  onUpdateSubscription?.(
-                    subscription._id,
-                    Math.max(0, (subscription.adminSkuOverride || 0) - 1)
-                  )
-                }
-              >
-                -
-              </button>
-              <span className="w-8 text-center font-medium">{subscription.adminSkuOverride || 0}</span>
-              <button
-                className="px-3 py-1 bg-green-600 text-white rounded shadow-sm hover:bg-green-700"
-                onClick={() =>
-                  onUpdateSubscription?.(
-                    subscription._id,
-                    (subscription.adminSkuOverride || 0) + 1
-                  )
-                }
-              >
-                +
-              </button>
-            </div>
           </div>
         )}
       </div>

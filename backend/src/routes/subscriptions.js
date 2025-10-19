@@ -28,5 +28,4 @@ router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
-
 export default router;

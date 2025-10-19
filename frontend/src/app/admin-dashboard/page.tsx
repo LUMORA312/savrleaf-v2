@@ -13,6 +13,7 @@ import ApplicationModal from '@/components/ApplicationModal';
 import { Application, Deal, Dispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
+import { countUserActiveDeals } from '@/utils/usedSkus';
 
 interface OverviewData {
   totalUsers: number;
@@ -298,6 +299,8 @@ export default function AdminDashboardPage() {
               user={selectedUser}
               isOpen={!!selectedUser}
               onClose={() => setSelectedUser(null)}
+              onUpdateSubscription={handleUpdateSubscription}
+              usedSkus={countUserActiveDeals(selectedUser._id, deals, dispensaries)}
             />
           )}
         </>
@@ -452,7 +455,6 @@ export default function AdminDashboardPage() {
           isOpen={!!selectedDispensary}
           onClose={handleCloseDispensaryModal}
           onUpdateSubscription={handleUpdateSubscription}
-          subscription={selectedDispensary.subscription || null}
         />
       )}
     </DashboardLayout>
