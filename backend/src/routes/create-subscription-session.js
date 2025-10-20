@@ -4,11 +4,11 @@ import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
 
 const router = express.Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY!, {
+const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
   apiVersion: '2025-09-30.clover',
 });
 
-const PRICE_IDS: Record<string, string> = {
+const PRICE_IDS = {
   bronze: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
   silver: 'price_1SK4RiP9VfxczzVgzla0Ob85',
   gold: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
@@ -16,7 +16,7 @@ const PRICE_IDS: Record<string, string> = {
 
 router.post('/', async (req, res) => {
   try {
-    const { subscriptionId } = req.body as { subscriptionId: string };
+    const { subscriptionId } = req.body;
 
     if (!subscriptionId) {
       return res.status(400).json({ error: 'Missing subscriptionId' });
@@ -25,8 +25,8 @@ router.post('/', async (req, res) => {
     const subscription = await Subscription.findById(subscriptionId).populate('tier user');
     if (!subscription) return res.status(404).json({ error: 'Subscription not found' });
 
-    const user = subscription.user as any;
-    const tier = subscription.tier as any;
+    const user = subscription.user;
+    const tier = subscription.tier;
 
     const priceId = PRICE_IDS[tier.name.toLowerCase()]; // adjust if your tier names differ
     if (!priceId) throw new Error('Invalid tier name');
@@ -46,7 +46,7 @@ router.post('/', async (req, res) => {
     });
 
     res.status(200).json({ url: session.url });
-  } catch (err: any) {
+  } catch (err) {
     console.error(err);
     res.status(500).json({ error: err.message });
   }
