@@ -26,8 +26,10 @@ router.post('/', async (req, res) => {
   } = req.body;
 
   try {
+    // 1️⃣ Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // 2️⃣ Create Application
     const application = new Application({
       firstName,
       lastName,
@@ -42,18 +44,47 @@ router.post('/', async (req, res) => {
       description,
       amenities,
       subscriptionTier,
+      status: 'pending',
     });
-
     await application.save();
 
-    res.status(201).json({ message: 'Application submitted' });
+    // 3️⃣ Create User immediately but inactive
+    let user = await User.findOne({ email });
+    if (!user) {
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password: hashedPassword,
+        role: 'partner',
+        isActive: false, // cannot log in until payment
+      });
+    }
+
+    // 4️⃣ Create pending subscription (Stripe session later)
+    const subscription = await Subscription.create({
+      user: user._id,
+      tier: subscriptionTier,
+      status: 'pending', // waiting for Stripe payment
+      startDate: new Date(),
+      metadata: { source: 'application_submission' },
+    });
+    user.subscription = subscription._id;
+    await user.save();
+
+    // ✅ Return subscription ID for frontend Stripe integration
+    res.status(201).json({
+      message: 'Application submitted. User created. Proceed to payment.',
+      application,
+      user,
+      subscriptionId: subscription._id, // 👈 important
+    });
+
   } catch (error) {
     console.error(error);
-
     if (error.code === 11000 && error.keyValue?.email) {
       return res.status(400).json({ error: `Email ${error.keyValue.email} is already in use.` });
     }
-
     res.status(400).json({ error: 'Error submitting application' });
   }
 });
@@ -64,77 +95,19 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
     if (!application) return res.status(404).json({ message: 'Application not found' });
     if (application.status === 'approved') return res.status(400).json({ message: 'Already approved' });
 
-    // 1️⃣ Create User if not exists
-    let user = await User.findOne({ email: application.email });
-    if (!user) {
-      user = await User.create({
-        firstName: application.firstName,
-        lastName: application.lastName,
-        email: application.email,
-        password: application.password,
-        role: 'partner',
-        isActive: true
-      });
-    } else {
-      user.isActive = true;
+    // ✅ Update user to active only if payment complete (optional)
+    const user = await User.findOne({ email: application.email });
+    if (user) {
+      // keep isActive false until payment, admin approval doesn't activate automatically
+      // optionally, you can flag: user.isApproved = true
       await user.save();
     }
 
-    // 2️⃣ Find or Create Dispensary
-    let dispensary = await Dispensary.findOne({ application: application._id });
-
-    if (!dispensary) {
-      // Create only if not exists
-      dispensary = await Dispensary.create({
-        name: application.dispensaryName,
-        legalName: application.legalName,
-        address: application.address,
-        licenseNumber: application.licenseNumber,
-        status: 'approved',
-        application: application._id,
-        user: user._id,
-        phoneNumber: application.phoneNumber,
-        websiteUrl: application.websiteUrl,
-        description: application.description,
-        amenities: application.amenities,
-        adminNotes: 'Created on approval',
-      });
-    } else {
-      // If it already exists, reactivate it
-      dispensary.status = 'approved';
-      dispensary.user = user._id;
-      await dispensary.save();
-    }
-
-    // 3️⃣ Add dispensary to user's array
-    user.dispensaries = user.dispensaries || [];
-    if (!user.dispensaries.includes(dispensary._id)) {
-      user.dispensaries.push(dispensary._id);
-    }
-    await user.save();
-
-    // 4️⃣ Attach subscription (optional for now, Stripe later)
-    if (!user.subscription) {
-      const subscriptionTier = application.subscriptionTier;
-      if (subscriptionTier) {
-        const subscription = await Subscription.create({
-          user: user._id,
-          tier: subscriptionTier,
-          status: 'pending', // will be activated after Stripe payment
-          startDate: new Date(),
-          currentPeriodEnd: new Date(),
-          metadata: { source: 'admin approval' },
-        });
-        user.subscription = subscription._id;
-        await user.save();
-      }
-    }
-
-    // 5️⃣ Approve application
+    // ✅ Update application status
     application.status = 'approved';
     await application.save();
 
-    res.json({ message: 'Application approved and user created', user, dispensary });
+    res.json({ message: 'Application approved', application });
   } catch (err) {
     console.error(err);
     res.status(500).json({ message: 'Server error', error: err.message });

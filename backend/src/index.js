@@ -14,6 +14,8 @@ import adminAuthRoutes from '../src/routes/adminAuth.js';
 import adminRoutes from '../src/routes/adminRoutes.js';
 import usersRouter from '../src/routes/users.js';
 import subscriptionsRouter from '../src/routes/subscriptions.js';
+import createSubscriptionSessionRouter from '../src/routes/create-subscription-session.js';
+import stripeWebhookRouter from '../src/routes/stripe-webhook.js';
 
 import './models/Application.js';
 import './models/Deal.js';
@@ -86,6 +88,8 @@ app.use('/admin/auth', adminAuthRoutes);
 app.use('/admin', adminRoutes);
 app.use('/users', usersRouter);
 app.use('/subscriptions', subscriptionsRouter);
+app.use('/create-subscription-session', createSubscriptionSessionRouter);
+app.use('/stripe-webhook', stripeWebhookRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 
