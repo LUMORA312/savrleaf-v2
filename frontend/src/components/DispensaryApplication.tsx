@@ -71,7 +71,7 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
       } else {
         setErrorMessage('Failed to create Stripe Checkout session.');
       }
-
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setErrorMessage(err.response?.data?.error || err.message || 'Something went wrong');
     }
