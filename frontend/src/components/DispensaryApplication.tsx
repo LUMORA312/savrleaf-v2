@@ -50,27 +50,30 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
       return;
     }
 
-    const payload = { ...data, subscriptionTier: selectedTier._id };
-
     try {
-      await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications`, payload, {
-        headers: { 'Content-Type': 'application/json' }
+      // 1️⃣ Submit application
+      const appResp = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications`, {
+        ...data,
+        subscriptionTier: selectedTier._id
       });
-      setSuccessMessage('Application submitted successfully!');
-      setSubmittedData(payload);
-      reset();
-    } catch (err) {
-      let message = 'Failed to submit application';
+      const subscriptionId = appResp.data.subscriptionId;
 
-      if (axios.isAxiosError(err)) {
-        const axiosErr = err as AxiosError<{ error?: string; message?: string }>;
-        message = axiosErr.response?.data?.error
-          || axiosErr.response?.data?.message
-          || axiosErr.message
-          || message;
+      // 2️⃣ Create Stripe Checkout session
+      const checkoutResp = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/create-subscription-session`,
+        { subscriptionId }
+      );
+
+      const { url } = checkoutResp.data;
+      if (url) {
+        // 3️⃣ Redirect to Stripe
+        window.location.href = url;
+      } else {
+        setErrorMessage('Failed to create Stripe Checkout session.');
       }
 
-      setErrorMessage(message);
+    } catch (err: any) {
+      setErrorMessage(err.response?.data?.error || err.message || 'Something went wrong');
     }
   }
 

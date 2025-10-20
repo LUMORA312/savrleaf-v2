@@ -13,6 +13,7 @@ import ApplicationModal from '@/components/ApplicationModal';
 import { Application, Deal, Dispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
+import { countUserActiveDeals } from '@/utils/usedSkus';
 
 interface OverviewData {
   totalUsers: number;
@@ -255,8 +256,11 @@ export default function AdminDashboardPage() {
           <AdminTable
             data={users}
             columns={[
-              { key: 'firstName', label: 'First Name' },
-              { key: 'lastName', label: 'Last Name' },
+              {
+                key: 'fullName',
+                label: 'Full Name',
+                render: (user: User) => `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+              },
               { key: 'email', label: 'Email' },
               { key: 'role', label: 'Role' },
               {
@@ -295,6 +299,8 @@ export default function AdminDashboardPage() {
               user={selectedUser}
               isOpen={!!selectedUser}
               onClose={() => setSelectedUser(null)}
+              onUpdateSubscription={handleUpdateSubscription}
+              usedSkus={countUserActiveDeals(selectedUser._id, deals, dispensaries)}
             />
           )}
         </>
@@ -356,13 +362,13 @@ export default function AdminDashboardPage() {
             <h2 className="text-3xl font-extrabold text-orange-700 tracking-tight">
               Deals
             </h2>
-            <button
+            {/* <button
               onClick={() => setShowDealForm(true)}
               className="inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400"
               type="button"
             >
               Add Deal
-            </button>
+            </button> */}
           </div>
           <DealsList deals={deals} setDeals={setDeals} onEdit={handleEditDeal} />
         </>
@@ -374,8 +380,11 @@ export default function AdminDashboardPage() {
           <AdminTable
             data={applications}
             columns={[
-              { key: 'firstName', label: 'First Name' },
-              { key: 'lastName', label: 'Last Name' },
+              {
+                key: 'fullName',
+                label: 'Full Name',
+                render: (app: Application) => `${app?.firstName || ''} ${app?.lastName || ''}`.trim(),
+              },
               { key: 'email', label: 'Email' },
               {
                 key: 'status',
@@ -420,7 +429,7 @@ export default function AdminDashboardPage() {
         </>
       )}
 
-      {showDealForm && (
+      {/* {showDealForm && (
         <Modal isOpen={true} onClose={handleCancelForm}>
           <DealForm
             initialData={selectedDeal}
@@ -429,7 +438,7 @@ export default function AdminDashboardPage() {
             dispensaryOptions={dispensaries}
           />
         </Modal>
-      )}
+      )} */}
       {selectedApplication && (
         <ApplicationModal
           application={selectedApplication}
@@ -446,7 +455,6 @@ export default function AdminDashboardPage() {
           isOpen={!!selectedDispensary}
           onClose={handleCloseDispensaryModal}
           onUpdateSubscription={handleUpdateSubscription}
-          subscription={selectedDispensary.subscription || null}
         />
       )}
     </DashboardLayout>

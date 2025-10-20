@@ -26,6 +26,11 @@ const userSchema = new mongoose.Schema(
       enum: ['partner', 'admin'],
       default: 'partner',
     },
+    subscription: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Subscription',
+      required: false,
+    },
     dispensaries: [
       {
         type: mongoose.Schema.Types.ObjectId,

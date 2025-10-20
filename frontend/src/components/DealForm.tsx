@@ -8,9 +8,10 @@ interface DealFormProps {
   dispensaryOptions: { _id: string; name: string }[];
   onSave: (deal: Deal) => void;
   onCancel: () => void;
+  userId: string;
 }
 
-export default function DealForm({ initialData, dispensaryOptions, onSave, onCancel }: DealFormProps) {
+export default function DealForm({ initialData, dispensaryOptions, onSave, onCancel, userId }: DealFormProps) {
   const [form, setForm] = useState({
     title: '',
     brand: '',
@@ -24,6 +25,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     startDate: '',
     endDate: '',
     manuallyActivated: false,
+    category: '',
   });
 
   useEffect(() => {
@@ -43,9 +45,12 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         startDate: initialData.startDate ? initialData.startDate.slice(0, 10) : '',
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
+        category: initialData?.category || '',
       });
     }
   }, [initialData]);
+
+  const [formError, setFormError] = useState('');
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -62,13 +67,14 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setFormError('');
 
     if (Number(form.salePrice) > Number(form.originalPrice)) {
-      alert('Sale price must be less than or equal to original price.');
+      setFormError('Sale price must be less than or equal to original price.');
       return;
     }
     if (new Date(form.startDate) > new Date(form.endDate)) {
-      alert('Start date must be before end date.');
+      setFormError('Start date must be before end date.');
       return;
     }
 
@@ -79,6 +85,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       images: form.images.split(',').map((i) => i.trim()).filter(Boolean),
       manuallyActivated: form.manuallyActivated,
+      userId: userId,
     };
 
     const method = initialData?._id ? 'PUT' : 'POST';
@@ -86,17 +93,23 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       ? `${process.env.NEXT_PUBLIC_API_URL}/deals/${initialData._id}`
       : `${process.env.NEXT_PUBLIC_API_URL}/deals`;
 
-    const res = await fetch(url, {
-      method,
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await fetch(url, {
+        method,
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    if (data.success) {
-      onSave(data.deal);
-    } else {
-      alert('Error saving deal.');
+      const data = await res.json();
+
+      if (data.success) {
+        onSave(data.deal);
+      } else {
+        setFormError(data.message || 'Error saving deal.');
+      }
+    } catch (err) {
+      console.error(err);
+      setFormError('Something went wrong. Please try again.');
     }
   };
 
@@ -129,6 +142,29 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           placeholder="Brand name"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
+      </div>
+
+      {/* Category */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Category *
+        </label>
+        <select
+          name="category"
+          value={form.category}
+          onChange={handleChange}
+          required
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        >
+          <option value="" disabled>Select a category</option>
+          <option value="flower">Flower</option>
+          <option value="edibles">Edibles</option>
+          <option value="concentrates">Concentrates</option>
+          <option value="vapes">Vapes</option>
+          <option value="topicals">Topicals</option>
+          <option value="accessories">Accessories</option>
+          <option value="other">Other</option>
+        </select>
       </div>
 
       {/* Description */}
@@ -265,6 +301,10 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           Manually Activate Deal
         </label>
       </div>
+
+      {formError && (
+        <div className="p-3 bg-red-100 text-red-800 rounded">{formError}</div>
+      )}
 
       {/* Buttons */}
       <div className="flex gap-3 justify-end">

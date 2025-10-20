@@ -43,7 +43,7 @@ export default function AdminTable<T extends { _id: string }>({
 
       {/* Rows */}
       <div className="space-y-4">
-        {data.map((item) => (
+        {data.filter((item) => item).map((item) => (
           <div
             key={item._id}
             onClick={() => onRowClick?.(item)}
@@ -52,18 +52,14 @@ export default function AdminTable<T extends { _id: string }>({
           >
             {columns.map((col) => (
               <div key={col.key as string} className="truncate">
-                {/* Show label on mobile */}
                 <span className="text-sm font-semibold text-gray-500 md:hidden">{col.label}</span>
                 <span className="text-gray-900">
                   {col.render
                     ? col.render(item)
-                    : col.key in item
-                    ? String(item[col.key as keyof T])
-                    : null}
+                    : (item as any)[col.key as string] ?? ''}
                 </span>
               </div>
             ))}
-
             {actions && (
               <div className="flex flex-wrap justify-start gap-2 mt-2 md:mt-0">
                 {actions(item)}

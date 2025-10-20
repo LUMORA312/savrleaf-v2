@@ -14,8 +14,6 @@ export default function Header() {
     router.push('/partner-login');
   };
 
-  const showPartnerLogin = !isAuthenticated || user?.role !== 'partner';
-
   return (
     <header className="bg-white shadow-sm sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -33,17 +31,8 @@ export default function Header() {
 
         {/* Navigation */}
         <nav>
-          <ul className="flex items-center space-x-5 text-sm text-orange-600">
-            {showPartnerLogin ? (
-              <li>
-                <Link
-                  href="/partner-login"
-                  className="font-bold hover:text-orange-600 transition-colors"
-                >
-                  Partner Login
-                </Link>
-              </li>
-            ) : (
+          <ul className="flex items-center space-x-5 text-sm text-orange-600 cursor-pointer">
+            {isAuthenticated && (
               <li>
                 <button
                   onClick={handleLogout}

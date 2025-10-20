@@ -86,7 +86,7 @@ export default function Footer() {
           <div>
             <p>© 2025 SavrLeaf™. All rights reserved.</p>
             <p className="text-xs mt-1">
-              SavrLeaf™ is a registered trademark of SavrLeaf LLC. Product names and logos are property of their respective owners.
+              SavrLeaf™ is a registered trademark of LumoraSolutionsLLC. Product names and logos are property of their respective owners.
             </p>
           </div>
           <div className="text-xs text-gray-500 max-w-md text-left md:text-right">
