@@ -178,6 +178,7 @@ export default function AdminDashboardPage() {
   };
 
   const updateUserStatus = async (id: string, status: 'active' | 'inactive') => {
+    console.log("updating: ", id, status)
     try {
       const token = localStorage.getItem('token');
       await axios.post(

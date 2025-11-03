@@ -69,14 +69,14 @@ export default function Footer() {
                 ['Become a Partner', '/partner-signup'],
                 ['Partner Login', '/partner-login'],
                 ['Admin Login', '/admin-login'],
-                ['Pricing Plans', '/pricing'],
-              ].map(([label, path]) => (
-                <li key={path}>
-                  <Link href={path} className="text-gray-300 hover:text-green-400 transition">
-                    {label}
-                  </Link>
-                </li>
-              ))}
+                ['Pricing Plans', '/partner-signup'],
+                ].map(([label, path], index) => (
+                  <li key={`${path}-${index}`}>
+                    <Link href={path} className="text-gray-300 hover:text-green-400 transition">
+                      {label}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </div>
         </div>

@@ -76,31 +76,31 @@ async function seed() {
   console.log('💎 Creating subscription tiers...');
   const tiers = await SubscriptionTier.insertMany([
     {
-      name: 'bronze',
-      displayName: 'Bronze Tier',
+      name: 'starter',
+      displayName: 'Starter',
       tier: 1,
-      monthlyPrice: 9.99,
-      annualPrice: 99.99,
-      baseSKULimit: 5,
-      features: ['Up to 5 active deals'],
+      monthlyPrice: 89,
+      annualPrice: 1068,
+      baseSKULimit: 13,
+      features: ['Up to 13 active deals'],
     },
     {
-      name: 'silver',
-      displayName: 'Silver Tier',
+      name: 'growth',
+      displayName: 'Growth',
       tier: 2,
-      monthlyPrice: 19.99,
-      annualPrice: 199.99,
-      baseSKULimit: 8,
-      features: ['Up to 8 active deals', 'Basic Deal Management'],
+      monthlyPrice: 129,
+      annualPrice: 1548,
+      baseSKULimit: 25,
+      features: ['Up to 25 active deals'],
     },
     {
-      name: 'gold',
-      displayName: 'Gold Tier',
+      name: 'pro',
+      displayName: 'Pro',
       tier: 3,
-      monthlyPrice: 29.99,
-      annualPrice: 299.99,
-      baseSKULimit: 10,
-      features: ['Up to 10 active deals', 'Full Deal Management'],
+      monthlyPrice: 189,
+      annualPrice: 2268,
+      baseSKULimit: 40,
+      features: ['Up to 40 active deals'],
     },
   ]);
 
@@ -214,7 +214,7 @@ async function seed() {
       endDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       currentPeriodEnd: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
       billingInterval: 'month',
-      bonusSkus: 2,
+      bonusSkus: 0,
       metadata: { source: 'seed script' },
     });
 

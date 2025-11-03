@@ -1,20 +1,18 @@
 import express from 'express';
-import Stripe from 'stripe';
+import { getStripe } from '../../lib/stripe.js';
 import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
 
 const router = express.Router();
-const stripe = new Stripe(process.env.STRIPE_SECRET_KEY, {
-  apiVersion: '2025-09-30.clover',
-});
 
 const PRICE_IDS = {
-  bronze: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
-  silver: 'price_1SK4RiP9VfxczzVgzla0Ob85',
-  gold: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
+  starter: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
+  growth: 'price_1SK4RiP9VfxczzVgzla0Ob85',
+  pro: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
 };
 
 router.post('/', async (req, res) => {
+  const stripe = getStripe();
   try {
     const { subscriptionId } = req.body;
 

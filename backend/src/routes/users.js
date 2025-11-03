@@ -29,8 +29,11 @@ router.post('/:id/status', authMiddleware, async (req, res) => {
     const user = await User.findById(id);
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    user.status = status;
+    console.log("status", status)
+    console.log("user", user)
+    user.isActive = status === 'active';
     await user.save();
+    console.log("user", user)
 
     res.json({ success: true, user });
   } catch (err) {
