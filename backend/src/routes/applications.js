@@ -92,24 +92,54 @@ router.post('/', async (req, res) => {
 router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const application = await Application.findById(req.params.id);
-    if (!application) return res.status(404).json({ message: 'Application not found' });
-    if (application.status === 'approved') return res.status(400).json({ message: 'Already approved' });
-
-    // ✅ Update user to active only if payment complete (optional)
-    const user = await User.findOne({ email: application.email });
-    if (user) {
-      // keep isActive false until payment, admin approval doesn't activate automatically
-      // optionally, you can flag: user.isApproved = true
-      await user.save();
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    if (application.status === 'approved') {
+      return res.status(400).json({ message: 'Already approved' });
     }
 
-    // ✅ Update application status
+    // Find the associated user
+    const user = await User.findOne({ email: application.email });
+    if (!user) {
+      return res.status(404).json({ message: 'User not found for this application' });
+    }
+
+    // Update application status
     application.status = 'approved';
     await application.save();
 
-    res.json({ message: 'Application approved', application });
+    // ✅ Create Dispensary if not already exists
+    let dispensary = await Dispensary.findOne({ application: application._id });
+    if (!dispensary) {
+      dispensary = await Dispensary.create({
+        name: application.dispensaryName,
+        legalName: application.legalName,
+        address: {
+          street1: application.address.street1,
+          street2: application.address.street2,
+          city: application.address.city,
+          state: application.address.state,
+          zipCode: application.address.zipCode,
+        },
+        licenseNumber: application.licenseNumber,
+        websiteUrl: application.websiteUrl,
+        phoneNumber: application.phoneNumber,
+        description: application.description,
+        amenities: application.amenities,
+        user: user._id,
+        application: application._id,
+        status: 'approved',
+      });
+    }
+
+    res.json({
+      message: 'Application approved and dispensary created',
+      application,
+      dispensary,
+    });
   } catch (err) {
-    console.error(err);
+    console.error('Error approving application:', err);
     res.status(500).json({ message: 'Server error', error: err.message });
   }
 });
