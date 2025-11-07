@@ -16,20 +16,20 @@ const subscriptionSchema = new mongoose.Schema(
 
     stripeSubscriptionId: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
 
     stripeCustomerId: {
       type: String,
-      required: true,
+      required: false,
       unique: true,
     },
 
     status: {
       type: String,
-      enum: ['inactive', 'active', 'trialing', 'past_due', 'unpaid', 'canceled'],
-      default: 'inactive',
+      enum: ['inactive', 'active', 'trialing', 'past_due', 'unpaid', 'canceled', 'pending'], // add 'pending'
+      default: 'pending',
     },
 
     startDate: {
@@ -47,7 +47,7 @@ const subscriptionSchema = new mongoose.Schema(
     billingInterval: {
       type: String,
       enum: ['month', 'year'],
-      required: true,
+      required: false,
     },
 
     bonusSkus: {

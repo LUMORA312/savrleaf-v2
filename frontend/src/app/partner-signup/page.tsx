@@ -54,6 +54,14 @@ export default function PartnerSignupPage() {
             ))}
           </div>
         </div>
+        {/* Enterprise Fine Print */}
+        <p className="mt-4 w-full text-center text-sm text-gray-500">
+          Enterprise plan: custom quote, applicants should email{' '}
+          <a href="mailto:info@savrleaf.com" className="text-green-600 underline">
+            info@savrleaf.com
+          </a>
+        </p>
+
         {/* Application Form */}
         <DispensaryApplicationForm selectedTier={selectedTier} />
       </div>
