@@ -6,9 +6,9 @@ import User from '../models/User.js';
 const router = express.Router();
 
 const PRICE_IDS = {
-  starter: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
-  growth: 'price_1SK4RiP9VfxczzVgzla0Ob85',
-  pro: 'price_1SK4SHP9VfxczzVgxrNIcyJM',
+  starter: 'price_1SQoieP9VfxczzVgY4FPYD74',
+  growth: 'price_1SQolIP9VfxczzVghN7Y3TId',
+  pro: 'price_1SQon4P9VfxczzVgZSCgZscu',
 };
 
 router.post('/', async (req, res) => {
