@@ -2,14 +2,17 @@ import express from 'express';
 import { getStripe } from '../../lib/stripe.js';
 import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
+import { PRICE_IDS } from '../constance/prices.js';
 
 const router = express.Router();
 
-const PRICE_IDS = {
-  starter: 'price_1SQoieP9VfxczzVgY4FPYD74',
-  growth: 'price_1SQolIP9VfxczzVghN7Y3TId',
-  pro: 'price_1SQon4P9VfxczzVgZSCgZscu',
-};
+// const PRICE_IDS = {
+//   starter: 'price_1SQoieP9VfxczzVgY4FPYD74',
+//   growth: 'price_1SQolIP9VfxczzVghN7Y3TId',
+//   pro: 'price_1SQon4P9VfxczzVgZSCgZscu',
+// };
+
+
 
 router.post('/', async (req, res) => {
   const stripe = getStripe();
@@ -29,15 +32,21 @@ router.post('/', async (req, res) => {
     const priceId = PRICE_IDS[tier.name.toLowerCase()]; // adjust if your tier names differ
     if (!priceId) throw new Error('Invalid tier name');
 
-    // Create Stripe Checkout session
+    const customer = await stripe.customers.create({
+      email: user.email,
+    });
+    // Create Stripe Subscription Session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      customer_email: user.email, // optional: prefill email
+      // customer_email: user.email, // optional: prefill email
+      customer: customer.id,
       line_items: [{ price: priceId, quantity: 1 }],
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+      success_url: `${process.env.FRONTEND_URL}/partner-dashboard?tab=dispensary`,
+      cancel_url: `${process.env.FRONTEND_URL}/partner-dashboard?tab=dispensary`,
       metadata: {
+        tierName: tier.name,
+        tier: tier.name,
         userId: user._id.toString(),
         subscriptionId: subscription._id.toString(),
       },

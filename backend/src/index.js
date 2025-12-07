@@ -15,8 +15,8 @@ import adminRoutes from '../src/routes/adminRoutes.js';
 import usersRouter from '../src/routes/users.js';
 import subscriptionsRouter from '../src/routes/subscriptions.js';
 import createSubscriptionSessionRouter from '../src/routes/create-subscription-session.js';
+import createExtraPlanSessionRouter from '../src/routes/create-extra-plan-session.js';
 import stripeWebhookRouter from '../src/routes/stripe-webhook.js';
-
 import './models/Application.js';
 import './models/Deal.js';
 import './models/Dispensary.js';
@@ -70,6 +70,7 @@ app.use(session({
   },
 }));
 
+app.use('/api/stripe-webhook', stripeWebhookRouter);
 app.use(express.json());
 
 app.use((req, res, next) => {
@@ -78,20 +79,20 @@ app.use((req, res, next) => {
 });
 
 // Routes
-app.use('/deals', dealsRouter);
-app.use('/dispensaries', dispensariesRouter);
-app.use('/applications', applicationsRouter);
-app.use('/subscription-tiers', subscriptionTiersRouter);
-app.use('/auth', authRouter);
-app.use('/partner', partnersRouter);
-app.use('/admin/auth', adminAuthRoutes);
-app.use('/admin', adminRoutes);
-app.use('/users', usersRouter);
-app.use('/subscriptions', subscriptionsRouter);
-app.use('/create-subscription-session', createSubscriptionSessionRouter);
-app.use('/stripe-webhook', stripeWebhookRouter);
+app.use('/api/deals', dealsRouter);
+app.use('/api/dispensaries', dispensariesRouter);
+app.use('/api/subscription-tiers', subscriptionTiersRouter);
+app.use('/api/partner', partnersRouter);
+app.use('/api/applications', applicationsRouter);
+app.use('/api/auth', authRouter);
+app.use('/api/admin/auth', adminAuthRoutes);
+app.use('/api/admin', adminRoutes);
+app.use('/api/users', usersRouter);
+app.use('/api/subscriptions', subscriptionsRouter);
+app.use('/api/create-subscription-session', createSubscriptionSessionRouter);
+app.use('/api/create-extra-plan-session', createExtraPlanSessionRouter);
 
-app.get('/', (req, res) => res.send('Backend is running'));
+app.get('/api/', (req, res) => res.send('Backend is running'));
 
 const PORT = process.env.PORT || 5001;
 

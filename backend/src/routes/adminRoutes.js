@@ -25,7 +25,15 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
 
     const dispensaries = await Dispensary.find().lean();
 
-    const deals = await Deal.find().lean();
+    const deals = await Deal.find()
+      .populate({
+        path: 'dispensary',
+        populate: {
+          path: 'user',
+          select: 'firstName lastName email'
+        }
+      })
+      .lean();
 
     res.json({
       overview: { totalDeals, totalUsers, totalDispensaries, totalApplications },

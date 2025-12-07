@@ -2,7 +2,8 @@ import express from 'express';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
-
+import Subscription from '../models/Subscription.js';
+import SubscriptionTier from '../models/SubscriptionTier.js';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -124,6 +125,7 @@ router.post('/:id/status', authMiddleware, adminMiddleware, async (req, res) => 
     if (!dispensary) return res.status(404).json({ message: 'Dispensary not found' });
 
     dispensary.status = status;
+    dispensary.isActive = status === 'approved';
     await dispensary.save();
 
     if (dispensary.application) {
@@ -134,6 +136,132 @@ router.post('/:id/status', authMiddleware, adminMiddleware, async (req, res) => 
     res.json({ success: true, dispensary, application: dispensary.application });
   } catch (err) {
     console.error('Error updating dispensary status:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+//add dispensary
+router.post('/', authMiddleware, async (req, res) => {
+  try {
+    const { name, legalName, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings } = req.body;
+    const user = req.user._id;
+    const dispensary = await Dispensary.create({ name, legalName, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, user, adminNotes, ratings, type: 'additional' });
+    //create subscription
+    const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
+    const subscription = await Subscription.create({ user, tier: subscriptionTier._id, status: 'pending', startDate: new Date(), metadata: { source: 'dispensary_addition' } });
+    dispensary.subscription = subscription._id;
+    await dispensary.save();
+    res.status(201).json({ success: true, dispensary, subscription });
+  } catch (err) {
+    console.error('Error adding dispensary:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+//check purchased this 
+router.get('/:id/purchase-status', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dispensary = await Dispensary.findById(id).populate('subscription');
+    if (!dispensary) return res.status(404).json({ message: 'Dispensary not found' });
+    res.json({ isActive: dispensary.isActive, skuLimit: dispensary.skuLimit, status: dispensary.status });
+  }
+  catch (err) {
+    console.error('Error checking purchase status:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+//add extra limit
+router.post('/:id/add-sku-limit', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) return res.status(404).json({ message: 'Dispensary not found' });
+    dispensary.additionalSkuLimit += 1;
+    await dispensary.save();
+    res.json({ success: true, dispensary, message: 'SKU limit added successfully' });
+  } catch (err) {
+    console.error('Error adding SKU limit:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+//update dispensary extraLimit (admin only)
+router.patch('/:id/extra-limit', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { extraLimit } = req.body;
+
+    if (extraLimit === undefined || extraLimit === null) {
+      return res.status(400).json({ success: false, message: 'extraLimit is required' });
+    }
+
+    if (typeof extraLimit !== 'number' || extraLimit < 0) {
+      return res.status(400).json({ success: false, message: 'extraLimit must be a non-negative number' });
+    }
+
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) {
+      return res.status(404).json({ success: false, message: 'Dispensary not found' });
+    }
+
+    dispensary.extraLimit = extraLimit;
+    await dispensary.save();
+
+    res.json({ success: true, dispensary });
+  } catch (err) {
+    console.error('Error updating dispensary extraLimit:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+//update dispensary
+router.put('/:id', authMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const {
+      name,
+      legalName,
+      address,
+      licenseNumber,
+      websiteUrl,
+      hours,
+      phoneNumber,
+      description,
+      amenities,
+      logo,
+      images,
+    } = req.body;
+
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) {
+      return res.status(404).json({ success: false, message: 'Dispensary not found' });
+    }
+
+    // Check if user owns this dispensary
+    if (dispensary.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({ success: false, message: 'Unauthorized to edit this dispensary' });
+    }
+
+    // Update fields
+    if (name) dispensary.name = name;
+    if (legalName) dispensary.legalName = legalName;
+    if (address) dispensary.address = address;
+    if (licenseNumber) dispensary.licenseNumber = licenseNumber;
+    if (websiteUrl !== undefined) dispensary.websiteUrl = websiteUrl;
+    if (hours !== undefined) dispensary.hours = hours;
+    if (phoneNumber !== undefined) dispensary.phoneNumber = phoneNumber;
+    if (description !== undefined) dispensary.description = description;
+    if (amenities !== undefined) dispensary.amenities = amenities;
+    if (logo !== undefined) dispensary.logo = logo;
+    if (images !== undefined) dispensary.images = images;
+
+    await dispensary.save();
+
+    res.json({ success: true, dispensary });
+  } catch (err) {
+    console.error('Error updating dispensary:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

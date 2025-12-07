@@ -17,7 +17,7 @@ const dealSchema = new mongoose.Schema(
     category: {
       type: String,
       required: true,
-      enum: ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'accessories', 'other'],
+      enum: ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'other', 'pre-roll', 'tincture', 'beverage', 'capsule/pill'],
       lowercase: true
     },
     subcategory: {
@@ -26,7 +26,9 @@ const dealSchema = new mongoose.Schema(
     },
     strain: {
       type: String,
-      trim: true
+      required: true,
+      enum: ["indica", "indica-dominant hybrid", "hybrid", "sativa-dominant hybrid", "sativa"],
+      lowercase: true
     },
     thcContent: {
       type: Number,
@@ -66,8 +68,10 @@ const dealSchema = new mongoose.Schema(
       enum: ['medical', 'recreational', 'both'],
       default: 'both',
     },
-    slug: { type: String, unique: true },
+    slug: { type: String },
     manuallyActivated: { type: Boolean, default: false },
+    isActive: { type: Boolean, default: false },
+    isPurchased: { type: Boolean, default: false },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

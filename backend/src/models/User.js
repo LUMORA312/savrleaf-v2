@@ -14,12 +14,28 @@ const userSchema = new mongoose.Schema(
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       minlength: 6,
     },
     isActive: {
       type: Boolean,
       default: true,
+    },
+    isActiveByLink: {
+      type: Boolean,
+      default: false,
+    },
+    firstLogin: {
+      type: Boolean,
+      default: false,
+    },
+    activationToken: {
+      type: String,
+      required: false,
+    },
+    expirationTime: {
+      type: Date,
+      required: false,
     },
     role: {
       type: String,

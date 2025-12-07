@@ -1,11 +1,10 @@
 import express from 'express';
-import bcrypt from 'bcryptjs';
 import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import Application from '../models/Application.js';
 import Dispensary from '../models/Dispensary.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
-
+import { generateActivationToken, generateActivationLink, sendActivationLink } from '../utils/user.js';
 const router = express.Router();
 
 router.post('/', async (req, res) => {
@@ -27,14 +26,14 @@ router.post('/', async (req, res) => {
 
   try {
     // 1️⃣ Hash password
-    const hashedPassword = await bcrypt.hash(password, 10);
+    // const hashedPassword = await bcrypt.hash(password, 10);
 
     // 2️⃣ Create Application
     const application = new Application({
       firstName,
       lastName,
       email,
-      password: hashedPassword,
+      password,
       dispensaryName,
       legalName,
       address,
@@ -49,16 +48,25 @@ router.post('/', async (req, res) => {
     await application.save();
 
     // 3️⃣ Create User immediately but inactive
+    const activationToken = generateActivationToken();
+    const activationLink = generateActivationLink(activationToken);
+    console.log("activationLink", activationLink);
     let user = await User.findOne({ email });
     if (!user) {
       user = await User.create({
         firstName,
         lastName,
         email,
-        password: hashedPassword,
+        password,
+        activationToken,
+        expirationTime: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
         role: 'partner',
         isActive: false, // cannot log in until payment
+        isActiveByLink: false,
+        firstLogin: true,
       });
+    }else{
+      return res.status(400).json({ error: `User already exists.` });
     }
 
     // 4️⃣ Create pending subscription (Stripe session later)
@@ -69,9 +77,34 @@ router.post('/', async (req, res) => {
       startDate: new Date(),
       metadata: { source: 'application_submission' },
     });
+
+    const dispensary = await Dispensary.create({
+      name: dispensaryName,
+      legalName: legalName,
+      address: address,
+      licenseNumber: licenseNumber,
+      phoneNumber: phoneNumber,
+      websiteUrl: websiteUrl,
+      description: description,
+      amenities: amenities,
+      status: 'pending',
+      application: application._id,
+      user: user._id,
+      subscription: subscription._id,
+    });
+    await dispensary.save();
+
     user.subscription = subscription._id;
     await user.save();
-
+    
+    // Send activation email
+    try {
+        await sendActivationLink(email, activationLink);
+    } catch (emailError) {
+        console.error('Failed to send activation email:', emailError);
+        // Continue even if email fails - user can request resend
+    }
+    
     // ✅ Return subscription ID for frontend Stripe integration
     res.status(201).json({
       message: 'Application submitted. User created. Proceed to payment.',
