@@ -34,7 +34,7 @@ const app = express();
 const allowedOrigins = [
   'http://localhost:3000',
   'https://savrleaf.com',
-  'https://savrleaf-v2-oyg8.vercel.app/'
+  'https://savrleaf-v2-backend.onrender.com'
 ];
 
 const vercelRegex = /^https:\/\/.*\.vercel\.app$/;
