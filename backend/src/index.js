@@ -92,7 +92,7 @@ app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/create-subscription-session', createSubscriptionSessionRouter);
 app.use('/api/create-extra-plan-session', createExtraPlanSessionRouter);
 
-app.get('/api/', (req, res) => res.send('Backend is running'));
+app.get('/', (req, res) => res.send('Backend is running'));
 
 const PORT = process.env.PORT || 5001;
 
