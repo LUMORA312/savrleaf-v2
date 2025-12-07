@@ -11,17 +11,17 @@ export default function PartnerSignupPage() {
   const [tiers, setTiers] = useState<SubscriptionTier[]>([]);
   const [selectedTier, setSelectedTier] = useState<SubscriptionTier | null>(null);
 
-  useEffect(() => {
-    const fetchTiers = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/subscription-tiers`);
-        setTiers(res.data);
-      } catch (error) {
-        console.error('Error fetching subscription tiers', error);
-      }
-    };
-    fetchTiers();
-  }, []);
+  // useEffect(() => {
+  //   const fetchTiers = async () => {
+  //     try {
+  //       const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/subscription-tiers`);
+  //       setTiers(res.data);
+  //     } catch (error) {
+  //       console.error('Error fetching subscription tiers', error);
+  //     }
+  //   };
+  //   fetchTiers();
+  // }, []);
 
   return (
     <>
@@ -32,7 +32,7 @@ export default function PartnerSignupPage() {
         </h1>
 
         {/* Subscription Tiers Row */}
-        <div className="flex flex-col items-center mb-2">
+        {/* <div className="flex flex-col items-center mb-2">
           <h2 className="text-xl font-semibold text-orange-700 mb-4">Choose Your Plan</h2>
           <div className="flex flex-wrap justify-center gap-6">
             {tiers.map((tier) => (
@@ -53,7 +53,7 @@ export default function PartnerSignupPage() {
               </div>
             ))}
           </div>
-        </div>
+        </div> */}
         {/* Enterprise Fine Print */}
         <p className="mt-4 w-full text-center text-sm text-gray-500">
           Enterprise plan: custom quote, applicants should email{' '}
@@ -63,7 +63,7 @@ export default function PartnerSignupPage() {
         </p>
 
         {/* Application Form */}
-        <DispensaryApplicationForm selectedTier={selectedTier} />
+        <DispensaryApplicationForm />
       </div>
       <Footer />
     </>

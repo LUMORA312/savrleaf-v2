@@ -1,11 +1,39 @@
+'use client';
+
+import { useState } from 'react';
 import { Dispensary } from '@/types';
 import defaultDispensaryImg from '@/assets/dispensary.jpg';
+import axios from 'axios';
+import Modal from '@/components/Modal';
+import DispensaryForm from '@/components/DispensaryForm';
 
 interface DispensaryInfoProps {
   dispensaries: Dispensary[];
+  onDispensaryUpdate?: () => void;
 }
 
-export default function DispensaryInfo({ dispensaries }: DispensaryInfoProps) {
+export default function DispensaryInfo({ dispensaries, onDispensaryUpdate }: DispensaryInfoProps) {
+  const [editingDispensary, setEditingDispensary] = useState<Dispensary | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+
+  const handleEdit = (dispensary: Dispensary) => {
+    setEditingDispensary(dispensary);
+    setShowEditModal(true);
+  };
+
+  const handleSave = async (updatedDispensary: Dispensary) => {
+    setShowEditModal(false);
+    setEditingDispensary(null);
+    if (onDispensaryUpdate) {
+      onDispensaryUpdate();
+    }
+  };
+
+  const handleCancel = () => {
+    setShowEditModal(false);
+    setEditingDispensary(null);
+  };
+
   if (!dispensaries || dispensaries.length === 0) {
     return <p className="text-gray-500">No dispensaries found.</p>;
   }
@@ -15,64 +43,155 @@ export default function DispensaryInfo({ dispensaries }: DispensaryInfoProps) {
     const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
 
     return (
-      <div className="flex justify-center">
-        <DispensaryCard dispensary={dispensary} imageSrc={imageSrc} />
-      </div>
+      <>
+        <div className="flex justify-center">
+          <DispensaryCard 
+            dispensary={dispensary} 
+            imageSrc={imageSrc} 
+            isActive={dispensary.isActive} 
+            isPurchased={dispensary.isPurchased} 
+            skuLimit={dispensary.skuLimit} 
+            usedSkus={dispensary.usedSkus}
+            onEdit={handleEdit}
+          />
+        </div>
+        {showEditModal && editingDispensary && (
+          <Modal isOpen={showEditModal} onClose={handleCancel}>
+            <DispensaryForm
+              initialData={editingDispensary}
+              onSave={handleSave}
+              onCancel={handleCancel}
+            />
+          </Modal>
+        )}
+      </>
     );
   }
 
   return (
-    <div
-      className="flex gap-6 overflow-x-auto px-4 py-6 snap-x snap-mandatory scrollbar-thin scrollbar-thumb-orange-400 scrollbar-track-gray-100"
-      style={{ scrollPaddingLeft: '1rem' }}
-    >
-      {dispensaries.map((dispensary) => {
-        const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
-        return (
-          <div
-            key={dispensary._id}
-            className="snap-start flex-shrink-0 w-80"
-          >
-            <DispensaryCard dispensary={dispensary} imageSrc={imageSrc} />
-          </div>
-        );
-      })}
-    </div>
+    <>
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 px-2 sm:px-4 py-4 sm:py-6 auto-rows-fr">
+        {dispensaries.map((dispensary, index) => {
+          const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+          return (
+            <div key={index} className="h-full min-w-0">
+              <DispensaryCard 
+                dispensary={dispensary} 
+                imageSrc={imageSrc} 
+                isActive={dispensary.isActive} 
+                isPurchased={dispensary.isPurchased} 
+                skuLimit={dispensary.skuLimit} 
+                usedSkus={dispensary.usedSkus}
+                onEdit={handleEdit}
+              />
+            </div>
+          );
+        })}
+      </div>
+      {showEditModal && editingDispensary && (
+        <Modal isOpen={showEditModal} onClose={handleCancel}>
+          <DispensaryForm
+            initialData={editingDispensary}
+            onSave={handleSave}
+            onCancel={handleCancel}
+          />
+        </Modal>
+      )}
+    </>
   );
 }
 
 function DispensaryCard({
   dispensary,
   imageSrc,
+  isActive,
+  isPurchased,
+  skuLimit,
+  usedSkus,
+  onEdit,
 }: {
   dispensary: Dispensary;
   imageSrc: string;
+  isActive: boolean;
+  isPurchased: boolean;
+  skuLimit: number;
+  usedSkus: number;
+  onEdit: (dispensary: Dispensary) => void;
 }) {
+  const handlePurchaseSubscription = async () => {
+    try {
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/create-subscription-session`, { subscriptionId: dispensary.subscription });
+      const { url } = res.data;
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error purchasing subscription', error);
+    }
+  };
+
+  const purchaseExtraPlan = async () => {
+    try {
+      const tier = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/subscription-tiers/tier-by-name/extra`);
+      const subscription = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/subscriptions`, { user: dispensary.user, tier: tier.data._id, status: 'pending', startDate: new Date(), metadata: { source: 'extra_plan', dispensaryId: dispensary._id } }, {
+        headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+      });
+      
+      const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/create-extra-plan-session`, { dispensaryId: dispensary._id, subscriptionId: subscription.data._id }, {
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      console.log(res.data);
+      const { url } = res.data;
+      window.location.href = url;
+    } catch (error) {
+      console.error('Error purchasing extra plan', error);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 min-h-[480px]">
+    <div className={`w-full h-full bg-white rounded-2xl shadow-lg p-3 sm:p-6 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 overflow-hidden max-w-[500px] min-w-0 ${isActive && skuLimit > 0 ? 'border-2 border-green-500' : 'border-2 border-red-500'}`}>
       {/* Logo & Name */}
-      <div className="flex items-center gap-4 mb-4">
-        {dispensary.logo ? (
-          <div className="h-14 w-14 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
-            <img
-              src={dispensary.logo}
-              alt={`${dispensary.name} logo`}
-              className="h-full w-full object-contain"
-              loading="lazy"
-            />
-          </div>
-        ) : (
-          <div className="h-12 w-12 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-400 font-semibold flex-shrink-0">
-            No Logo
-          </div>
-        )}
-        <h2 className="text-xl font-extrabold text-orange-700">{dispensary.name}</h2>
+      <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 min-w-0">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          {dispensary.logo ? (
+            <div className="h-10 w-10 sm:h-14 sm:w-14 rounded-full overflow-hidden flex-shrink-0 border border-gray-200">
+              <img
+                src={dispensary.logo}
+                alt={`${dispensary.name} logo`}
+                className="h-full w-full object-contain"
+                loading="lazy"
+              />
+            </div>
+          ) : (
+            <div className="h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-gray-200 flex items-center justify-center text-[10px] text-gray-400 font-semibold flex-shrink-0">
+              No Logo
+            </div>
+          )}
+          <h2 className="text-base sm:text-xl font-extrabold text-orange-700 truncate min-w-0">{dispensary.name}</h2>
+        </div>
+        <div className="flex items-center gap-2 flex-shrink-0">
+          {isActive && skuLimit > 0 ? (
+            <span className="text-xs text-green-500 bg-green-100 text-green-700 px-2 py-1 rounded-full text-center whitespace-nowrap">({usedSkus} / {skuLimit + (dispensary.additionalSkuLimit ? dispensary.additionalSkuLimit : 0)})</span>
+          ) : (
+            <span className="text-xs text-red-500 bg-red-100 text-red-700 px-2 py-1 rounded-full whitespace-nowrap">Inactive</span>
+          )}
+          <button
+            onClick={() => onEdit(dispensary)}
+            className="text-orange-600 hover:text-orange-700 p-1 rounded transition"
+            title="Edit dispensary"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+          </button>
+        </div>
       </div>
 
       {/* Large Image */}
       <div className="h-44 w-full rounded-xl overflow-hidden mb-4">
         <img
-          src={imageSrc}
+          src={dispensary.images[0]}
           alt={dispensary.name}
           className="h-full w-full object-cover"
           loading="lazy"
@@ -80,67 +199,101 @@ function DispensaryCard({
       </div>
 
       {/* Location & Description */}
-      <p className="text-sm text-gray-600 mb-3">
-        {dispensary.address.street1}
-        {dispensary.address.street2 && `, ${dispensary.address.street2}`},{' '}
-        {dispensary.address.city}, {dispensary.address.state} {dispensary.address.zipCode}
-      </p>
-      <p className="text-xs text-gray-500 mb-4 line-clamp-3 italic">
-        {dispensary.description || 'No description available.'}
-      </p>
+      {dispensary.address && (
+        <p className="text-xs sm:text-sm text-gray-600 mb-3 break-words">
+          {dispensary.address.street1}
+          {dispensary.address.street2 && `, ${dispensary.address.street2}`},{' '}
+          {dispensary.address.city}, {dispensary.address.state} {dispensary.address.zipCode}
+        </p>
+      )}
+      {dispensary.description && (
+        <p className="text-xs text-gray-500 mb-4 line-clamp-3 italic break-words">
+          {dispensary.description || 'No description available.'}
+        </p>
+      )}
+
+      {/*increase sku limit by 10 by purchasing extra plan button */}
+      {(
+        <>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
+            <div className="min-w-0">
+              <strong className="font-semibold text-gray-700 text-xs sm:text-sm">Extra plan Limit:</strong>
+              <span className="text-xs sm:text-sm text-gray-500 ml-2 break-words">{dispensary.additionalSkuLimit ? dispensary.additionalSkuLimit : 0} / { dispensary.extraLimit ? dispensary.extraLimit : 0} </span>
+            </div>
+            <button onClick={purchaseExtraPlan} disabled={!isPurchased} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs px-2 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0 w-full sm:w-auto">Purchase Extra Plan +1</button>
+          </div>
+        </>
+      )}
 
       {/* Details Grid */}
-      <div className="grid grid-cols-2 gap-4 text-xs text-gray-500 mb-4">
+      <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs text-gray-500 mb-4 min-w-0">
+        {dispensary.type === 'main' && (
+          <div className="min-w-0 break-words">
+            <strong className="font-semibold text-gray-700">Type:</strong> <br />
+            <span className="break-words">Main Location</span>
+          </div>
+        )}
+        {dispensary.type === 'additional' && (
+          <div className="min-w-0 break-words">
+            <strong className="font-semibold text-gray-700">Type:</strong> <br />
+            <span className="break-words">Additional Location</span>
+          </div>
+        )}
         {dispensary.phoneNumber && (
-          <div>
+          <div className="min-w-0 break-words">
             <strong className="font-semibold text-gray-700">Phone:</strong> <br />
-            {dispensary.phoneNumber}
+            <span className="break-all">{dispensary.phoneNumber}</span>
           </div>
         )}
         {dispensary.websiteUrl && (
-          <div>
+          <div className="min-w-0 break-words">
             <strong className="font-semibold text-gray-700">Website:</strong> <br />
             <a
               href={dispensary.websiteUrl}
               target="_blank"
               rel="noopener noreferrer"
-              className="text-orange-600 hover:underline break-words"
+              className="text-orange-600 hover:underline break-all"
             >
               {dispensary.websiteUrl}
             </a>
           </div>
         )}
         {dispensary.status && (
-          <div>
+          <div className="min-w-0">
             <strong className="font-semibold text-gray-700">Status:</strong> <br />
             <span
-              className={`inline-block mt-1 px-2 py-0.5 rounded-full font-semibold text-xs ${
-                dispensary.status === 'approved'
-                  ? 'bg-green-100 text-green-700'
-                  : dispensary.status === 'pending'
+              className={`inline-block mt-1 px-2 py-0.5 rounded-full font-semibold text-xs whitespace-nowrap ${dispensary.status === 'approved'
+                ? 'bg-green-100 text-green-700'
+                : dispensary.status === 'pending'
                   ? 'bg-yellow-100 text-yellow-700'
                   : 'bg-red-100 text-red-700'
-              }`}
+                }`}
             >
               {dispensary.status.charAt(0).toUpperCase() + dispensary.status.slice(1)}
             </span>
           </div>
         )}
+        {!isPurchased && (
+          <div className="min-w-0 break-words">
+            <strong className="font-semibold text-gray-700">Subscription:</strong> <br />
+            <span className="text-xs text-gray-500 break-words">Not purchased</span>
+          </div>
+        )}
         {dispensary.licenseNumber && (
-          <div>
+          <div className="min-w-0 break-words">
             <strong className="font-semibold text-gray-700">License #:</strong> <br />
-            {dispensary.licenseNumber}
+            <span className="break-all">{dispensary.licenseNumber}</span>
           </div>
         )}
       </div>
 
       {/* Amenities */}
       {dispensary.amenities && dispensary.amenities.length > 0 && (
-        <div className="mb-4">
-          <strong className="font-semibold text-gray-700">Amenities:</strong>
-          <ul className="list-disc list-inside text-gray-600 text-xs mt-1 max-h-20 overflow-auto">
+        <div className="mb-4 min-w-0">
+          <strong className="font-semibold text-gray-700 text-xs sm:text-sm">Amenities:</strong>
+          <ul className="list-disc list-inside text-gray-600 text-xs mt-1 max-h-20 overflow-auto break-words">
             {dispensary.amenities.map((amenity, idx) => (
-              <li key={idx}>{amenity}</li>
+              <li key={idx} className="break-words">{amenity}</li>
             ))}
           </ul>
         </div>
@@ -148,17 +301,22 @@ function DispensaryCard({
 
       {/* Hours */}
       {dispensary.hours && (
-        <div className="mb-1">
-          <strong className="font-semibold text-gray-700">Hours:</strong>
-          <ul className="list-none text-gray-600 text-xs mt-1 max-h-28 overflow-auto">
+        <div className="mb-4 min-w-0">
+          <strong className="font-semibold text-gray-700 text-xs sm:text-sm">Hours:</strong>
+          <ul className="list-none text-gray-600 text-xs mt-1 max-h-28 overflow-auto break-words">
             {Object.entries(dispensary.hours).map(([day, hours]) => (
-              <li key={day}>
-                <span className="capitalize font-semibold">{day}:</span> {hours}
+              <li key={day} className="break-words">
+                <span className="capitalize font-semibold">{day}:</span> <span className="break-words">{hours}</span>
               </li>
             ))}
           </ul>
         </div>
       )}
+      <div className="mt-auto pt-4">
+        {!dispensary.isPurchased && (
+          <button onClick={handlePurchaseSubscription} className="w-full bg-orange-600 hover:bg-orange-700 text-white font-semibold px-4 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400">Purchase Subscription</button>
+        )}
+      </div>
     </div>
   );
 }

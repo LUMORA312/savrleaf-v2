@@ -47,7 +47,7 @@ export default function AdminTable<T extends { _id: string }>({
           <div
             key={item._id}
             onClick={() => onRowClick?.(item)}
-            className="bg-white shadow-md p-4 md:grid md:gap-4 hover:shadow-lg transition cursor-pointer"
+            className="bg-white shadow-md p-4 md:grid hover:shadow-lg transition cursor-pointer"
             style={{ gridTemplateColumns }}
           >
             {columns.map((col) => (

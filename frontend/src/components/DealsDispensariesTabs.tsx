@@ -52,11 +52,25 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
             </div>
           ))
         ) : activeTab === 'deals' ? (
-          deals.length ? deals.map((deal) => <DealCard key={deal._id} deal={deal} />) : <p>No deals found.</p>
+          deals.length ? (
+            deals.map((deal, index) => (
+              <DealCard 
+                key={deal._id || `deal-${index}-${deal.title || 'unknown'}`} 
+                deal={typeof deal === 'object' && '_doc' in deal ? (deal as any)._doc : deal} 
+              />
+            ))
+          ) : (
+            <p key="no-deals" className="col-span-full text-center text-gray-500 py-8">No deals found.</p>
+          )
         ) : dispensaries.length ? (
-          dispensaries.map((dispensary) => <DispensaryCard key={dispensary._id} dispensary={dispensary} />)
+          dispensaries.map((dispensary, index) => (
+            <DispensaryCard 
+              key={dispensary._id || `dispensary-${index}-${dispensary.name || 'unknown'}`} 
+              dispensary={dispensary} 
+            />
+          ))
         ) : (
-          <p>No dispensaries found.</p>
+          <p key="no-dispensaries" className="col-span-full text-center text-gray-500 py-8">No dispensaries found.</p>
         )}
       </div>
     </div>

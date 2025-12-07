@@ -6,6 +6,7 @@ import { Deal, Dispensary } from '@/types';
 import HeroSection from './HeroSection';
 import DealsDispensariesTabs from './DealsDispensariesTabs';
 import Filters, { FilterValues } from '@/components/Filters';
+import DealsMapView from './DealsMapView';
 import { calculateDistanceInMiles, getCoordinatesForZip } from '@/utils/distance';
 import { amenitiesOptions } from '@/constants/amenities';
 
@@ -22,8 +23,13 @@ export default function PublicHomepage() {
     amenities: [],
     searchTerm: '',
     zipCode: '',
+    title: '',
+    brand: '',
+    strain: '',
+    category: '',
   });
   const [activeTab, setActiveTab] = useState<'deal' | 'dispensary'>('deal');
+  const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
   const [zipCode, setZipCode] = useState('');
   const [userLocation, setUserLocation] = useState<GeolocationCoordinates | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
@@ -54,119 +60,82 @@ export default function PublicHomepage() {
       setZipCoordinates(null);
     }
   }, [filters.zipCode]);
-
-  // Fetch deals + dispensaries
+  
+  // Determine location
+  const currentLocation = useMemo(() => {
+    return zipCoordinates || userLocation;
+  }, [zipCoordinates, userLocation]);
+  // Fetch deals with filters
   useEffect(() => {
-    const fetchData = async () => {
+    const fetchDeals = async () => {
       setLoading(true);
       setError(null);
       try {
-        const [dealsRes, dispensariesRes] = await Promise.all([
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals`),
-          axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dispensaries`),
-        ]);
+        const params: Record<string, string | number> = {};
 
+        // Add filter parameters
+        if (filters.accessType) params.accessType = filters.accessType;
+        if (filters.category) params.category = filters.category;
+        if (filters.brand) params.brand = filters.brand;
+        if (filters.title) params.title = filters.title;
+        if (filters.strain) params.strain = filters.strain;
+        if (filters.thcMin !== undefined) params.thcMin = filters.thcMin;
+        if (filters.thcMax !== undefined) params.thcMax = filters.thcMax;
+        if (filters.searchTerm) params.search = filters.searchTerm;
+
+        // Add location-based filtering only when location is available
+        if (currentLocation && filters.radius) {
+          const radius = Number(filters.radius);
+          if (radius > 0) {
+            params.lat = currentLocation.latitude;
+            params.lng = currentLocation.longitude;
+            params.distance = radius;
+          }
+        }
+
+        // Add sorting
+        if (filters.sortBy === 'priceAsc') {
+          params.sortBy = 'price_asc';
+        } else if (filters.sortBy === 'priceDesc') {
+          params.sortBy = 'price_desc';
+        } else if (filters.sortBy === 'newest') {
+          params.sortBy = 'newest';
+        } else if (currentLocation && filters.radius && Number(filters.radius) > 0) {
+          params.sortBy = 'distance';
+        }
+
+        const dealsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals`, { params });
         setDeals(dealsRes.data?.deals || []);
-        setDispensaries(dispensariesRes.data?.dispensaries || []);
       } catch (err: unknown) {
         if (axios.isAxiosError(err)) {
           setError(err.response?.data?.message || err.message);
         } else if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError('Failed to fetch data');
+          setError('Failed to fetch deals');
         }
-      }
-      finally {
+      } finally {
         setLoading(false);
       }
     };
 
-    fetchData();
+    fetchDeals();
+  }, [filters, currentLocation]);
+
+  // Fetch dispensaries (unchanged)
+  useEffect(() => {
+    const fetchDispensaries = async () => {
+      try {
+        const dispensariesRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dispensaries`);
+        setDispensaries(dispensariesRes.data?.dispensaries || []);
+      } catch (err: unknown) {
+        console.error('Failed to fetch dispensaries:', err);
+      }
+    };
+
+    fetchDispensaries();
   }, []);
 
-  // Determine location
-  const currentLocation = useMemo(() => {
-    return zipCoordinates || userLocation;
-  }, [zipCoordinates, userLocation]);
-
-  // ======== Filter Deals ========
-  const filteredDeals = useMemo(() => {
-    let result = [...deals];
-
-    if (filters.accessType) {
-      result = result.filter(d => d.accessType === filters.accessType);
-    }
-
-    // THC filter
-    if (filters.thcMin !== undefined) {
-      result = result.filter(d => d.thcContent !== undefined && d.thcContent >= filters.thcMin!);
-    }
-    if (filters.thcMax !== undefined) {
-      result = result.filter(d => d.thcContent !== undefined && d.thcContent <= filters.thcMax!);
-    }
-
-    // CBD filter
-    if (filters.cbdMin !== undefined) {
-      result = result.filter(d => d.cbdContent !== undefined && d.cbdContent >= filters.cbdMin!);
-    }
-    if (filters.cbdMax !== undefined) {
-      result = result.filter(d => d.cbdContent !== undefined && d.cbdContent <= filters.cbdMax!);
-    }
-
-    // Strain filter
-    if (filters.strain) {
-      const term = filters.strain.toLowerCase();
-      result = result.filter(d => d.strain?.toLowerCase().includes(term));
-    }
-
-    // Category filter
-    if (filters.category) {
-      result = result.filter(d => d.category === filters.category);
-    }
-
-    if (filters.searchTerm && filters.searchTerm.length > 0) {
-      const term = filters.searchTerm.toLowerCase();
-      result = result.filter(d =>
-        d.title.toLowerCase().includes(term) ||
-        (d.brand?.toLowerCase().includes(term)) ||
-        d.tags.some(tag => tag.toLowerCase().includes(term)) ||
-        (d.description?.toLowerCase().includes(term)) ||
-        (d.strain?.toLowerCase().includes(term)) ||
-        (d.category?.toLowerCase().includes(term)) ||
-        (d.subcategory?.toLowerCase().includes(term))
-      );
-    }
-
-    if (currentLocation) {
-      result = result.filter(d => {
-        const dispensary = d.dispensary;
-        if (typeof dispensary === 'string') return false;
-        const [longitude, latitude] = dispensary.coordinates.coordinates;
-        const distance = calculateDistanceInMiles(
-          currentLocation.latitude,
-          currentLocation.longitude,
-          latitude,
-          longitude
-        );
-        return distance <= Number(filters.radius);
-      });
-    }
-
-    if (filters.sortBy === 'priceAsc') {
-      result.sort((a, b) => a.salePrice - b.salePrice);
-    } else if (filters.sortBy === 'priceDesc') {
-      result.sort((a, b) => b.salePrice - a.salePrice);
-    } else if (filters.sortBy === 'newest') {
-      result.sort((a, b) => {
-        const dateA = new Date(a.startDate || 0).getTime();
-        const dateB = new Date(b.startDate || 0).getTime();
-        return dateB - dateA;
-      });
-    }
-
-    return result;
-  }, [deals, filters, currentLocation]);
 
   // ======== Filter Dispensaries ========
   const filteredDispensaries = useMemo(() => {
@@ -216,6 +185,8 @@ export default function PublicHomepage() {
   }, [dispensaries, filters, currentLocation]);
 
   const handleSearch = () => {
+    console.log('searchTerm', searchTerm);
+    console.log('zipCode', zipCode);
     setFilters(prev => ({
       ...prev,
       searchTerm: searchTerm.trim(),
@@ -242,13 +213,69 @@ export default function PublicHomepage() {
         dispensaryAmenities={amenitiesOptions}
       />
 
-      <DealsDispensariesTabs
-        deals={filteredDeals}
-        dispensaries={filteredDispensaries}
-        loading={loading}
-        activeTab={activeTab === 'deal' ? 'deals' : 'dispensaries'}
-        setActiveTab={(tab) => setActiveTab(tab === 'deals' ? 'deal' : 'dispensary')}
-      />
+      {/* View Toggle - Only show for deals tab */}
+      {activeTab === 'deal' && (
+        <div className="max-w-7xl mx-auto px-6 mb-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+            <h2 className="text-xl font-semibold text-gray-800">
+              {loading ? 'Loading...' : `${deals.length} ${deals.length === 1 ? 'Deal' : 'Deals'} Found`}
+            </h2>
+            <div className="flex space-x-2 bg-gray-100 rounded-lg p-1">
+              <button
+                onClick={() => setViewMode('list')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                  viewMode === 'list'
+                    ? 'bg-white text-orange-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                List View
+              </button>
+              <button
+                onClick={() => setViewMode('map')}
+                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                  viewMode === 'map'
+                    ? 'bg-white text-orange-600 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-800'
+                }`}
+              >
+                Map View
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Map View or List View */}
+      {activeTab === 'deal' && viewMode === 'map' ? (
+        <div className="max-w-7xl mx-auto px-6">
+          {loading ? (
+            <div className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-gray-100 flex items-center justify-center">
+              <div className="text-gray-500">Loading deals...</div>
+            </div>
+          ) : (
+            <DealsMapView 
+              deals={deals} 
+              userLocation={currentLocation}
+              radius={currentLocation && filters.radius ? Number(filters.radius) : undefined}
+            />
+          )}
+        </div>
+      ) : (
+        <DealsDispensariesTabs
+          deals={deals}
+          dispensaries={filteredDispensaries}
+          loading={loading}
+          activeTab={activeTab === 'deal' ? 'deals' : 'dispensaries'}
+          setActiveTab={(tab) => {
+            setActiveTab(tab === 'deals' ? 'deal' : 'dispensary');
+            // Reset to list view when switching to dispensaries
+            if (tab === 'dispensaries') {
+              setViewMode('list');
+            }
+          }}
+        />
+      )}
     </div>
   );
 }

@@ -31,10 +31,10 @@ export default function DealCard({ deal }: { deal: Deal }) {
         </div>
         <div className="mt-4 flex justify-between items-center text-sm">
           <div>
-            <span className="line-through text-gray-400">${deal.originalPrice.toFixed(2)}</span>{' '}
-            <span className="text-green-600 font-semibold">${deal.salePrice.toFixed(2)}</span>
+            <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
+            <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
           </div>
-          <div className="text-xs text-gray-500">{deal.accessType.toUpperCase()}</div>
+          <div className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</div>
         </div>
       </div>
 
@@ -69,9 +69,9 @@ export default function DealCard({ deal }: { deal: Deal }) {
                 {deal.thcContent !== undefined && <p className="text-gray-600">THC: {deal.thcContent}%</p>}
                 {deal.cbdContent !== undefined && <p className="text-gray-600">CBD: {deal.cbdContent}%</p>}
                 <div className="mt-auto flex justify-between items-center text-sm">
-                  <span className="line-through text-gray-400">${deal.originalPrice.toFixed(2)}</span>
-                  <span className="text-green-600 font-semibold">${deal.salePrice.toFixed(2)}</span>
-                  <span className="text-xs text-gray-500">{deal.accessType.toUpperCase()}</span>
+                  <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>
+                  <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
+                  <span className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</span>
                 </div>
               </div>
             </div>

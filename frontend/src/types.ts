@@ -31,6 +31,13 @@ export interface Dispensary {
   subscription?: Subscription | null;
   adminNotes?: string;
   ratings: number[];
+  isActive: boolean;
+  skuLimit: number;
+  isPurchased: boolean;
+  type: 'main' | 'additional';
+  usedSkus: number;
+  extraLimit: number;
+  additionalSkuLimit: number;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -50,11 +57,12 @@ export interface Deal {
   accessType: 'medical' | 'recreational' | 'both';
   slug?: string;
   manuallyActivated: boolean;
-  category: 'flower' | 'edibles' | 'concentrates' | 'vapes' | 'topicals' | 'accessories' | 'other';
+  category: 'flower' | 'edibles' | 'concentrates' | 'vapes' | 'topicals' | 'pre-roll' | 'tincture' | 'beverage' | 'capsule/pill' | 'other';
   subcategory?: string;
-  strain?: string;
+  strain?: "indica" | "indica-dominant hybrid" | "hybrid" | "sativa-dominant hybrid" | "sativa";
   thcContent?: number;
   cbdContent?: number;
+  active: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
@@ -133,7 +141,7 @@ export interface Subscription {
   dispensary: string;
   tier: SubscriptionTier;
   stripeSubscriptionId: string;
-  stripeCustomerId: string;
+  // stripeCustomerId: string;
   status: SubscriptionStatus;
   startDate?: string;
   endDate?: string;

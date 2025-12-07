@@ -23,6 +23,8 @@ export interface FilterValues {
   cbdMax?: number;
   strain?: string;
   category?: string;
+  title?: string;
+  brand?: string;
 }
 
 export default function Filters({
@@ -88,7 +90,7 @@ export default function Filters({
           </div>
         )}
 
-        {/* CBD % */}
+        {/* CBD %
         {forType === 'deal' && (
           <div>
             <label className="block text-sm font-semibold mb-1">CBD %</label>
@@ -109,23 +111,28 @@ export default function Filters({
               />
             </div>
           </div>
-        )}
+        )} */}
 
-        {/* Strain */}
+        {/* Strain  ["indica", "indica-dominant hybrid", "hybrid", "sativa-dominant hybrid", "sativa"] */}
         {forType === 'deal' && (
           <div>
             <label className="block text-sm font-semibold mb-1">Strain</label>
-            <input
-              type="text"
-              placeholder="Enter strain"
+            <select 
               value={localFilters.strain ?? ''}
               onChange={(e) => handleChange('strain', e.target.value)}
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
-            />
+            >
+              <option value="">All</option>
+              <option value="indica">Indica</option>
+              <option value="indica-dominant hybrid">Indica-dominant hybrid</option>
+              <option value="hybrid">Hybrid</option>
+              <option value="sativa-dominant hybrid">Sativa-dominant hybrid</option>
+              <option value="sativa">Sativa</option>
+            </select>
           </div>
         )}
 
-        {/* Category */}
+        {/* Category ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'other', 'pre-roll', 'tincture', 'beverage', 'capsule/pill']*/}
         {forType === 'deal' && (
           <div>
             <label className="block text-sm font-semibold mb-1">Category</label>
@@ -140,26 +147,56 @@ export default function Filters({
               <option value="concentrates">Concentrates</option>
               <option value="vapes">Vapes</option>
               <option value="topicals">Topicals</option>
-              <option value="accessories">Accessories</option>
               <option value="other">Other</option>
+              <option value="pre-roll">Pre-roll</option>
+              <option value="tincture">Tincture</option>
+              <option value="beverage">Beverage</option>
+              <option value="capsule/pill">Capsule/Pill</option>
             </select>
+          </div>
+        )}
+
+        {/* Title */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">Title</label>
+            <input
+              type="text"
+              placeholder="Enter title"
+              value={localFilters.title ?? ''}
+              onChange={(e) => handleChange('title', e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
+          </div>
+        )}
+
+        {/* Brand */}
+        {forType === 'deal' && (
+          <div>
+            <label className="block text-sm font-semibold mb-1">Brand</label>
+            <input
+              type="text"
+              placeholder="Enter brand"
+              value={localFilters.brand ?? ''}
+              onChange={(e) => handleChange('brand', e.target.value)}
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
+            />
           </div>
         )}
 
         {/* Radius */}
         <div>
-          <label htmlFor="radius" className="block text-sm font-semibold mb-1">Radius</label>
-          <select
+          <label htmlFor="radius" className="block text-sm font-semibold mb-1">Radius (miles)</label>
+          <input
+            type="number"
             id="radius"
+            min="1"
+            step="1"
+            placeholder="Enter radius"
             value={localFilters.radius}
             onChange={(e) => handleChange('radius', e.target.value)}
             className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-green-600"
-          >
-            <option value="5">5 miles</option>
-            <option value="10">10 miles</option>
-            <option value="25">25 miles</option>
-            <option value="50">50 miles</option>
-          </select>
+          />
         </div>
 
         {/* Amenities */}

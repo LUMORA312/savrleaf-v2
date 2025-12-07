@@ -32,7 +32,7 @@ type ApplicationFormData = {
   subscriptionTier: string;
 };
 
-export default function DispensaryApplicationForm({ selectedTier }: DispensaryApplicationFormProps) {
+export default function DispensaryApplicationForm() {
   const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ApplicationFormData>({
     defaultValues: { amenities: [] }
   });
@@ -45,16 +45,17 @@ export default function DispensaryApplicationForm({ selectedTier }: DispensaryAp
     setErrorMessage(null);
     setSuccessMessage(null);
 
-    if (!selectedTier) {
-      setErrorMessage('Please select a subscription tier');
-      return;
-    }
-
     try {
+      const subscriptionTiers = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/subscription-tiers`);
+      if (subscriptionTiers.status !== 200) {
+        setErrorMessage('Failed to fetch subscription tier.');
+        return;
+      }
+      const subscriptionTier = subscriptionTiers.data.find((tier: SubscriptionTier) => tier.name === 'main_location');
       // 1️⃣ Submit application
       const appResp = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/applications`, {
         ...data,
-        subscriptionTier: selectedTier._id
+        subscriptionTier: subscriptionTier._id
       });
       const subscriptionId = appResp.data.subscriptionId;
 

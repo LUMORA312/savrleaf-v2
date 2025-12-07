@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 
 interface DealFormProps {
   initialData?: Deal | null;
-  dispensaryOptions: { _id: string; name: string }[];
+  dispensaryOptions: { _id: string; name: string; isActive: boolean; isPurchased: boolean }[];
   onSave: (deal: Deal) => void;
   onCancel: () => void;
   userId: string;
@@ -26,6 +26,8 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     endDate: '',
     manuallyActivated: false,
     category: '',
+    strain: 'indica',
+    thcContent: 0,
   });
 
   useEffect(() => {
@@ -46,11 +48,33 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
         category: initialData?.category || '',
+        strain: initialData?.strain || 'indica',
+        thcContent: initialData?.thcContent || 0,
       });
     }
   }, [initialData]);
 
   const [formError, setFormError] = useState('');
+
+  const resetForm = () => {
+    setForm({
+      title: '',
+      brand: '',
+      description: '',
+      salePrice: '',
+      originalPrice: '',
+      accessType: 'both',
+      tags: '',
+      images: '',
+      dispensary: '',
+      startDate: '',
+      endDate: '',
+      manuallyActivated: false,
+      category: '',
+      strain: 'indica',
+      thcContent: 0,
+    });
+  };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
@@ -104,6 +128,8 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
 
       if (data.success) {
         onSave(data.deal);
+        resetForm();
+        return;
       } else {
         setFormError(data.message || 'Error saving deal.');
       }
@@ -162,7 +188,10 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           <option value="concentrates">Concentrates</option>
           <option value="vapes">Vapes</option>
           <option value="topicals">Topicals</option>
-          <option value="accessories">Accessories</option>
+          <option value="pre-roll">Pre-Roll</option>
+          <option value="tincture">Tincture</option>
+          <option value="beverage">Beverage</option>
+          <option value="capsule/pill">Capsule/Pill</option>
           <option value="other">Other</option>
         </select>
       </div>
@@ -225,6 +254,38 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </select>
       </div>
 
+      {/* Strain */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Strain</label>
+        <select
+          name="strain"
+          value={form.strain}
+          onChange={handleChange}
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        >
+          <option value="indica">Indica</option>
+          <option value="indica-dominant hybrid">Indica-Dominant Hybrid</option>
+          <option value="hybrid">Hybrid</option>
+          <option value="sativa-dominant hybrid">Sativa-Dominant Hybrid</option>
+          <option value="sativa">Sativa</option>
+        </select>
+      </div>
+
+      {/* THC Content */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">THC Content *</label>
+        <input
+          name="thcContent"
+          type="number"
+          value={form.thcContent}
+          onChange={handleChange}
+          required
+          min={0}
+          max={100}
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        />
+      </div>
+
       {/* Dispensary */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Dispensary *</label>
@@ -238,7 +299,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           <option value="" disabled>
             Select a dispensary
           </option>
-          {dispensaryOptions.map((d) => (
+          {dispensaryOptions.filter((d) => d.isActive && d.isPurchased).map((d) => (
             <option key={d._id} value={d._id}>
               {d.name}
             </option>
