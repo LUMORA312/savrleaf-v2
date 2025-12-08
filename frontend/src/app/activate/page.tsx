@@ -1,11 +1,11 @@
 //activation page
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import axios from 'axios';
 import { useRouter, useSearchParams } from 'next/navigation';
 
-export default function ActivationPage() {
+function ActivationPageContent() {
     const router = useRouter();
     const [error, setError] = useState('');
     const [success, setSuccess] = useState('');
@@ -30,7 +30,7 @@ export default function ActivationPage() {
             }
         }
         activateAccount();
-    }, [token]);
+    }, [token, inviteByAdmin, router]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -65,5 +65,17 @@ export default function ActivationPage() {
             </div>
         )}
         </>
+    );
+}
+
+export default function ActivationPage() {
+    return (
+        <Suspense fallback={
+            <div className="flex items-center justify-center min-h-screen">
+                <p>Loading...</p>
+            </div>
+        }>
+            <ActivationPageContent />
+        </Suspense>
     );
 }

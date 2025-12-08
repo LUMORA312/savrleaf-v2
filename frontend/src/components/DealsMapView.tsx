@@ -119,7 +119,7 @@ export default function DealsMapView({ deals, userLocation, radius }: DealsMapVi
       // Add circle source
       map.current.addSource('radius-circle', {
         type: 'geojson',
-        data: circle as any,
+        data: circle,
       });
 
       // Add filled circle layer

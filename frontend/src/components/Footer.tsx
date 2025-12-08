@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 import logo from '../assets/logo.png';
 
 export default function Footer() {
@@ -25,11 +26,12 @@ export default function Footer() {
           {/* Brand */}
           <div className="md:col-span-2">
             <div className="flex items-center space-x-3 mb-4">
-              <img
-                src={logo.src}
+              <Image
+                src={logo}
                 alt="SavrLeaf Logo"
+                width={36}
+                height={36}
                 className="w-9 h-9 rounded-lg object-cover"
-                loading="lazy"
               />
               <h2 className="text-2xl font-bold text-white">SavrLeaf™</h2>
             </div>

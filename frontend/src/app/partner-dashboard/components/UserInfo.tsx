@@ -10,6 +10,14 @@ interface UserInfoProps {
 }
 
 export default function UserInfo({ user, dispensaries: dispensariesProp }: UserInfoProps) {
+  // All hooks must be called before any early returns
+  const [isOpen, setIsOpen] = useState(false);
+  const [firstName, setFirstName] = useState(user?.firstName ?? '');
+  const [lastName, setLastName] = useState(user?.lastName ?? '');
+  const [email] = useState(user?.email ?? '');
+  const [mainDispensary, setMainDispensary] = useState<Dispensary | null>(dispensariesProp?.[0] ?? null);
+  const [dispensaryUpdated, setDispensaryUpdated] = useState(false);
+
   if (!user) {
     return (
       <p className="text-center text-gray-500 mt-8">
@@ -30,15 +38,10 @@ export default function UserInfo({ user, dispensaries: dispensariesProp }: UserI
   const override = subscription?.adminSkuOverride ?? null;
   const maxSKUs = override !== null ? override : baseLimit + bonus;
   const usedSKUs = user.usedSKUs ?? 0;
-  const [isOpen, setIsOpen] = useState(false);
+  
   const onClose = () => {
     setIsOpen(false);
   };
-  const [firstName, setFirstName] = useState(user?.firstName ?? '');
-  const [lastName, setLastName] = useState(user?.lastName ?? '');
-  const [email] = useState(user?.email ?? '');
-  const [mainDispensary, setMainDispensary] = useState<Dispensary | null>(dispensariesProp?.[0] ?? null);
-  const [dispensaryUpdated, setDispensaryUpdated] = useState(false);
 
   const handleDispensarySave = async (updatedDispensary: Dispensary) => {
     setMainDispensary(updatedDispensary);

@@ -973,7 +973,7 @@ export default function AdminDashboardPage() {
           dispensary={selectedDispensary}
           isOpen={!!selectedDispensary}
           onClose={handleCloseDispensaryModal}
-          onUpdateSubscription={handleUpdateSubscription}
+          // onUpdateSubscription={handleUpdateSubscription}
           onUpdateExtraLimit={handleUpdateDispensaryExtraLimit}
         />
       )}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { useAuth } from '@/context/AuthContext';
 import DashboardLayout, { TabKey } from '../../components/dashboard/DashboardLayout';
@@ -25,7 +25,7 @@ interface OverviewData {
   isUserActive: boolean;
 }
 
-export default function PartnerDashboardPage() {
+function PartnerDashboardContent() {
   const { user: authUser, isAuthenticated, loading } = useAuth();
   const router = useRouter();
 
@@ -407,5 +407,17 @@ export default function PartnerDashboardPage() {
         type={alertType}
       />
     </DashboardLayout>
+  );
+}
+
+export default function PartnerDashboardPage() {
+  return (
+    <Suspense fallback={
+      <div className="flex items-center justify-center min-h-screen">
+        <p>Loading dashboard...</p>
+      </div>
+    }>
+      <PartnerDashboardContent />
+    </Suspense>
   );
 }

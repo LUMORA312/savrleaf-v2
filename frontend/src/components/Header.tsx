@@ -1,12 +1,13 @@
 'use client';
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '../context/AuthContext';
 import logo from '../assets/logo.png';
 
 export default function Header() {
-  const { user, isAuthenticated, logout } = useAuth();
+  const { isAuthenticated, logout } = useAuth();
   const router = useRouter();
 
   const handleLogout = async () => {
@@ -19,9 +20,11 @@ export default function Header() {
       <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
         {/* Logo and Brand */}
         <Link href="/" className="flex items-center space-x-2 hover:opacity-90 transition-opacity">
-          <img
-            src={logo.src}
+          <Image
+            src={logo}
             alt="SavrLeaf Logo"
+            height={32}
+            width={32}
             className="h-8 w-auto"
           />
           <span className="text-xl font-semibold text-gray-900 tracking-tight">

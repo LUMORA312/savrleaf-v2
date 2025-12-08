@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import Image from 'next/image';
 import { Deal } from '@/types';
 import defaultDealImg from '../assets/deal.jpg';
 
@@ -19,11 +20,12 @@ export default function DealCard({ deal }: { deal: Deal }) {
       >
         <div>
           <div className="h-40 w-full rounded-xl overflow-hidden mb-4">
-            <img
+            <Image
               src={imageSrc}
               alt={deal.title}
+              width={400}
+              height={160}
               className="h-full w-full object-cover"
-              loading="lazy"
             />
           </div>
           <h3 className="text-lg font-bold mb-1">{deal.title}</h3>
@@ -51,11 +53,12 @@ export default function DealCard({ deal }: { deal: Deal }) {
 
             <div className="flex flex-col md:flex-row gap-6">
               <div className="flex-shrink-0 w-full md:w-1/2 h-64 md:h-auto rounded-xl overflow-hidden">
-                <img
+                <Image
                   src={imageSrc}
                   alt={deal.title}
+                  width={600}
+                  height={400}
                   className="w-full h-full object-cover"
-                  loading="lazy"
                 />
               </div>
               <div className="flex-1 flex flex-col gap-2">

@@ -78,31 +78,31 @@ export default function DispensaryApplicationForm() {
     }
   }
 
-  if (submittedData) {
-    return (
-      <div className="max-w-4xl mx-auto p-8 bg-white rounded shadow border border-orange-100">
-        <h2 className="text-3xl font-semibold text-orange-600 mb-4">Thank you for your application!</h2>
-        <p className="mb-6 text-gray-700">
-          You will be notified when your application is approved so you can make your payment and access your dashboard.
-        </p>
+  // if (submittedData) {
+  //   return (
+  //     <div className="max-w-4xl mx-auto p-8 bg-white rounded shadow border border-orange-100">
+  //       <h2 className="text-3xl font-semibold text-orange-600 mb-4">Thank you for your application!</h2>
+  //       <p className="mb-6 text-gray-700">
+  //         You will be notified when your application is approved so you can make your payment and access your dashboard.
+  //       </p>
 
-        <h3 className="text-xl font-semibold mb-2">Submission Summary:</h3>
-        <div className="space-y-3 text-gray-800">
-          <p><strong>Name:</strong> {submittedData.firstName} {submittedData.lastName}</p>
-          <p><strong>Email:</strong> {submittedData.email}</p>
-          <p><strong>Dispensary Name:</strong> {submittedData.dispensaryName}</p>
-          <p><strong>Legal Name:</strong> {submittedData.legalName}</p>
-          <p><strong>License Number:</strong> {submittedData.licenseNumber}</p>
-          <p><strong>Phone Number:</strong> {submittedData.phoneNumber || 'N/A'}</p>
-          <p><strong>Website URL:</strong> {submittedData.websiteUrl || 'N/A'}</p>
-          <p><strong>Description:</strong> {submittedData.description || 'N/A'}</p>
-          <p><strong>Address:</strong> {`${submittedData.address.street1}${submittedData.address.street2 ? ', ' + submittedData.address.street2 : ''}, ${submittedData.address.city}, ${submittedData.address.state} ${submittedData.address.zipCode}`}</p>
-          <p><strong>Amenities:</strong> {submittedData.amenities.length ? submittedData.amenities.join(', ') : 'None'}</p>
-          <p><strong>Subscription Tier:</strong> {selectedTier?.displayName}</p>
-        </div>
-      </div>
-    );
-  }
+  //       <h3 className="text-xl font-semibold mb-2">Submission Summary:</h3>
+  //       <div className="space-y-3 text-gray-800">
+  //         <p><strong>Name:</strong> {submittedData.firstName} {submittedData.lastName}</p>
+  //         <p><strong>Email:</strong> {submittedData.email}</p>
+  //         <p><strong>Dispensary Name:</strong> {submittedData.dispensaryName}</p>
+  //         <p><strong>Legal Name:</strong> {submittedData.legalName}</p>
+  //         <p><strong>License Number:</strong> {submittedData.licenseNumber}</p>
+  //         <p><strong>Phone Number:</strong> {submittedData.phoneNumber || 'N/A'}</p>
+  //         <p><strong>Website URL:</strong> {submittedData.websiteUrl || 'N/A'}</p>
+  //         <p><strong>Description:</strong> {submittedData.description || 'N/A'}</p>
+  //         <p><strong>Address:</strong> {`${submittedData.address.street1}${submittedData.address.street2 ? ', ' + submittedData.address.street2 : ''}, ${submittedData.address.city}, ${submittedData.address.state} ${submittedData.address.zipCode}`}</p>
+  //         <p><strong>Amenities:</strong> {submittedData.amenities.length ? submittedData.amenities.join(', ') : 'None'}</p>
+  //         <p><strong>Subscription Tier:</strong> {selectedTier?.displayName}</p>
+  //       </div>
+  //     </div>
+  //   );
+  // }
 
   return (
     <div className="bg-gradient-to-br from-orange-50 to-white min-h-screen py-12 px-4 sm:px-6 lg:px-8 font-inter">

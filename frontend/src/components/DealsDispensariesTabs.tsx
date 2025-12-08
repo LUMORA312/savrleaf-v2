@@ -53,12 +53,18 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
           ))
         ) : activeTab === 'deals' ? (
           deals.length ? (
-            deals.map((deal, index) => (
-              <DealCard 
-                key={deal._id || `deal-${index}-${deal.title || 'unknown'}`} 
-                deal={typeof deal === 'object' && '_doc' in deal ? (deal as any)._doc : deal} 
-              />
-            ))
+            deals.map((deal, index) => {
+              // Handle Mongoose populated documents that may have _doc wrapper
+              const dealData = typeof deal === 'object' && '_doc' in deal 
+                ? (deal as { _doc: Deal })._doc 
+                : deal;
+              return (
+                <DealCard 
+                  key={dealData._id || `deal-${index}-${dealData.title || 'unknown'}`} 
+                  deal={dealData} 
+                />
+              );
+            })
           ) : (
             <p key="no-deals" className="col-span-full text-center text-gray-500 py-8">No deals found.</p>
           )

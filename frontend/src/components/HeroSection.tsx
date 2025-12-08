@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import Image from 'next/image';
 import LocationStatus from './LocationStatus';
 import SearchBar from './SearchBar';
 import logo from '../assets/logo.png';
@@ -28,7 +29,7 @@ export default function HeroSection({
     <section className="relative bg-gradient-to-br from-orange-200 via-orange-100 to-orange-200 text-gray-900 pt-20 pb-12 font-sans">
       <div className="max-w-4xl mx-auto px-6 sm:px-8 lg:px-10 text-center">
         <div className="flex justify-center mb-2">
-          <img src={logo.src} alt="SavrLeaf Logo" className="w-20 h-20 object-contain" />
+          <Image src={logo} alt="SavrLeaf Logo" width={80} height={80} className="w-20 h-20 object-contain" />
         </div>
         <span className="text-3xl font-semibold text-gray-900 tracking-tight">
           SavrLeaf<sup className="text-xs align-super">™</sup>

@@ -14,7 +14,6 @@ export default function PublicHomepage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filters, setFilters] = useState<FilterValues>({
     accessType: '',
@@ -69,7 +68,6 @@ export default function PublicHomepage() {
   useEffect(() => {
     const fetchDeals = async () => {
       setLoading(true);
-      setError(null);
       try {
         const params: Record<string, string | number> = {};
 
@@ -107,13 +105,7 @@ export default function PublicHomepage() {
         const dealsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals`, { params });
         setDeals(dealsRes.data?.deals || []);
       } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          setError(err.response?.data?.message || err.message);
-        } else if (err instanceof Error) {
-          setError(err.message);
-        } else {
-          setError('Failed to fetch deals');
-        }
+        console.error('Failed to fetch deals:', err);
       } finally {
         setLoading(false);
       }

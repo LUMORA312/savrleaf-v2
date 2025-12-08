@@ -5,7 +5,6 @@ import { useState, useEffect } from 'react';
 interface FiltersProps {
   filterValues: FilterValues;
   onFilterChange: (filters: FilterValues) => void;
-  dealTags?: string[];
   dispensaryAmenities?: string[];
   forType: 'deal' | 'dispensary';
 }
@@ -30,7 +29,6 @@ export interface FilterValues {
 export default function Filters({
   filterValues,
   onFilterChange,
-  dealTags = [],
   dispensaryAmenities = [],
   forType,
 }: FiltersProps) {

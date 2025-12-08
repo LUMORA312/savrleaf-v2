@@ -2,6 +2,7 @@
 
 import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
+import Image from 'next/image';
 import defaultDealImg from '@/assets/deal.jpg';
 import { Deal, Dispensary } from '@/types';
 
@@ -159,11 +160,12 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
         className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${deal.active ? 'border-green-500' : 'border-red-500'}`}
       >
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
-          <img
+          <Image
             src={deal.images?.[0] || defaultDealImg.src}
             alt={deal.title}
+            width={400}
+            height={160}
             className="h-full w-full object-cover"
-            loading="lazy"
           />
         </div>
 
@@ -317,7 +319,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
           </div>
           {searchQuery && (
             <p className="mt-1 text-sm text-gray-500">
-              Found {searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'deal' : 'deals'} matching "{searchQuery}"
+              Found {searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'deal' : 'deals'} matching &quot;{searchQuery}&quot;
             </p>
           )}
         </div>

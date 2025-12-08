@@ -1,13 +1,13 @@
 'use client';
 import React, { useState, useEffect } from 'react';
+import Image from 'next/image';
 import Modal from './Modal';
-import { Dispensary, Subscription } from '@/types';
+import { Dispensary } from '@/types';
 
 interface DispensaryModalProps {
   dispensary: Dispensary;
   isOpen: boolean;
   onClose: () => void;
-  onUpdateSubscription?: (id: string, adminSkuOverride: number) => Promise<void>;
   onUpdateExtraLimit?: (id: string, extraLimit: number) => Promise<void>;
 }
 
@@ -15,7 +15,6 @@ export default function DispensaryModal({
   dispensary,
   isOpen,
   onClose,
-  onUpdateSubscription,
   onUpdateExtraLimit
 }: DispensaryModalProps) {
   const [extraLimitValue, setExtraLimitValue] = useState<number | ''>(dispensary?.extraLimit ?? '');
@@ -53,9 +52,11 @@ export default function DispensaryModal({
         {/* Header */}
         <div className="flex items-center gap-4">
           {dispensary.logo && (
-            <img
+            <Image
               src={dispensary.logo}
               alt={`${dispensary.name} logo`}
+              width={64}
+              height={64}
               className="w-16 h-16 rounded-full object-cover shadow-md"
             />
           )}
@@ -160,10 +161,12 @@ export default function DispensaryModal({
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Images</h3>
             <div className="grid grid-cols-2 gap-3 mt-2">
               {dispensary.images.map((img, idx) => (
-                <img
+                <Image
                   key={idx}
                   src={img}
                   alt={`Dispensary image ${idx + 1}`}
+                  width={400}
+                  height={128}
                   className="w-full h-32 object-cover rounded-lg shadow-sm"
                 />
               ))}
