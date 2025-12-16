@@ -1,10 +1,11 @@
 'use client';
 
-import { useForm } from 'react-hook-form';
+import { useForm, Controller } from 'react-hook-form';
 import axios, { AxiosError } from 'axios';
 import { useState } from 'react';
 import { SubscriptionTier } from '@/types';
 import { amenitiesOptions } from '@/constants/amenities';
+import AddressAutocomplete from './AddressAutocomplete';
 
 type DispensaryApplicationFormProps = {
   selectedTier: SubscriptionTier | null;
@@ -33,8 +34,17 @@ type ApplicationFormData = {
 };
 
 export default function DispensaryApplicationForm() {
-  const { register, handleSubmit, formState: { errors, isSubmitting }, reset } = useForm<ApplicationFormData>({
-    defaultValues: { amenities: [] }
+  const { register, handleSubmit, formState: { errors, isSubmitting }, reset, control } = useForm<ApplicationFormData>({
+    defaultValues: { 
+      amenities: [],
+      address: {
+        street1: '',
+        street2: '',
+        city: '',
+        state: '',
+        zipCode: '',
+      }
+    }
   });
 
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -110,7 +120,7 @@ export default function DispensaryApplicationForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="space-y-10">
           {/* PERSONAL INFO */}
           <section>
-            <h2 className="text-2xl font-semibold mb-4 text-orange-500">Personal Info</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-orange-500">Contact</h2>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <FormField label="First Name*" error={errors.firstName?.message}>
                 <input {...register('firstName', { required: 'First name is required' })} className="input" />
@@ -175,29 +185,35 @@ export default function DispensaryApplicationForm() {
           {/* ADDRESS */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-orange-500">Address</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-              <FormField label="Street 1*">
-                <input {...register('address.street1', { required: true })} className="input" />
-              </FormField>
-              <FormField label="Street 2">
-                <input {...register('address.street2')} className="input" />
-              </FormField>
-              <FormField label="City*">
-                <input {...register('address.city', { required: true })} className="input" />
-              </FormField>
-              <FormField label="State*">
-                <input {...register('address.state', { required: true })} className="input" />
-              </FormField>
-              <FormField label="Zip Code*" error={errors.address?.zipCode?.message} className="sm:col-span-2">
-                <input
-                  {...register('address.zipCode', {
-                    required: true,
-                    pattern: { value: /^\d{5}(-\d{4})?$/, message: 'Invalid zip code' },
-                  })}
-                  className="input"
+            <Controller
+              name="address"
+              control={control}
+              rules={{
+                required: true,
+                validate: (value) => {
+                  if (!value?.street1 || !value?.city || !value?.state || !value?.zipCode) {
+                    return 'All address fields are required';
+                  }
+                  const zipRegex = /^\d{5}(-\d{4})?$/;
+                  if (!zipRegex.test(value.zipCode)) {
+                    return 'Invalid zip code';
+                  }
+                  return true;
+                },
+              }}
+              render={({ field }) => (
+                <AddressAutocomplete
+                  value={field.value || { street1: '', street2: '', city: '', state: '', zipCode: '' }}
+                  onChange={field.onChange}
+                  required
                 />
-              </FormField>
-            </div>
+              )}
+            />
+            {errors.address && (
+              <p className="text-red-600 text-sm mt-1">
+                {errors.address.message || 'Address is required'}
+              </p>
+            )}
           </section>
 
           {/* AMENITIES */}

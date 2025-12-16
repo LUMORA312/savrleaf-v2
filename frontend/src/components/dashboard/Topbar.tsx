@@ -3,12 +3,13 @@
 import { Menu } from 'lucide-react';
 
 interface TopbarProps {
+  user?: any;
   partnerName?: string;
   onLogout: () => void;
   onMenuClick?: () => void;
 }
 
-export default function Topbar({ partnerName, onLogout, onMenuClick }: TopbarProps) {
+export default function Topbar({ user, partnerName, onLogout, onMenuClick }: TopbarProps) {
   return (
     <header className="bg-white shadow-sm sticky top-0 z-40">
       <div className="h-16 px-4 sm:px-6 flex items-center justify-between">
@@ -22,7 +23,7 @@ export default function Topbar({ partnerName, onLogout, onMenuClick }: TopbarPro
             <Menu className="w-6 h-6" />
           </button>
           <h1 className="text-lg sm:text-xl font-semibold text-gray-900">
-            Partner Dashboard
+            {user?.role === 'admin' ? "Admin Dashboard" : "Partner Dashboard"}
           </h1>
         </div>
 

@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { Dispensary } from '@/types';
 import { amenitiesOptions } from '@/constants/amenities';
+import AddressAutocomplete from './AddressAutocomplete';
 
 interface DispensaryFormProps {
   initialData?: Dispensary | null;
@@ -223,49 +224,18 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
       </div>
 
       {/* Address */}
-      <div className="space-y-3">
+      <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Address *</label>
-        <input
-          name="address.street1"
-          value={form.address.street1}
-          onChange={handleChange}
-          placeholder="Street Address 1 *"
+        <AddressAutocomplete
+          value={form.address}
+          onChange={(address) => {
+            setForm((prev) => ({
+              ...prev,
+              address,
+            }));
+          }}
           required
-          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
-        <input
-          name="address.street2"
-          value={form.address.street2}
-          onChange={handleChange}
-          placeholder="Street Address 2 (optional)"
-          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
-        />
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <input
-            name="address.city"
-            value={form.address.city}
-            onChange={handleChange}
-            placeholder="City *"
-            required
-            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
-          />
-          <input
-            name="address.state"
-            value={form.address.state}
-            onChange={handleChange}
-            placeholder="State *"
-            required
-            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
-          />
-          <input
-            name="address.zipCode"
-            value={form.address.zipCode}
-            onChange={handleChange}
-            placeholder="Zip Code *"
-            required
-            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
-          />
-        </div>
       </div>
 
       {/* License Number */}

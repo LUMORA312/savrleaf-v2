@@ -54,6 +54,7 @@ export default function DashboardLayout({
       <div className="flex flex-col flex-1 lg:ml-0">
         <Topbar 
           partnerName={user?.name} 
+          user={user}
           onLogout={handleLogout}
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         />
