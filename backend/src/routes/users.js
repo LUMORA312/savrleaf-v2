@@ -90,6 +90,23 @@ router.post('/:id/status', authMiddleware, async (req, res) => {
   }
 });
 
+router.post('/:id/allow-multiple-locations', authMiddleware, async (req, res) => {
+  try {
+    if (req.user.role !== 'admin') return res.status(403).json({ message: 'Not authorized' });
+    const { id } = req.params;
+    const { allowMultipleLocations } = req.body;
+
+    const user = await User.findById(id);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    user.allowMultipleLocations = allowMultipleLocations;
+    await user.save();
+    res.json({ success: true, user });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
 //set first login to false
 router.post('/:email/first-login', authMiddleware, async (req, res) => {
   if (req.user.role !== 'partner' || req.user.email !== req.params.email) return res.status(403).json({ message: 'Not authorized' });

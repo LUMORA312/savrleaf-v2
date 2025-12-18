@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user' | 'users' | 'adminOverview' | 'applications' | 'planSelection' | 'mapView';
+export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user' | 'users' | 'adminOverview' | 'applications' | 'planSelection'; // | 'mapView';
 
 interface DashboardLayoutProps {
   children: ReactNode;
@@ -36,7 +36,7 @@ export default function DashboardLayout({
   };
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="flex min-h-screen bg-gray-100 w-full max-w-full overflow-x-hidden">
       <Sidebar 
         activeTab={activeTab} 
         onTabChange={handleTabChange} 
@@ -51,14 +51,14 @@ export default function DashboardLayout({
           onClick={() => setSidebarOpen(false)}
         />
       )}
-      <div className="flex flex-col flex-1 lg:ml-0">
+      <div className="flex flex-col flex-1 lg:ml-0 w-full max-w-full">
         <Topbar 
           partnerName={user?.name} 
           user={user}
           onLogout={handleLogout}
           onMenuClick={() => setSidebarOpen(!sidebarOpen)}
         />
-        <main className="p-4 sm:p-6">{children}</main>
+        <main className="p-4 sm:p-6 w-full max-w-full">{children}</main>
       </div>
     </div>
   );

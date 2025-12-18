@@ -196,7 +196,8 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
               ${Number(deal.salePrice).toFixed(2)}
             </span>
           </div>
-          <div className="mt-2 flex flex-wrap gap-2">
+          
+          {/* <div className="mt-2 flex flex-wrap gap-2">
             {accessTypes.map((type: string) => (
               <span
                 key={type}
@@ -210,7 +211,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
                 {displayAccessType(deal.accessType)}
               </span>
             ))}
-          </div>
+          </div> */}
         </div>
 
         <div className="mt-3 text-xs text-gray-500 space-y-1">

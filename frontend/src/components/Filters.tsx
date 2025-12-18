@@ -48,7 +48,7 @@ export default function Filters({
     <section className="max-w-7xl mx-auto px-6 py-6 bg-white rounded-lg shadow-md my-6">
       <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4">
         {/* Access Type */}
-        {forType === 'deal' && (
+        {/* {forType === 'deal' && (
           <div>
             <label htmlFor="accessType" className="block text-sm font-semibold mb-1">Access Type</label>
             <select
@@ -63,7 +63,7 @@ export default function Filters({
               <option value="recreational">Recreational</option>
             </select>
           </div>
-        )}
+        )} */}
 
         {/* THC % */}
         {forType === 'deal' && (

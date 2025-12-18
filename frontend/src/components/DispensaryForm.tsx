@@ -124,7 +124,7 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
     setFormError('');
 
     // Validation
-    if (!form.name || !form.legalName || !form.address.street1 || !form.address.city || !form.address.state || !form.address.zipCode || !form.licenseNumber) {
+    if (!form.name || !form.address.street1 || !form.address.city || !form.address.state || !form.address.zipCode || !form.licenseNumber) {
       setFormError('Please fill in all required fields.');
       return;
     }
@@ -211,7 +211,7 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
       </div>
 
       {/* Legal Name */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Legal Name *</label>
         <input
           name="legalName"
@@ -221,7 +221,7 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
           required
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
-      </div>
+      </div> */}
 
       {/* Address */}
       <div>
@@ -231,7 +231,10 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
           onChange={(address) => {
             setForm((prev) => ({
               ...prev,
-              address,
+              address: {
+                ...address,
+                street2: address.street2 ?? '',
+              },
             }));
           }}
           required

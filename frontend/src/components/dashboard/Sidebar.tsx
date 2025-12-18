@@ -24,7 +24,7 @@ const iconMap: Record<TabKey, JSX.Element> = {
   adminOverview: <Home className="w-5 h-5" />,
   applications: <FileText className="w-5 h-5" />,
   planSelection: <CreditCard className="w-5 h-5" />,
-  mapView: <MapPin className="w-5 h-5" />,
+  // mapView: <MapPin className="w-5 h-5" />,
 };
 
 export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpen = false, onClose }: SidebarProps) {
@@ -34,14 +34,14 @@ export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpe
         { key: 'deals', label: 'Deals' },
         { key: 'users', label: 'Users' },
         { key: 'dispensary', label: 'Dispensaries' },
-        { key: 'mapView', label: 'Map View' },
+        // { key: 'mapView', label: 'Map View' },
         { key: 'applications', label: 'Applications' },
       ]
     : [
         { key: 'overview', label: 'Overview' },
         { key: 'deals', label: 'Deals' },
         { key: 'dispensary', label: 'Dispensary Info' },
-        { key: 'mapView', label: 'Map View' },
+        // { key: 'mapView', label: 'Map View' },
         { key: 'user', label: 'User Info' },
         // { key: 'planSelection', label: 'Plan Selection' },
       ];

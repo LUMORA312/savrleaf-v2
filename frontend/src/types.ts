@@ -90,6 +90,7 @@ export interface User {
   email: string;
   role: 'partner' | 'admin';
   isActive: boolean;
+  allowMultipleLocations: boolean;
   dispensaries?: string[];
   subscription?: {
     _id: string;

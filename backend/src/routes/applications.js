@@ -80,7 +80,7 @@ router.post('/', async (req, res) => {
 
     const dispensary = await Dispensary.create({
       name: dispensaryName,
-      legalName: legalName,
+      legalName: legalName || "Unknown",
       address: address,
       licenseNumber: licenseNumber,
       phoneNumber: phoneNumber,

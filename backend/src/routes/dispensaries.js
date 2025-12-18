@@ -145,7 +145,7 @@ router.post('/', authMiddleware, async (req, res) => {
   try {
     const { name, legalName, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings } = req.body;
     const user = req.user._id;
-    const dispensary = await Dispensary.create({ name, legalName, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, user, adminNotes, ratings, type: 'additional' });
+    const dispensary = await Dispensary.create({ name, legalName: legalName || "Unknown", address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, user, adminNotes, ratings, type: 'additional' });
     //create subscription
     const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
     const subscription = await Subscription.create({ user, tier: subscriptionTier._id, status: 'pending', startDate: new Date(), metadata: { source: 'dispensary_addition' } });

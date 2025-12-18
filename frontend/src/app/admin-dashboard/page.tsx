@@ -323,6 +323,24 @@ export default function AdminDashboardPage() {
     }
   };
 
+  const updateUserAllowMultipleLocations = async (id: string, allowMultipleLocations: boolean) => {
+    try {
+      const token = localStorage.getItem('token');
+      await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/users/${id}/allow-multiple-locations`,
+        { allowMultipleLocations },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+
+      setUsers((prev) =>
+        prev.map((u) => (u._id === id ? { ...u, allowMultipleLocations } : u))
+      );
+      setSelectedUser(prev => prev?._id === id ? { ...prev, allowMultipleLocations } : prev);
+    } catch (err) {
+      console.error('Failed to update user allow multiple locations', err);
+    }
+  }
+
   async function handleUpdateSubscription(id: string, adminSkuOverride: number) {
     try {
       const token = localStorage.getItem('token');
@@ -479,6 +497,7 @@ export default function AdminDashboardPage() {
               },
             ]}
             actions={(user) => (
+              <>
               <button
                 className={`px-3 py-1 rounded cursor-pointer text-white ${user.isActive ? 'bg-red-600' : 'bg-green-600'
                   }`}
@@ -489,6 +508,16 @@ export default function AdminDashboardPage() {
               >
                 {user.isActive ? 'Deactivate' : 'Activate'}
               </button>
+              <button
+                className={`px-3 py-1 rounded cursor-pointer text-white ${user.allowMultipleLocations ? 'bg-red-600' : 'bg-green-600'} mr-2`}
+                onClick={async (e) => {
+                  e.stopPropagation();
+                  await updateUserAllowMultipleLocations(user._id, user.allowMultipleLocations ? false : true);
+                }}
+              >
+                {user.allowMultipleLocations ? 'Disallow Multiple Locations' : 'Allow Multiple Locations'}
+              </button> 
+              </>
             )}
             onRowClick={(user: SetStateAction<User | null>) => setSelectedUser(user)}
           />
@@ -769,26 +798,26 @@ export default function AdminDashboardPage() {
                   <span className="capitalize">{deal.category || 'N/A'}</span>
                 ),
               },
-              {
-                key: 'accessType',
-                label: 'Access Type',
-                width: '120px',
-                render: (deal: Deal) => {
-                  const type = deal.accessType === 'both' ? 'Med/Rec' : 
-                              deal.accessType === 'medical' ? 'Medical' : 
-                              deal.accessType === 'recreational' ? 'Recreational' : 'N/A';
-                  const bgColor = deal.accessType === 'medical' 
-                    ? 'bg-green-100 text-green-700'
-                    : deal.accessType === 'recreational'
-                    ? 'bg-blue-100 text-blue-700'
-                    : 'bg-gray-100 text-gray-700';
-                  return (
-                    <span className={`px-2 py-1 rounded-full text-xs font-semibold ${bgColor}`}>
-                      {type}
-                    </span>
-                  );
-                },
-              },
+              // {
+              //   key: 'accessType',
+              //   label: 'Access Type',
+              //   width: '120px',
+              //   render: (deal: Deal) => {
+              //     const type = deal.accessType === 'both' ? 'Med/Rec' : 
+              //                 deal.accessType === 'medical' ? 'Medical' : 
+              //                 deal.accessType === 'recreational' ? 'Recreational' : 'N/A';
+              //     const bgColor = deal.accessType === 'medical' 
+              //       ? 'bg-green-100 text-green-700'
+              //       : deal.accessType === 'recreational'
+              //       ? 'bg-blue-100 text-blue-700'
+              //       : 'bg-gray-100 text-gray-700';
+              //     return (
+              //       <span className={`px-2 py-1 rounded-full text-xs font-semibold ${bgColor}`}>
+              //         {type}
+              //       </span>
+              //     );
+              //   },
+              // },
               {
                 key: 'dates',
                 label: 'Date Range',

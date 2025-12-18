@@ -240,7 +240,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       </div>
 
       {/* Access Type */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Access Type</label>
         <select
           name="accessType"
@@ -252,7 +252,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           <option value="medical">Medical</option>
           <option value="recreational">Recreational</option>
         </select>
-      </div>
+      </div> */}
 
       {/* Strain */}
       <div>

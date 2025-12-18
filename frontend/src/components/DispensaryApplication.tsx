@@ -151,13 +151,13 @@ export default function DispensaryApplicationForm() {
           {/* DISPENSARY INFO */}
           <section>
             <h2 className="text-2xl font-semibold mb-4 text-orange-500">Dispensary Info</h2>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-0">
               <FormField label="Dispensary Name*">
                 <input {...register('dispensaryName', { required: true })} className="input" />
               </FormField>
-              <FormField label="Legal Name*">
+              {/* <FormField label="Legal Name*">
                 <input {...register('legalName', { required: true })} className="input" />
-              </FormField>
+              </FormField> */}
               <FormField label="License Number*" className="sm:col-span-2">
                 <input {...register('licenseNumber', { required: true })} className="input" />
               </FormField>

@@ -72,7 +72,7 @@ export default function PublicHomepage() {
         const params: Record<string, string | number> = {};
 
         // Add filter parameters
-        if (filters.accessType) params.accessType = filters.accessType;
+        // if (filters.accessType) params.accessType = filters.accessType;
         if (filters.category) params.category = filters.category;
         if (filters.brand) params.brand = filters.brand;
         if (filters.title) params.title = filters.title;
@@ -102,7 +102,11 @@ export default function PublicHomepage() {
           params.sortBy = 'distance';
         }
 
+        if(!Object.keys(params).length) return;
+
         const dealsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals`, { params });
+        console.log(">>>>", params);
+        console.log(">>>>>>>>>>>>>>>>", dealsRes.data)
         setDeals(dealsRes.data?.deals || []);
       } catch (err: unknown) {
         console.error('Failed to fetch deals:', err);

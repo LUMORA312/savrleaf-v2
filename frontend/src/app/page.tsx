@@ -16,7 +16,7 @@ export default function Home() {
       {is21 === true && (
         <>
           <Header />
-          <main>
+          <main className="w-full max-w-full">
             <PublicHomepage />
           </main>
           <Footer />

@@ -297,7 +297,7 @@ function PartnerDashboardContent() {
 
       {activeTab === 'dispensary' &&
         <div>
-          <button name="add dispensary" onClick={() => {if(dispensaries.length < 1) {
+          <button name="add dispensary" disabled={!user?.allowMultipleLocations} onClick={() => {if(dispensaries.length < 1) {
             setAlertMessage('You must complete your profile first with inputing main dispensary information.');
             setAlertType('warning');
             setShowAlert(true);

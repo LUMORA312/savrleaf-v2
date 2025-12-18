@@ -47,6 +47,10 @@ const userSchema = new mongoose.Schema(
       ref: 'Subscription',
       required: false,
     },
+    allowMultipleLocations: {
+      type: Boolean,
+      default: false,
+    },
     dispensaries: [
       {
         type: mongoose.Schema.Types.ObjectId,

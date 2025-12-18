@@ -36,7 +36,7 @@ export default function DealCard({ deal }: { deal: Deal }) {
             <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
             <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
           </div>
-          <div className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</div>
+          {/* <div className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</div> */}
         </div>
       </div>
 
