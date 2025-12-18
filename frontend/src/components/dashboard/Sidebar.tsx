@@ -24,7 +24,7 @@ const iconMap: Record<TabKey, JSX.Element> = {
   adminOverview: <Home className="w-5 h-5" />,
   applications: <FileText className="w-5 h-5" />,
   planSelection: <CreditCard className="w-5 h-5" />,
-  // mapView: <MapPin className="w-5 h-5" />,
+  mapView: <MapPin className="w-5 h-5" />,
 };
 
 export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpen = false, onClose }: SidebarProps) {
