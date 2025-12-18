@@ -6,7 +6,7 @@ import { useRouter } from 'next/navigation';
 import Sidebar from './Sidebar';
 import Topbar from './Topbar';
 
-export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user' | 'users' | 'adminOverview' | 'applications' | 'planSelection'; // | 'mapView';
+export type TabKey = 'overview' | 'deals' | 'dispensary' | 'user' | 'users' | 'adminOverview' | 'applications' | 'planSelection' | 'mapView';
 
 interface DashboardLayoutProps {
   children: ReactNode;
