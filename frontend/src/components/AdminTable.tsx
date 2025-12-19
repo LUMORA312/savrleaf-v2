@@ -56,8 +56,10 @@ export default function AdminTable<T extends { _id: string }>({
                 <span className="text-gray-900">
                   {col.render
                     ? col.render(item)
-                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-                    : (item as any)[col.key as string] ?? ''}
+                    : col.key === 'createdAt' && (item as any)[col.key as string]
+                      ? new Date((item as any)[col.key as string]).toLocaleDateString()
+                      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+                      : (item as any)[col.key as string] ?? ''}
                 </span>
               </div>
             ))}

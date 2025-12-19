@@ -927,7 +927,7 @@ export default function AdminDashboardPage() {
             columns={[
               {
                 key: 'fullName',
-                label: 'Full Name',
+                label: 'Contact Info',
                 render: (app: Application) => `${app?.firstName || ''} ${app?.lastName || ''}`.trim(),
               },
               { key: 'email', label: 'Email' },
@@ -948,6 +948,7 @@ export default function AdminDashboardPage() {
                 ),
               },
               { key: 'dispensaryName', label: 'Dispensary' },
+              { key: 'createdAt', label: 'Date of Application'}
             ]}
             actions={(app) => (
               <button

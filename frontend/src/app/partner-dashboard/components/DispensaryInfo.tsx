@@ -220,7 +220,7 @@ function DispensaryCard({
               <strong className="font-semibold text-gray-700 text-xs sm:text-sm">Extra plan Limit:</strong>
               <span className="text-xs sm:text-sm text-gray-500 ml-2 break-words">{dispensary.additionalSkuLimit ? dispensary.additionalSkuLimit : 0} / { dispensary.extraLimit ? dispensary.extraLimit : 0} </span>
             </div>
-            <button onClick={purchaseExtraPlan} disabled={!isPurchased} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs px-2 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0 w-full sm:w-auto">Purchase Extra Plan +1</button>
+            <button onClick={purchaseExtraPlan} disabled={!isPurchased} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs px-2 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0 w-full sm:w-auto">Purchase Extra Sku +1</button>
           </div>
         </>
       )}

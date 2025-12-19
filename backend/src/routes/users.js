@@ -93,6 +93,7 @@ router.post('/:id/status', authMiddleware, async (req, res) => {
 router.post('/:id/allow-multiple-locations', authMiddleware, async (req, res) => {
   try {
     if (req.user.role !== 'admin') return res.status(403).json({ message: 'Not authorized' });
+    
     const { id } = req.params;
     const { allowMultipleLocations } = req.body;
 
