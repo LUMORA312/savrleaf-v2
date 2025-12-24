@@ -62,7 +62,7 @@ export default function DispensaryModal({
           )}
           <div>
             <h2 className="text-2xl font-bold text-orange-700">{dispensary.name}</h2>
-            <p className="text-gray-500">{dispensary.legalName}</p>
+            {/* <p className="text-gray-500">{dispensary.legalName}</p> */}
           </div>
         </div>
 

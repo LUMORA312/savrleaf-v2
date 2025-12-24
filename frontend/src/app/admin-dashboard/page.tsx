@@ -12,6 +12,7 @@ import ApplicationModal from '@/components/ApplicationModal';
 import { Application, Deal, Dispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
+import DispensaryForm from '@/components/DispensaryForm';
 import { countUserActiveDeals } from '@/utils/usedSkus';
 import MapView from '@/components/MapView';
 
@@ -41,6 +42,7 @@ export default function AdminDashboardPage() {
   const handleViewDispensary = (disp: Dispensary) => setSelectedDispensary(disp);
   const handleCloseDispensaryModal = () => setSelectedDispensary(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -535,12 +537,32 @@ export default function AdminDashboardPage() {
 
       {activeTab === 'dispensary' && (
         <>
-          <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Dispensaries</h2>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <h2 className="text-3xl font-extrabold text-orange-700">Dispensaries</h2>
+            <div className="flex items-center gap-3">
+              <p className="text-xs text-gray-500 hidden sm:block">
+                Select a partner in the Users tab, then add a dispensary for them.
+              </p>
+              <button
+                className="px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 disabled:bg-gray-300 disabled:text-gray-600 transition cursor-pointer"
+                onClick={() => {
+                  // if (!selectedUser?._id) {
+                  //   alert('Select a partner in the Users tab first.');
+                  //   return;
+                  // }
+                  setShowAddDispensaryModal(true);
+                }}
+                // disabled={!selectedUser?._id}
+              >
+                Add Dispensary
+              </button>
+            </div>
+          </div>
           <AdminTable
             data={dispensaries}
             columns={[
               { key: 'name', label: 'Name' },
-              { key: 'legalName', label: 'Legal Name' },
+              // { key: 'legalName', label: 'Legal Name' },
               { key: 'licenseNumber', label: 'License Number' },
               {
                 key: 'status',
@@ -578,6 +600,21 @@ export default function AdminDashboardPage() {
             )}
             onRowClick={handleViewDispensary}
           />
+
+          {showAddDispensaryModal && (
+            <Modal isOpen={showAddDispensaryModal} onClose={() => setShowAddDispensaryModal(false)} maxWidth="4xl">
+              <h3 className="text-2xl font-bold text-orange-700 mb-4">Add Dispensary for {selectedUser?.email || 'selected partner'}</h3>
+              <DispensaryForm
+                initialData={null}
+                onSave={(dispensary) => {
+                  setDispensaries((prev) => [dispensary, ...prev]);
+                  setShowAddDispensaryModal(false);
+                }}
+                onCancel={() => setShowAddDispensaryModal(false)}
+                userIdOverride={selectedUser?._id}
+              />
+            </Modal>
+          )}
         </>
       )}
 

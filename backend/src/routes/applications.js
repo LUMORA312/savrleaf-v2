@@ -14,14 +14,15 @@ router.post('/', async (req, res) => {
     email,
     password,
     dispensaryName,
-    legalName,
     address,
     licenseNumber,
     phoneNumber,
     websiteUrl,
     description,
     amenities,
-    subscriptionTier
+    subscriptionTier,
+    accessType,
+    additionalLocationsCount,
   } = req.body;
 
   try {
@@ -35,7 +36,6 @@ router.post('/', async (req, res) => {
       email,
       password,
       dispensaryName,
-      legalName,
       address,
       licenseNumber,
       phoneNumber,
@@ -43,6 +43,8 @@ router.post('/', async (req, res) => {
       description,
       amenities,
       subscriptionTier,
+      accessType,
+      additionalLocationsCount,
       status: 'pending',
     });
     await application.save();
@@ -76,11 +78,11 @@ router.post('/', async (req, res) => {
       status: 'pending', // waiting for Stripe payment
       startDate: new Date(),
       metadata: { source: 'application_submission' },
+      additionalLocationsCount: additionalLocationsCount,
     });
 
     const dispensary = await Dispensary.create({
       name: dispensaryName,
-      legalName: legalName || "Unknown",
       address: address,
       licenseNumber: licenseNumber,
       phoneNumber: phoneNumber,
@@ -91,6 +93,8 @@ router.post('/', async (req, res) => {
       application: application._id,
       user: user._id,
       subscription: subscription._id,
+      accessType: accessType,
+      additionalLocationsCount: additionalLocationsCount,
     });
     await dispensary.save();
 
@@ -138,16 +142,40 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
       return res.status(404).json({ message: 'User not found for this application' });
     }
 
+    // Check if payment has been completed (subscription should be active)
+    const subscription = await Subscription.findOne({ user: user._id });
+    if (!subscription || subscription.status !== 'active') {
+      return res.status(400).json({ 
+        message: 'Payment not completed. Cannot approve application until payment is received.' 
+      });
+    }
+
     // Update application status
     application.status = 'approved';
     await application.save();
 
-    // ✅ Create Dispensary if not already exists
-    let dispensary = await Dispensary.findOne({ application: application._id });
-    if (!dispensary) {
-      dispensary = await Dispensary.create({
-        name: application.dispensaryName,
-        legalName: application.legalName,
+    // Activate user
+    user.isActive = true;
+    await user.save();
+
+    const additionalLocationsCount = application.additionalLocationsCount || 0;
+    const accessType = application.accessType || 'both';
+    const totalLocations = 1 + additionalLocationsCount; // 1 main + additional
+    const createdDispensaries = [];
+
+    // Delete any existing dispensaries for this application (cleanup)
+    await Dispensary.deleteMany({ application: application._id });
+
+    // Create all locations: 1 main + additionalLocationsCount additional
+    for (let i = 0; i < totalLocations; i++) {
+      const isMain = i === 0;
+      const locationNumber = !isMain ? ` - Location ${i + 1}` : '';
+      const dispensaryName = !isMain 
+        ? `${application.dispensaryName}${locationNumber}`
+        : application.dispensaryName;
+
+      const dispensary = await Dispensary.create({
+        name: dispensaryName,
         address: {
           street1: application.address.street1,
           street2: application.address.street2,
@@ -163,13 +191,25 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
         user: user._id,
         application: application._id,
         status: 'approved',
+        skuLimit: 15, // Each location gets 15 SKUs
+        isActive: true,
+        isPurchased: true,
+        type: isMain ? 'main' : 'additional',
+        usedSkus: 0,
+        extraLimit: 0,
+        additionalSkuLimit: 0,
+        subscription: subscription._id,
       });
+
+      createdDispensaries.push(dispensary);
     }
 
     res.json({
-      message: 'Application approved and dispensary created',
+      message: `Application approved. Created ${totalLocations} location(s) (1 main + ${additionalLocationsCount} additional) with 15 SKUs each. Access type: ${accessType}.`,
       application,
-      dispensary,
+      dispensaries: createdDispensaries,
+      count: createdDispensaries.length,
+      accessType,
     });
   } catch (err) {
     console.error('Error approving application:', err);

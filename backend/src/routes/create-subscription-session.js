@@ -2,6 +2,7 @@ import express from 'express';
 import { getStripe } from '../../lib/stripe.js';
 import Subscription from '../models/Subscription.js';
 import User from '../models/User.js';
+import Application from '../models/Application.js';
 import { PRICE_IDS } from '../constance/prices.js';
 
 const router = express.Router();
@@ -29,19 +30,47 @@ router.post('/', async (req, res) => {
     const user = subscription.user;
     const tier = subscription.tier;
 
-    const priceId = PRICE_IDS[tier.name.toLowerCase()]; // adjust if your tier names differ
-    if (!priceId) throw new Error('Invalid tier name');
+    // Get additional locations count from subscription metadata or application
+    let additionalLocationsCount = 0;
+    if (subscription.additionalLocationsCount) {
+      additionalLocationsCount = subscription.additionalLocationsCount;
+    } else {
+      // Fallback: find application by user email
+      const application = await Application.findOne({ email: user.email }).sort({ createdAt: -1 });
+      if (application && application.additionalLocationCount) {
+        additionalLocationsCount = application.additionalLocationCount;
+      }
+    }
+
+    const basePriceId = PRICE_IDS[tier.name.toLowerCase()];
+    if (!basePriceId) throw new Error('Invalid tier name');
+
+    const additionalLocationPriceId = PRICE_IDS['additional_location'];
+    if (!additionalLocationPriceId) throw new Error('Additional location price not configured');
 
     const customer = await stripe.customers.create({
       email: user.email,
     });
+
+    // Build line items: base subscription + additional locations
+    const lineItems = [
+      { price: basePriceId, quantity: 1 } // Base subscription (includes 1 location)
+    ];
+
+    // Add additional locations if needed
+    if (additionalLocationsCount > 0) {
+      lineItems.push({
+        price: additionalLocationPriceId,
+        quantity: additionalLocationsCount
+      });
+    }
+
     // Create Stripe Subscription Session
     const session = await stripe.checkout.sessions.create({
       mode: 'subscription',
       payment_method_types: ['card'],
-      // customer_email: user.email, // optional: prefill email
       customer: customer.id,
-      line_items: [{ price: priceId, quantity: 1 }],
+      line_items: lineItems,
       success_url: `${process.env.FRONTEND_URL}/partner-dashboard?tab=dispensary`,
       cancel_url: `${process.env.FRONTEND_URL}/partner-dashboard?tab=dispensary`,
       metadata: {
@@ -49,6 +78,7 @@ router.post('/', async (req, res) => {
         tier: tier.name,
         userId: user._id.toString(),
         subscriptionId: subscription._id.toString(),
+        additionalLocationsCount: additionalLocationsCount.toString(),
       },
     });
 

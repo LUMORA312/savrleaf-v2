@@ -35,11 +35,6 @@ const applicationSchema = new mongoose.Schema(
       required: true,
       trim: true,
     },
-    legalName: {
-      type: String,
-      required: true,
-      trim: true,
-    },
     address: {
       street1: { type: String, required: true, trim: true },
       street2: { type: String, trim: true },
@@ -50,6 +45,17 @@ const applicationSchema = new mongoose.Schema(
         required: true,
         match: [/^\d{5}(-\d{4})?$/, 'Please enter a valid zip code'],
       },
+    },
+    additionalLocationsCount: {
+      type: Number,
+      required: true,
+      default: 0
+    },
+    accessType: {
+      type: String,
+      enum: ['medical', 'recreational', 'both'],
+      required: true,
+      default: 'medical'
     },
     licenseNumber: {
       type: String,

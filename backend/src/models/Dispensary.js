@@ -9,10 +9,6 @@ const DispensarySchema = new Schema(
       type: String,
       required: true,
     },
-    legalName: {
-      type: String,
-      required: true,
-    },
     address: {
       street1: { type: String, required: true },
       street2: { type: String },

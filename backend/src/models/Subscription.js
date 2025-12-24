@@ -69,6 +69,11 @@ const subscriptionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.Mixed,
       default: {},
     },
+
+    additionalLocationsCount: {
+      type: Number,
+      default: 0,
+    },
   },
   {
     timestamps: true,

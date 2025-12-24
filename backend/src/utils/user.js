@@ -26,7 +26,7 @@ const saveActivationToken = async (email, activationToken) => {
 }
 
 const generateActivationLink = (activationToken) => {
-    return `${process.env.FRONTEND_URL}/activate?token=${activationToken}`;
+    return `${process.env.FRONTEND_URL}activate?token=${activationToken}`;
 }
 
 const sendActivationLink = async (email, activationLink) => {

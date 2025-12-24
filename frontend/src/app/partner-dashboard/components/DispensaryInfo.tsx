@@ -1,6 +1,7 @@
 'use client';
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Dispensary } from '@/types';
 import defaultDispensaryImg from '@/assets/dispensary.jpg';
 import axios from 'axios';
@@ -13,6 +14,7 @@ interface DispensaryInfoProps {
 }
 
 export default function DispensaryInfo({ dispensaries, onDispensaryUpdate }: DispensaryInfoProps) {
+  const router = useRouter();
   const [editingDispensary, setEditingDispensary] = useState<Dispensary | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
 
@@ -53,6 +55,7 @@ export default function DispensaryInfo({ dispensaries, onDispensaryUpdate }: Dis
             skuLimit={dispensary.skuLimit} 
             usedSkus={dispensary.usedSkus}
             onEdit={handleEdit}
+            onViewDetails={(id) => router.push(`/partner-dashboard/dispensary/${id}`)}
           />
         </div>
         {showEditModal && editingDispensary && (
@@ -83,6 +86,7 @@ export default function DispensaryInfo({ dispensaries, onDispensaryUpdate }: Dis
                 skuLimit={dispensary.skuLimit} 
                 usedSkus={dispensary.usedSkus}
                 onEdit={handleEdit}
+                onViewDetails={(id) => router.push(`/partner-dashboard/dispensary/${id}`)}
               />
             </div>
           );
@@ -109,6 +113,7 @@ function DispensaryCard({
   skuLimit,
   usedSkus,
   onEdit,
+  onViewDetails,
 }: {
   dispensary: Dispensary;
   imageSrc: string;
@@ -117,6 +122,7 @@ function DispensaryCard({
   skuLimit: number;
   usedSkus: number;
   onEdit: (dispensary: Dispensary) => void;
+  onViewDetails: (id: string) => void;
 }) {
   const handlePurchaseSubscription = async () => {
     try {
@@ -149,8 +155,20 @@ function DispensaryCard({
     }
   };
 
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Don't navigate if clicking on buttons or links
+    const target = e.target as HTMLElement;
+    if (target.closest('button') || target.closest('a')) {
+      return;
+    }
+    onViewDetails(dispensary._id);
+  };
+
   return (
-    <div className={`w-full h-full bg-white rounded-2xl shadow-lg p-3 sm:p-6 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 overflow-hidden max-w-[500px] min-w-0 ${isActive && skuLimit > 0 ? 'border-2 border-green-500' : 'border-2 border-red-500'}`}>
+    <div 
+      onClick={handleCardClick}
+      className={`w-full h-full bg-white rounded-2xl shadow-lg p-3 sm:p-6 flex flex-col hover:shadow-xl hover:-translate-y-1 transition-transform duration-300 overflow-hidden max-w-[500px] min-w-0 cursor-pointer ${isActive && skuLimit > 0 ? 'border-2 border-green-500' : 'border-2 border-red-500'}`}
+    >
       {/* Logo & Name */}
       <div className="flex items-center justify-between gap-2 sm:gap-4 mb-4 min-w-0">
         <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -213,7 +231,7 @@ function DispensaryCard({
       )}
 
       {/*increase sku limit by 10 by purchasing extra plan button */}
-      {(
+      {/* {(
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 sm:gap-4 mb-4">
             <div className="min-w-0">
@@ -223,7 +241,7 @@ function DispensaryCard({
             <button onClick={purchaseExtraPlan} disabled={!isPurchased} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold text-xs px-2 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400 disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap flex-shrink-0 w-full sm:w-auto">Purchase Extra Sku +1</button>
           </div>
         </>
-      )}
+      )} */}
 
       {/* Details Grid */}
       <div className="grid grid-cols-2 gap-2 sm:gap-4 text-xs text-gray-500 mb-4 min-w-0">

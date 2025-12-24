@@ -201,6 +201,39 @@ function PartnerDashboardContent() {
       setFetchError('Failed to add dispensary');
     }
   }
+
+  const handleCompletePayment = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!user?.subscription?._id) {
+        setAlertMessage('No subscription found. Please select a plan first.');
+        setAlertType('warning');
+        setShowAlert(true);
+        return;
+      }
+      
+      // Create checkout session
+      const checkoutResp = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/create-subscription-session`,
+        { subscriptionId: user.subscription._id },
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      
+      const { url } = checkoutResp.data;
+      if (url) {
+        window.location.href = url;
+      } else {
+        setAlertMessage('Failed to create payment session. Please try again.');
+        setAlertType('error');
+        setShowAlert(true);
+      }
+    } catch (error: any) {
+      console.error('Error initiating payment:', error);
+      setAlertMessage(error.response?.data?.error || 'Failed to initiate payment. Please try again.');
+      setAlertType('error');
+      setShowAlert(true);
+    }
+  }
   
   const handleCancelDispensary = () => {
     setShowAddDispensaryModal(false);
@@ -295,34 +328,205 @@ function PartnerDashboardContent() {
         </>
       )}
 
-      {activeTab === 'dispensary' &&
+      {activeTab === 'dispensary' && (
         <div>
-          <button name="add dispensary" disabled={!user?.allowMultipleLocations} onClick={() => {if(dispensaries.length < 1) {
-            setAlertMessage('You must complete your profile first with inputing main dispensary information.');
-            setAlertType('warning');
-            setShowAlert(true);
-            return;
-          }
-            setShowAddDispensaryModal(true);
-          }} className="bg-orange-600 hover:bg-orange-700 text-white font-semibold px-5 py-2 rounded-lg shadow-md transition focus:outline-none focus:ring-2 focus:ring-orange-400">Add Dispensary</button>
-          <DispensaryInfo 
-            dispensaries={dispensaries} 
-            onDispensaryUpdate={async () => {
-              try {
-                const token = localStorage.getItem('token');
-                const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
-                  headers: { Authorization: `Bearer ${token}` },
-                });
-                setDispensaries(res.data.dispensaries);
-                setOverview(res.data.overview);
-              } catch (err) {
-                console.error('Error refreshing dispensaries:', err);
-              }
-            }}
-          />
+          {/* Check if subscription is active */}
+          {user?.subscription?.status === 'active' ? (
+            <>
+              <DispensaryInfo 
+                dispensaries={dispensaries} 
+                onDispensaryUpdate={async () => {
+                  try {
+                    const token = localStorage.getItem('token');
+                    const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/partner/dashboard`, {
+                      headers: { Authorization: `Bearer ${token}` },
+                    });
+                    setDispensaries(res.data.dispensaries);
+                    setOverview(res.data.overview);
+                    setUser(res.data.user);
+                  } catch (err) {
+                    console.error('Error refreshing dispensaries:', err);
+                  }
+                }}
+              />
+            </>
+          ) : (
+            /* Show purchase form if subscription is not active */
+            <div className="bg-gradient-to-br from-white to-orange-50 rounded-2xl shadow-xl p-8 md:p-12 max-w-3xl mx-auto border border-orange-100">
+              {/* Header Section */}
+              <div className="text-center mb-8">
+                <div className="inline-flex items-center justify-center w-16 h-16 bg-orange-100 rounded-full mb-4">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="h-8 w-8 text-orange-600"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                    />
+                  </svg>
+                </div>
+                <h2 className="text-3xl md:text-4xl font-bold text-orange-700 mb-3">
+                  Complete Your Subscription
+                </h2>
+                <p className="text-gray-600 text-lg">
+                  {user?.subscription?.status === 'pending' 
+                    ? 'Your subscription is pending payment. Complete your payment to unlock full access to your dispensaries.'
+                    : 'Purchase a subscription to start managing your dispensaries and deals.'}
+                </p>
+              </div>
 
+              {user?.subscription?._id ? (
+                /* If subscription exists but not active, show payment button */
+                <div className="space-y-6">
+                  {user.subscription.tier && (
+                    <div className="bg-white border-2 border-orange-200 rounded-xl p-6 shadow-sm hover:shadow-md transition-shadow">
+                      <div className="flex items-start justify-between mb-4">
+                        <div>
+                          <h3 className="text-sm font-semibold text-orange-600 uppercase tracking-wide mb-1">
+                            Selected Plan
+                          </h3>
+                          <p className="text-2xl font-bold text-gray-900">
+                            {user.subscription.tier.displayName}
+                          </p>
+                        </div>
+                        <div className="bg-orange-100 rounded-full p-2">
+                          <svg
+                            xmlns="http://www.w3.org/2000/svg"
+                            className="h-6 w-6 text-orange-600"
+                            fill="none"
+                            viewBox="0 0 24 24"
+                            stroke="currentColor"
+                            strokeWidth={2}
+                          >
+                            <path
+                              strokeLinecap="round"
+                              strokeLinejoin="round"
+                              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+                            />
+                          </svg>
+                        </div>
+                      </div>
+                      
+                      <div className="space-y-3 pt-4 border-t border-gray-100">
+                        <div className="flex items-center gap-3">
+                          <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full"></div>
+                          <div className="flex-1">
+                            <p className="text-gray-700 font-medium">Main Location</p>
+                            <p className="text-sm text-gray-500">Base subscription</p>
+                          </div>
+                          <p className="text-lg font-bold text-orange-600">$169<span className="text-sm font-normal text-gray-500">/mo</span></p>
+                        </div>
+                        
+                        {user.subscription.additionalLocationsCount && user.subscription.additionalLocationsCount > 0 && (
+                          <div className="flex items-center gap-3">
+                            <div className="flex-shrink-0 w-2 h-2 bg-orange-500 rounded-full"></div>
+                            <div className="flex-1">
+                              <p className="text-gray-700 font-medium">
+                                {user.subscription.additionalLocationsCount} Additional Location{user.subscription.additionalLocationsCount > 1 ? 's' : ''}
+                              </p>
+                              <p className="text-sm text-gray-500">$69 per location/month</p>
+                            </div>
+                            <p className="text-lg font-bold text-orange-600">
+                              ${(user.subscription.additionalLocationsCount * 69).toLocaleString()}
+                              <span className="text-sm font-normal text-gray-500">/mo</span>
+                            </p>
+                          </div>
+                        )}
+                        
+                        <div className="pt-3 border-t border-gray-200 mt-3">
+                          <div className="flex items-center justify-between">
+                            <p className="text-lg font-semibold text-gray-900">Total Monthly Cost</p>
+                            <p className="text-2xl font-bold text-orange-600">
+                              ${(169 + (user.subscription.additionalLocationsCount || 0) * 69).toLocaleString()}
+                              <span className="text-base font-normal text-gray-500">/mo</span>
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                  
+                  <button
+                    onClick={handleCompletePayment}
+                    className="w-full bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-orange-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
+                      />
+                    </svg>
+                    Complete Payment
+                  </button>
+                  
+                  <p className="text-center text-sm text-gray-500">
+                    Secure payment powered by Stripe
+                  </p>
+                </div>
+              ) : (
+                /* If no subscription, redirect to plan selection */
+                <div className="flex flex-col items-center gap-6">
+                  <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 w-full">
+                    <div className="flex items-start gap-3">
+                      <svg
+                        xmlns="http://www.w3.org/2000/svg"
+                        className="h-5 w-5 text-yellow-600 mt-0.5 flex-shrink-0"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                        stroke="currentColor"
+                        strokeWidth={2}
+                      >
+                        <path
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"
+                        />
+                      </svg>
+                      <p className="text-gray-700 text-center">
+                        Please select a subscription plan to continue managing your dispensaries.
+                      </p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => setActiveTab('planSelection')}
+                    className="w-full sm:w-auto bg-gradient-to-r from-orange-600 to-orange-700 hover:from-orange-700 hover:to-orange-800 text-white font-semibold px-8 py-4 rounded-xl shadow-lg hover:shadow-xl transition-all duration-200 focus:outline-none focus:ring-4 focus:ring-orange-300 transform hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-2"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                      strokeWidth={2}
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                      />
+                    </svg>
+                    Choose a Plan
+                  </button>
+                </div>
+              )}
+            </div>
+          )}
         </div>
-      }
+      )}
 
       {activeTab === 'mapView' && (
         <div>

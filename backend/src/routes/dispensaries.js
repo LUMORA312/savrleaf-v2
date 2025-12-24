@@ -143,15 +143,34 @@ router.post('/:id/status', authMiddleware, adminMiddleware, async (req, res) => 
 //add dispensary
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, legalName, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings } = req.body;
-    const user = req.user._id;
-    const dispensary = await Dispensary.create({ name, legalName: legalName || "Unknown", address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, user, adminNotes, ratings, type: 'additional' });
+    const { name, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings, userId } = req.body;
+
+    // If an admin is creating a dispensary on behalf of a partner, allow passing userId
+    const user = (req.user.role === 'admin' && userId) ? userId : req.user._id;
+
+    const dispensary = await Dispensary.create({
+      name,
+      address,
+      type,
+      licenseNumber,
+      websiteUrl,
+      hours,
+      phoneNumber,
+      description,
+      amenities,
+      logo,
+      images,
+      user,
+      adminNotes,
+      ratings,
+      type: 'additional'
+    });
     //create subscription
-    const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
-    const subscription = await Subscription.create({ user, tier: subscriptionTier._id, status: 'pending', startDate: new Date(), metadata: { source: 'dispensary_addition' } });
-    dispensary.subscription = subscription._id;
+    // const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
+    // const subscription = await Subscription.create({ user, tier: subscriptionTier._id, status: 'pending', startDate: new Date(), metadata: { source: 'dispensary_addition' } });
+    // dispensary.subscription = subscription._id;
     await dispensary.save();
-    res.status(201).json({ success: true, dispensary, subscription });
+    res.status(201).json({ success: true, dispensary });
   } catch (err) {
     console.error('Error adding dispensary:', err);
     res.status(500).json({ success: false, message: 'Server error' });

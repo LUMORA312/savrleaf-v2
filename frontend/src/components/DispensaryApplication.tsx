@@ -31,6 +31,8 @@ type ApplicationFormData = {
   description?: string;
   amenities: string[];
   subscriptionTier: string;
+  additionalLocationsCount: number;
+  accessType: 'medical' | 'recreational' | 'both';
 };
 
 export default function DispensaryApplicationForm() {
@@ -43,7 +45,9 @@ export default function DispensaryApplicationForm() {
         city: '',
         state: '',
         zipCode: '',
-      }
+      },
+      additionalLocationsCount: 0,
+      accessType: 'medical',
     }
   });
 
@@ -233,6 +237,30 @@ export default function DispensaryApplicationForm() {
               ))}
             </div>
           </section>
+
+          {/* AdditionalLocationsCount */}
+          <section> 
+            <h2 className="text-2xl font-semibold mb-4 text-orange-500">Additional Locations</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-0">
+              <label className="block font-medium text-sm text-gray-800 mb-1">Additional Locations</label>
+              <input type="number" min={0} step={1} {...register('additionalLocationsCount', { required: true, min: 0 })} className="input" />
+            </div>  
+          </section>
+          
+
+          {/* AccessType(Medical or Recreational or Both) */}
+          <section>
+            <h2 className="text-2xl font-semibold mb-4 text-orange-500">Access Type</h2>
+            <div className="grid grid-cols-1 sm:grid-cols-1 gap-0">
+              <label className="block font-medium text-sm text-gray-800 mb-1">Access Type</label>
+              <select {...register('accessType' as const)} className="input">
+                <option value="medical">medical</option>
+                <option value="recreational">recreational</option>
+                <option value="both">both</option>
+              </select>
+            </div>
+          </section>
+
 
           {errorMessage && (
             <div className="mb-6 p-4 text-red-700 bg-red-100 border border-red-300 rounded">

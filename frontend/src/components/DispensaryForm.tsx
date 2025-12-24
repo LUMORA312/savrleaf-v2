@@ -9,9 +9,13 @@ interface DispensaryFormProps {
   initialData?: Dispensary | null;
   onSave: (dispensary: Dispensary) => void;
   onCancel: () => void;
+  /**
+   * When provided (admin flow), the dispensary will be created for this user instead of the current authed user.
+   */
+  userIdOverride?: string;
 }
 
-export default function DispensaryForm({ initialData, onSave, onCancel }: DispensaryFormProps) {
+export default function DispensaryForm({ initialData, onSave, onCancel, userIdOverride }: DispensaryFormProps) {
   const [form, setForm] = useState({
     name: '',
     legalName: '',
@@ -156,6 +160,8 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
       logo: form.logo || undefined,
       images: form.images.split(',').map((i) => i.trim()).filter(Boolean),
       hours: Object.keys(hours).length > 0 ? hours : undefined,
+      // Allow admins to create a dispensary on behalf of a partner
+      ...(userIdOverride ? { userId: userIdOverride } : {}),
     };
 
     const isEdit = !!initialData?._id;
@@ -192,7 +198,7 @@ export default function DispensaryForm({ initialData, onSave, onCancel }: Dispen
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] overflow-y-auto px-2">
+    <form onSubmit={handleSubmit} className="space-y-5 px-2">
       <h3 className="text-xl font-bold text-orange-700">
         {initialData?._id ? 'Edit Dispensary' : 'Create Dispensary'}
       </h3>

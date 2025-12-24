@@ -90,7 +90,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
               </div>
               <div className="flex-1 flex flex-col gap-2">
                 <h2 className="text-2xl font-bold">{dispensary.name}</h2>
-                {dispensary.legalName && <p className="text-gray-600">Legal Name: {dispensary.legalName}</p>}
+                {/* {dispensary.legalName && <p className="text-gray-600">Legal Name: {dispensary.legalName}</p>} */}
                 <p className="text-gray-600">
                   Address: {dispensary.address.street1} {dispensary.address.street2 && `, ${dispensary.address.street2}`}, {dispensary.address.city}, {dispensary.address.state} {dispensary.address.zipCode}
                 </p>

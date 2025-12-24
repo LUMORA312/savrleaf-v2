@@ -95,6 +95,7 @@ export interface User {
   subscription?: {
     _id: string;
     status: string;
+    additionalLocationsCount?: number;
     bonusSkus?: number;
     adminSkuOverride?: number | null;
     tier?: {

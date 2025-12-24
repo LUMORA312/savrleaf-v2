@@ -36,9 +36,8 @@ export default function HeroSection({
         </span>
         <h2 className="text-3xl font-extrabold tracking-tight mt-4 mb-10 leading-snug text-gray-900">
           <span className="block">The First Cannabis Platform</span>
-          <span className="block mt-1 text-gray-700 font-light mb-5">for Discounted and Sale Items Only</span>
+          <span className="block mt-1 text-gray-700 font-light">for Discounted and Sale Items Only</span>
           <span className="block mt-1 text-gray-700 font-light">No accounts, No logins, Just deals.</span>
-          <span className="block mt-1 text-gray-700 font-light font-semibold">Use filters to narrow deals - or browse all discounts near you.</span>
         </h2>
         <SearchBar
           searchTerm={searchTerm}
