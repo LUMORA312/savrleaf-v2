@@ -2,6 +2,7 @@ import express from 'express';
 import User from '../models/User.js';
 import Deal from '../models/Deal.js';
 import Dispensary from '../models/Dispensary.js';
+import Application from '../models/Application.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
@@ -23,8 +24,17 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
       return res.status(403).json({ message: 'User is deactivated. Contact support.' });
     }
 
-    // Get dispensaries owned by user
-    const dispensaries = await Dispensary.find({ user: userId }).lean();
+    const application = await Application.findOne({ user: userId }).lean();
+
+    //if application available then get all dispensaries from application
+    // else get all dispensaries from user
+    let dispensaries = [];
+    if (application) {
+      dispensaries = await Dispensary.find({ application: application._id }).lean();
+    } else {
+      dispensaries = await Dispensary.find({ user: userId }).lean();
+    }
+
     const dispensaryIds = dispensaries.map((d) => d._id);
 
     // Get deals for those dispensaries

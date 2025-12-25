@@ -124,6 +124,33 @@ function DispensaryCard({
   onEdit: (dispensary: Dispensary) => void;
   onViewDetails: (id: string) => void;
 }) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [copiedEmail, setCopiedEmail] = useState(false);
+  const [copiedPassword, setCopiedPassword] = useState(false);
+
+  const handleCopyEmail = async () => {
+    if (dispensary.subPartnerEmail) {
+      try {
+        await navigator.clipboard.writeText(dispensary.subPartnerEmail);
+        setCopiedEmail(true);
+        setTimeout(() => setCopiedEmail(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy email:', err);
+      }
+    }
+  };
+
+  const handleCopyPassword = async () => {
+    if (dispensary.subPartnerPassword) {
+      try {
+        await navigator.clipboard.writeText(dispensary.subPartnerPassword);
+        setCopiedPassword(true);
+        setTimeout(() => setCopiedPassword(false), 2000);
+      } catch (err) {
+        console.error('Failed to copy password:', err);
+      }
+    }
+  };
   const handlePurchaseSubscription = async () => {
     try {
       const res = await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/create-subscription-session`, { subscriptionId: dispensary.subscription });
@@ -228,6 +255,83 @@ function DispensaryCard({
         <p className="text-xs text-gray-500 mb-4 line-clamp-3 italic break-words">
           {dispensary.description || 'No description available.'}
         </p>
+      )}
+
+      {/* display sub partner email and password if available */}
+      {dispensary.subPartnerEmail && dispensary.subPartnerPassword && (
+        <div className="min-w-0 break-words mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <strong className="font-semibold text-gray-700 text-sm">Additional Location Email:</strong>
+            <button
+              onClick={(e) => {
+                e.stopPropagation();
+                handleCopyEmail();
+              }}
+              className="flex-shrink-0 p-1.5 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
+              title={copiedEmail ? 'Copied!' : 'Copy email'}
+            >
+              {copiedEmail ? (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              ) : (
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                </svg>
+              )}
+            </button>
+          </div>
+          <span className="break-all text-sm text-gray-800 font-mono">{dispensary.subPartnerEmail}</span>
+        </div>
+      )}
+      {dispensary.subPartnerPassword && (
+        <div className="min-w-0 break-words mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
+          <div className="flex items-start justify-between gap-2 mb-2">
+            <strong className="font-semibold text-gray-700 text-sm">Additional Location Password:</strong>
+            <div className="flex items-center gap-1 flex-shrink-0">
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setShowPassword(!showPassword);
+                }}
+                className="p-1.5 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                title={showPassword ? 'Hide password' : 'Show password'}
+              >
+                {showPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l3.59 3.59m0 0A9.953 9.953 0 0112 5c4.478 0 8.268 2.943 9.543 7a10.025 10.025 0 01-4.132 5.411m0 0L21 21" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                )}
+              </button>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleCopyPassword();
+                }}
+                className="p-1.5 text-gray-600 hover:text-orange-600 hover:bg-orange-50 rounded transition-colors"
+                title={copiedPassword ? 'Copied!' : 'Copy password'}
+              >
+                {copiedPassword ? (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                  </svg>
+                ) : (
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                  </svg>
+                )}
+              </button>
+            </div>
+          </div>
+          <span className="break-all text-sm text-gray-800 font-mono">
+            {showPassword ? dispensary.subPartnerPassword : '•'.repeat(dispensary.subPartnerPassword.length)}
+          </span>
+        </div>
       )}
 
       {/*increase sku limit by 10 by purchasing extra plan button */}

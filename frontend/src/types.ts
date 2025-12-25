@@ -28,6 +28,8 @@ export interface Dispensary {
   status: 'pending' | 'approved' | 'rejected';
   application: string;
   user: string;
+  subPartnerEmail?: string;
+  subPartnerPassword?: string;
   subscription?: Subscription | null;
   adminNotes?: string;
   ratings: number[];

@@ -5,7 +5,19 @@ import Application from '../models/Application.js';
 import Dispensary from '../models/Dispensary.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
 import { generateActivationToken, generateActivationLink, sendActivationLink } from '../utils/user.js';
+import crypto from 'crypto';
 const router = express.Router();
+
+// Generate a random password
+const generateRandomPassword = () => {
+  return crypto.randomBytes(16).toString('hex');
+};
+
+// Generate unique email for additional location users
+const generateLocationEmail = (baseEmail, locationNumber) => {
+  const [localPart, domain] = baseEmail.split('@');
+  return `${localPart}+location${locationNumber}@${domain}`;
+};
 
 router.post('/', async (req, res) => {
   const {
@@ -29,8 +41,32 @@ router.post('/', async (req, res) => {
     // 1️⃣ Hash password
     // const hashedPassword = await bcrypt.hash(password, 10);
 
+    let user = await User.findOne({ email });
     // 2️⃣ Create Application
+    
+    // 3️⃣ Create User immediately but inactive
+    const activationToken = generateActivationToken();
+    const activationLink = generateActivationLink(activationToken);
+    console.log("activationLink", activationLink);
+    if (!user) {
+      user = await User.create({
+        firstName,
+        lastName,
+        email,
+        password,
+        activationToken,
+        expirationTime: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
+        role: 'partner',
+        isActive: false, // cannot log in until payment
+        isActiveByLink: false,
+        firstLogin: true,
+      });
+    }else{
+      return res.status(400).json({ error: `User already exists.` });
+    }
+    
     const application = new Application({
+      user: user._id,
       firstName,
       lastName,
       email,
@@ -48,29 +84,6 @@ router.post('/', async (req, res) => {
       status: 'pending',
     });
     await application.save();
-
-    // 3️⃣ Create User immediately but inactive
-    const activationToken = generateActivationToken();
-    const activationLink = generateActivationLink(activationToken);
-    console.log("activationLink", activationLink);
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({
-        firstName,
-        lastName,
-        email,
-        password,
-        activationToken,
-        expirationTime: Date.now() + 1000 * 60 * 60 * 24, // 24 hours
-        role: 'partner',
-        isActive: false, // cannot log in until payment
-        isActiveByLink: false,
-        firstLogin: true,
-      });
-    }else{
-      return res.status(400).json({ error: `User already exists.` });
-    }
-
     // 4️⃣ Create pending subscription (Stripe session later)
     const subscription = await Subscription.create({
       user: user._id,
@@ -80,9 +93,10 @@ router.post('/', async (req, res) => {
       metadata: { source: 'application_submission' },
       additionalLocationsCount: additionalLocationsCount,
     });
-
+    
     const dispensary = await Dispensary.create({
       name: dispensaryName,
+      application: application._id,
       address: address,
       licenseNumber: licenseNumber,
       phoneNumber: phoneNumber,
@@ -166,6 +180,8 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
     // Delete any existing dispensaries for this application (cleanup)
     await Dispensary.deleteMany({ application: application._id });
 
+    const createdUsers = []; // Track created users for additional locations
+
     // Create all locations: 1 main + additionalLocationsCount additional
     for (let i = 0; i < totalLocations; i++) {
       const isMain = i === 0;
@@ -173,6 +189,42 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
       const dispensaryName = !isMain 
         ? `${application.dispensaryName}${locationNumber}`
         : application.dispensaryName;
+
+      let dispensaryUser = user; // Default to main user
+      
+      // Create a new user for each additional location
+      const locationEmail = generateLocationEmail(application.email, i);
+      const randomPassword = generateRandomPassword();
+      if (!isMain) {
+        
+        // Check if user with this email already exists
+        let existingLocationUser = await User.findOne({ email: locationEmail });
+        
+        if (!existingLocationUser) {
+          dispensaryUser = await User.create({
+            firstName: application.firstName,
+            lastName: application.lastName,
+            email: locationEmail,
+            password: randomPassword,
+            role: 'partner',
+            isSubPartner: true,
+            isActive: true, // Active immediately
+            isActiveByLink: true,
+            firstLogin: true,
+            subscription: subscription._id,
+          });
+          createdUsers.push({
+            email: locationEmail,
+            password: randomPassword,
+            dispensaryName: dispensaryName,
+          });
+        } else {
+          // If user exists, use it and ensure it's active
+          dispensaryUser = existingLocationUser;
+          dispensaryUser.isActive = true;
+          await dispensaryUser.save();
+        }
+      }
 
       const dispensary = await Dispensary.create({
         name: dispensaryName,
@@ -183,12 +235,15 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
           state: application.address.state,
           zipCode: application.address.zipCode,
         },
+        subPartnerEmail: isMain ? "" : dispensaryUser.email,
+        subPartnerPassword: isMain ? "" : randomPassword,
+        application: application._id,
         licenseNumber: application.licenseNumber,
         websiteUrl: application.websiteUrl,
         phoneNumber: application.phoneNumber,
         description: application.description,
         amenities: application.amenities,
-        user: user._id,
+        user: isMain ? user._id : dispensaryUser._id,
         application: application._id,
         status: 'approved',
         skuLimit: 15, // Each location gets 15 SKUs
@@ -210,6 +265,7 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
       dispensaries: createdDispensaries,
       count: createdDispensaries.length,
       accessType,
+      createdUsers: createdUsers.length > 0 ? createdUsers : undefined, // Include created users info
     });
   } catch (err) {
     console.error('Error approving application:', err);

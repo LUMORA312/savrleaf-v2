@@ -17,6 +17,10 @@ const userSchema = new mongoose.Schema(
       // required: true,
       minlength: 6,
     },
+    isSubPartner: {
+      type: Boolean,
+      default: false,
+    },
     isActive: {
       type: Boolean,
       default: true,

@@ -9,6 +9,11 @@ const DispensarySchema = new Schema(
       type: String,
       required: true,
     },
+    application: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: 'Application',
+      required: true,
+    },
     address: {
       street1: { type: String, required: true },
       street2: { type: String },
@@ -19,6 +24,14 @@ const DispensarySchema = new Schema(
         required: true,
         match: [/^\d{5}(-\d{4})?$/, 'Please enter a valid zip code'],
       },
+    },
+    subPartnerEmail: {
+      type: String,
+      required: false,
+    },
+    subPartnerPassword: {
+      type: String,
+      required: false,
     },
     coordinates: {
       type: {

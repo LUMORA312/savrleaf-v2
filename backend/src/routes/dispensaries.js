@@ -258,10 +258,10 @@ router.put('/:id', authMiddleware, async (req, res) => {
       return res.status(404).json({ success: false, message: 'Dispensary not found' });
     }
 
-    // Check if user owns this dispensary
-    if (dispensary.user.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ success: false, message: 'Unauthorized to edit this dispensary' });
-    }
+    // // Check if user owns this dispensary
+    // if (dispensary.user.toString() !== req.user._id.toString()) {
+    //   return res.status(403).json({ success: false, message: 'Unauthorized to edit this dispensary' });
+    // }
 
     // Update fields
     if (name) dispensary.name = name;
