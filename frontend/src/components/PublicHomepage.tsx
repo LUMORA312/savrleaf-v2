@@ -64,6 +64,18 @@ export default function PublicHomepage() {
   const currentLocation = useMemo(() => {
     return zipCoordinates || userLocation;
   }, [zipCoordinates, userLocation]);
+
+  // Convert location to format expected by DealCard
+  const userLocationForCards = useMemo(() => {
+    if (!currentLocation) return undefined;
+    if ('latitude' in currentLocation && 'longitude' in currentLocation) {
+      return { lat: (currentLocation as GeolocationCoordinates).latitude, lng: (currentLocation as GeolocationCoordinates).longitude };
+    }
+    if ('lat' in currentLocation && 'lng' in currentLocation) {
+      return { lat: (currentLocation as { lat: number; lng: number }).lat, lng: (currentLocation as { lat: number; lng: number }).lng };
+    }
+    return undefined;
+  }, [currentLocation]);
   // Fetch deals with filters
   useEffect(() => {
     const fetchDeals = async () => {
@@ -270,6 +282,7 @@ export default function PublicHomepage() {
               setViewMode('list');
             }
           }}
+          userLocation={userLocationForCards}
         />
       )}
     </div>

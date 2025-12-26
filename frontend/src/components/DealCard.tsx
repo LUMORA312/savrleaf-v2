@@ -4,22 +4,40 @@ import { useState } from 'react';
 import Image from 'next/image';
 import { Deal } from '@/types';
 import defaultDealImg from '../assets/deal.jpg';
+import { calculateDistanceInMiles } from '@/utils/distance';
 
-export default function DealCard({ deal }: { deal: Deal }) {
+interface DealCardProps {
+  deal: Deal;
+  userLocation?: { lat: number; lng: number };
+}
+
+export default function DealCard({ deal, userLocation }: DealCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   // TO DO: UNCOMMENT WHEN REAL DATA
   // const imageSrc = deal.images?.[0] || defaultDealImg.src;
   const imageSrc = defaultDealImg.src;
+
+  // Get dispensary name
+  const dispensaryName = typeof deal.dispensary === 'object' && deal.dispensary !== null
+    ? deal.dispensary.name
+    : 'Unknown Dispensary';
+
+  // Calculate distance if user location and dispensary coordinates are available
+  let distance: number | null = null;
+  if (userLocation && typeof deal.dispensary === 'object' && deal.dispensary?.coordinates) {
+    const [lng, lat] = deal.dispensary.coordinates.coordinates;
+    distance = calculateDistanceInMiles(userLocation.lat, userLocation.lng, lat, lng);
+  }
 
   return (
     <>
       {/* Card */}
       <div
         onClick={() => setIsOpen(true)}
-        className="cursor-pointer bg-gray-50 shadow-lg rounded-2xl p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[280px] w-full flex flex-col justify-between"
+        className="cursor-pointer bg-gray-50 shadow-lg rounded-2xl p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[320px] w-full flex flex-col justify-between"
       >
         <div>
-          <div className="h-40 w-full rounded-xl overflow-hidden mb-4">
+          <div className="h-40 w-full rounded-xl overflow-hidden mb-3">
             <Image
               src={imageSrc}
               alt={deal.title}
@@ -28,15 +46,46 @@ export default function DealCard({ deal }: { deal: Deal }) {
               className="h-full w-full object-cover"
             />
           </div>
-          <h3 className="text-lg font-bold mb-1">{deal.title}</h3>
-          <p className="text-sm text-gray-600 line-clamp-2">{deal.description}</p>
-        </div>
-        <div className="mt-4 flex justify-between items-center text-sm">
-          <div>
-            <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
-            <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
+          
+          {/* Dispensary Name */}
+          <div className="mb-2">
+            <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{dispensaryName}</p>
           </div>
-          {/* <div className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</div> */}
+
+          {/* Product Name */}
+          <h3 className="text-lg font-bold mb-2 line-clamp-1">{deal.title}</h3>
+          
+          {/* Strain and THC Level */}
+          <div className="flex items-center gap-3 mb-2 flex-wrap justify-between">
+            {deal.strain && (
+              <span className="text-xs bg-orange-100 text-orange-700 px-2 py-1 rounded-full font-medium">
+                {deal.strain.replace(/-/g, ' ')}
+              </span>
+            )}
+            {deal.thcContent !== undefined && (
+              <span className="text-xs text-gray-600 font-medium">
+                THC: {deal.thcContent}%
+              </span>
+            )}
+          </div>
+
+          {/* Description */}
+          {deal.description && (
+            <p className="text-sm text-gray-600 line-clamp-2 mb-3">{deal.description}</p>
+          )}
+
+          {/* Price and Distance */}
+          <div className="mt-auto flex justify-between items-center text-sm">
+            <div>
+              <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
+              <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
+            </div>
+            {distance !== null && (
+              <div className="text-xs text-gray-500 font-medium">
+                {distance.toFixed(1)} mi
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -62,18 +111,53 @@ export default function DealCard({ deal }: { deal: Deal }) {
                 />
               </div>
               <div className="flex-1 flex flex-col gap-2">
+                {/* Dispensary Name */}
+                <div className="mb-1">
+                  <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">{dispensaryName}</p>
+                </div>
+                
+                {/* Product Name */}
                 <h2 className="text-2xl font-bold">{deal.title}</h2>
-                {deal.brand && <p className="text-gray-600">Brand: {deal.brand}</p>}
-                <p className="text-gray-600">{deal.description}</p>
+                
+                {/* Brand */}
+                {deal.brand && <p className="text-gray-600"><strong>Brand:</strong> {deal.brand}</p>}
+                
+                {/* Description */}
+                {deal.description && <p className="text-gray-600">{deal.description}</p>}
+                
+                {/* Category */}
                 <p className="text-gray-600">
-                  Category: {deal.category} {deal.subcategory && `/ ${deal.subcategory}`}
+                  <strong>Category:</strong> {deal.category} {deal.subcategory && `/ ${deal.subcategory}`}
                 </p>
-                {deal.strain && <p className="text-gray-600">Strain: {deal.strain}</p>}
-                {deal.thcContent !== undefined && <p className="text-gray-600">THC: {deal.thcContent}%</p>}
-                {deal.cbdContent !== undefined && <p className="text-gray-600">CBD: {deal.cbdContent}%</p>}
-                <div className="mt-auto flex justify-between items-center text-sm">
-                  <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>
-                  <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
+                
+                {/* Strain */}
+                {deal.strain && (
+                  <p className="text-gray-600">
+                    <strong>Strain:</strong> <span className="capitalize">{deal.strain.replace(/-/g, ' ')}</span>
+                  </p>
+                )}
+                
+                {/* THC and CBD Content */}
+                <div className="flex gap-4">
+                  {deal.thcContent !== undefined && (
+                    <p className="text-gray-600"><strong>THC:</strong> {deal.thcContent}%</p>
+                  )}
+                  {deal.cbdContent !== undefined && (
+                    <p className="text-gray-600"><strong>CBD:</strong> {deal.cbdContent}%</p>
+                  )}
+                </div>
+                
+                {/* Distance */}
+                {distance !== null && (
+                  <p className="text-gray-600"><strong>Distance:</strong> {distance.toFixed(1)} miles</p>
+                )}
+                
+                {/* Price and Access Type */}
+                <div className="mt-auto flex justify-between items-center text-sm pt-4 border-t">
+                  <div>
+                    <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
+                    <span className="text-green-600 font-semibold text-lg">${deal.salePrice?.toFixed(2)}</span>
+                  </div>
                   <span className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</span>
                 </div>
               </div>

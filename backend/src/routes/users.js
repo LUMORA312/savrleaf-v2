@@ -3,7 +3,7 @@ import User from '../models/User.js';
 import Subscription from '../models/Subscription.js';
 import authMiddleware from '../middleware/authMiddleware.js';
 import Dispensary from '../models/Dispensary.js';
-import { generateActivationToken, generateActivationLink, saveActivationToken, sendActivationLink } from '../utils/user.js';
+import { generateActivationToken, generateActivationLink, saveActivationToken, sendActivationLink, generateResetPasswordToken, generateResetPasswordLink, sendResetPasswordLink } from '../utils/user.js';
 
 const router = express.Router();
 
@@ -135,6 +135,29 @@ router.get('/:id/subscription-status', authMiddleware, async (req, res) => {
   }
 });
 
+//send reset password email if user forgot password
+router.post('/:email/send-reset-password-email', async (req, res) => {
+  try {
+    const { email } = req.params;
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+    const resetPasswordToken = generateResetPasswordToken();
+    user.resetPasswordToken = resetPasswordToken;
+    user.resetPasswordExpires = Date.now() + 1000 * 60 * 60 * 24; // 24 hours
+    await user.save(); 
+    const resetPasswordLink = generateResetPasswordLink(resetPasswordToken);
+    try {
+      await sendResetPasswordLink(email, resetPasswordLink);
+      res.json({ success: true, message: 'Reset password email sent' });
+    } catch (err) {
+      console.error('Failed to send reset password email:', err);
+      res.status(500).json({ success: false, message: err.message });
+    }
+  } catch (err) {
+    console.error('Failed to send reset password email:', err);
+    res.status(500).json({ success: false, message: err.message });
+  }
+});
 //update user info
 router.post('/:id/update-user-info', authMiddleware, async (req, res) => {
   try {

@@ -237,7 +237,8 @@ router.post('/', async (req, res) => {
       dispensary,
       images,
       strain,
-      thcContent
+      thcContent,
+      isActive: true
     });
 
     const savedDeal = await newDeal.save();

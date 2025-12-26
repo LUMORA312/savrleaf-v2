@@ -64,7 +64,7 @@ export interface Deal {
   strain?: "indica" | "indica-dominant hybrid" | "hybrid" | "sativa-dominant hybrid" | "sativa";
   thcContent?: number;
   cbdContent?: number;
-  active: boolean;
+  isActive: boolean;
   createdAt?: string;
   updatedAt?: string;
 }

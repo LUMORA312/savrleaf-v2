@@ -109,14 +109,23 @@ export default function PartnerLogin() {
             Log In
           </button>
 
-          {/* resend activation link */}
-          <button
-            type="button"
-            className="text-orange-700 font-medium hover:underline text-sm"
-            onClick={() => resendActivationLink()}
-          >
-            Resend activation link
-          </button>
+          {/* Forgot Password and Resend activation link */}
+          <div className="flex items-center justify-between gap-4">
+            <button
+              type="button"
+              className="text-orange-700 font-medium hover:underline text-sm"
+              onClick={() => router.push('/forgot-password')}
+            >
+              Forgot Password?
+            </button>
+            <button
+              type="button"
+              className="text-orange-700 font-medium hover:underline text-sm"
+              onClick={() => resendActivationLink()}
+            >
+              Resend activation link
+            </button>
+          </div>
 
           <div className="text-center mt-2">
             <span className="text-sm text-gray-600">Not a partner yet? </span>

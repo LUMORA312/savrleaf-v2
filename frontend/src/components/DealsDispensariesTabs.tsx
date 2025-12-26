@@ -10,9 +10,10 @@ interface Props {
   loading?: boolean;
   activeTab: 'deals' | 'dispensaries';
   setActiveTab: (tab: 'deals' | 'dispensaries') => void;
+  userLocation?: { lat: number; lng: number };
 }
 
-export default function DealsDispensariesTabs({ deals, dispensaries, loading = false, activeTab, setActiveTab }: Props) {
+export default function DealsDispensariesTabs({ deals, dispensaries, loading = false, activeTab, setActiveTab, userLocation }: Props) {
   const renderSkeletonCard = () => (
     <div className="animate-pulse bg-gray-100 rounded-xl h-40 w-full" />
   );
@@ -61,7 +62,8 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
               return (
                 <DealCard 
                   key={dealData._id || `deal-${index}-${dealData.title || 'unknown'}`} 
-                  deal={dealData} 
+                  deal={dealData}
+                  userLocation={userLocation}
                 />
               );
             })

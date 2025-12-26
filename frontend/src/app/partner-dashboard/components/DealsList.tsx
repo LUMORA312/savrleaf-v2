@@ -157,7 +157,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
     return (
       <div
         key={deal._id}
-        className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${deal.active ? 'border-green-500' : 'border-red-500'}`}
+        className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${deal.isActive ? 'border-green-500' : 'border-red-500'}`}
       >
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
           <Image
@@ -175,13 +175,13 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
             <p className="text-sm text-gray-600 line-clamp-2">{deal.description}</p>
           </div>
           <div>
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${deal.active ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {deal.active ? 'Active' : 'Inactive'}
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${deal.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {deal.isActive ? 'Active' : 'Inactive'}
             </span>
 
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 ${!deal.manuallyActivated ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
+            {/* <span className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 ${!deal.manuallyActivated ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
               {!deal.manuallyActivated ? 'Pending' : 'Approved'}
-            </span>
+            </span> */}
           </div>
         </div>
 

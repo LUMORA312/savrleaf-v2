@@ -904,7 +904,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             ]}
             actions={(deal: Deal) => (
               <div className="flex gap-2 flex-wrap">
-                <button
+                {/* <button
                   onClick={(e) => {
                     e.stopPropagation();
                     handleToggleDealActivation(deal);
@@ -917,7 +917,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                   title={deal.manuallyActivated ? 'Deactivate deal' : 'Activate deal'}
                 >
                   {deal.manuallyActivated ? 'Inactive' : 'Active'}
-                </button>
+                </button> */}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();

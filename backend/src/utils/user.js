@@ -68,4 +68,54 @@ const sendActivationLink = async (email, activationLink) => {
     }
 }
 
-export { sendActivationLink, generateActivationToken, generateActivationLink, saveActivationToken };
+
+const generateResetPasswordToken = () => {
+    return crypto.randomBytes(32).toString('hex');
+}
+
+const generateResetPasswordLink = (resetPasswordToken) => {
+    return `${process.env.FRONTEND_URL}/reset-password?token=${resetPasswordToken}`;
+}
+
+const sendResetPasswordLink = async (email, resetPasswordLink) => {
+
+    try {
+        const { data, error } = await resend.emails.send({
+            from: process.env.RESEND_FROM_EMAIL || 'onboarding@resend.dev',
+            to: email,
+            subject: 'Reset Your Password',
+            html: `
+                <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+                    <h2 style="color: #333;">Reset Your Password</h2>
+                    <p>Please click the link below to reset your password:</p>
+                    <p style="margin: 30px 0;">
+                        <a href="${resetPasswordLink}" 
+                           style="background-color: #4CAF50; color: white; padding: 12px 24px; 
+                                  text-decoration: none; border-radius: 5px; display: inline-block;">
+                            Reset Password
+                        </a>
+                    </p>
+                    <p>Or copy and paste this link into your browser:</p>
+                    <p style="color: #666; word-break: break-all;">${resetPasswordLink}</p>
+                    <p style="color: #999; font-size: 12px; margin-top: 30px;">
+                        This link will expire in 24 hours.
+                    </p>
+                </div>
+            `,
+        });
+
+        if (error) {
+            console.error('Resend error:', error);
+            throw error;
+        }
+
+        console.log('Reset password email sent successfully:', data);
+        return data;        
+    } catch (error) {
+        console.error('Error sending reset password link', error);
+        throw error;
+    }
+}
+
+
+export { sendActivationLink, generateActivationToken, generateActivationLink, saveActivationToken, generateResetPasswordToken, generateResetPasswordLink, sendResetPasswordLink };
