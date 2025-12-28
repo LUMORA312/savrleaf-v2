@@ -22,7 +22,13 @@ const dealSchema = new mongoose.Schema(
     },
     subcategory: {
       type: String,
-      trim: true
+      trim: true,
+      // For Flower category, subcategories can be: 'ground-flower', 'baby-buds-popcorn', or custom
+    },
+    descriptiveKeywords: {
+      type: [String],
+      default: [],
+      // Keywords like: 'relaxing', 'focused', 'uplifting', 'calming', 'energizing', 'creative', 'sleepy', 'euphoric', etc.
     },
     strain: {
       type: String,

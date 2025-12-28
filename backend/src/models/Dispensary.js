@@ -129,6 +129,11 @@ const DispensarySchema = new Schema(
       type: Number,
       default: 10,
     },
+    accessType: {
+      type: String,
+      enum: ['medical', 'recreational', 'both'],
+      default: 'both',
+    },
   },
   { timestamps: true }
 );

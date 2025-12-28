@@ -143,7 +143,7 @@ router.post('/:id/status', authMiddleware, adminMiddleware, async (req, res) => 
 //add dispensary
 router.post('/', authMiddleware, async (req, res) => {
   try {
-    const { name, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings, userId } = req.body;
+    const { name, address, type, licenseNumber, websiteUrl, hours, phoneNumber, description, amenities, logo, images, adminNotes, ratings, userId, accessType } = req.body;
 
     // If an admin is creating a dispensary on behalf of a partner, allow passing userId
     const user = (req.user.role === 'admin' && userId) ? userId : req.user._id;
@@ -163,7 +163,8 @@ router.post('/', authMiddleware, async (req, res) => {
       user,
       adminNotes,
       ratings,
-      type: 'additional'
+      type: 'additional',
+      accessType: accessType || 'both'
     });
     //create subscription
     // const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
@@ -251,6 +252,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
       amenities,
       logo,
       images,
+      accessType,
     } = req.body;
 
     const dispensary = await Dispensary.findById(id);
@@ -275,6 +277,7 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (amenities !== undefined) dispensary.amenities = amenities;
     if (logo !== undefined) dispensary.logo = logo;
     if (images !== undefined) dispensary.images = images;
+    if (accessType !== undefined) dispensary.accessType = accessType;
 
     await dispensary.save();
 

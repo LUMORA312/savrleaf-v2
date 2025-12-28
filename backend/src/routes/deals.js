@@ -182,7 +182,9 @@ router.post('/', async (req, res) => {
       images,
       userId,
       strain,
-      thcContent
+      thcContent,
+      subcategory,
+      descriptiveKeywords
     } = req.body;
 
     // const user = await User.findById(userId)
@@ -229,6 +231,7 @@ router.post('/', async (req, res) => {
       originalPrice,
       salePrice,
       category,
+      subcategory,
       brand,
       startDate,
       endDate,
@@ -238,6 +241,7 @@ router.post('/', async (req, res) => {
       images,
       strain,
       thcContent,
+      descriptiveKeywords: descriptiveKeywords || [],
       isActive: true
     });
 

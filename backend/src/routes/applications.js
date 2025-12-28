@@ -254,6 +254,7 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
         extraLimit: 0,
         additionalSkuLimit: 0,
         subscription: subscription._id,
+        accessType: accessType, // Each location can have its own accessType
       });
 
       createdDispensaries.push(dispensary);
