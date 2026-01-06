@@ -43,7 +43,7 @@ router.get('/dashboard', authMiddleware, async (req, res) => {
     const totalDeals = deals.length;
     const totalDispensaries = dispensaries.length;
     const activeDeals = deals.filter(
-      (deal) => new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date() && !deal.manuallyActivated
+      (deal) => new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date() && deal.isActive
     ).length;
 
     // Subscription calculations

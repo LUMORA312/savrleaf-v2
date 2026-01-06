@@ -173,7 +173,7 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
     await user.save();
 
     const additionalLocationsCount = application.additionalLocationsCount || 0;
-    const accessType = application.accessType || 'both';
+    const accessType = application.accessType || 'medical';
     const totalLocations = 1 + additionalLocationsCount; // 1 main + additional
     const createdDispensaries = [];
 

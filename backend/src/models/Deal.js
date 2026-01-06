@@ -69,11 +69,6 @@ const dealSchema = new mongoose.Schema(
       },
     },
     endDate: { type: Date, required: true },
-    accessType: {
-      type: String,
-      enum: ['medical', 'recreational', 'both'],
-      default: 'both',
-    },
     slug: { type: String },
     manuallyActivated: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },

@@ -175,7 +175,7 @@ async function seed() {
         dispensary: dispensary._id,
         startDate: new Date(),
         endDate: new Date(Date.now() + (7 + d) * 24 * 60 * 60 * 1000),
-        accessType: 'both',
+        accessType: 'medical',
         manuallyActivated: false,
       });
     }

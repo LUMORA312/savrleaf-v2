@@ -99,6 +99,9 @@ router.get('/', async (req, res) => {
       filters.$or = [
         { title: { $regex: search, $options: 'i' } },
         { brand: { $regex: search, $options: 'i' } },
+        { category: { $regex: search, $options: 'i' } },
+        { description: { $regex: search, $options: 'i' } },
+        { tags: { $in: [new RegExp(search, 'i')] } },
       ];
     }
 

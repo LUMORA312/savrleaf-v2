@@ -58,7 +58,7 @@ const applicationSchema = new mongoose.Schema(
     },
     accessType: {
       type: String,
-      enum: ['medical', 'recreational', 'both'],
+      enum: ['medical', 'recreational', 'medical/recreational'],
       required: true,
       default: 'medical'
     },

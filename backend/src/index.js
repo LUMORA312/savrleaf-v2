@@ -17,12 +17,18 @@ import subscriptionsRouter from '../src/routes/subscriptions.js';
 import createSubscriptionSessionRouter from '../src/routes/create-subscription-session.js';
 import createExtraPlanSessionRouter from '../src/routes/create-extra-plan-session.js';
 import stripeWebhookRouter from '../src/routes/stripe-webhook.js';
+import uploadRouter from '../src/routes/upload.js';
+import analyticsRouter from '../src/routes/analytics.js';
+import maintenanceModeRouter from '../src/routes/maintenanceMode.js';
+import maintenanceModeMiddleware from '../src/middleware/maintenanceModeMiddleware.js';
 import './models/Application.js';
 import './models/Deal.js';
 import './models/Dispensary.js';
 import './models/Subscription.js';
 import './models/SubscriptionTier.js';
 import './models/User.js';
+import './models/Analytics.js';
+import './models/MaintenanceMode.js';
 
 dotenv.config({
   path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
@@ -79,6 +85,12 @@ app.use((req, res, next) => {
   next();
 });
 
+// ADMIN ONLY - Maintenance Mode Middleware
+// Must be placed before public routes but after admin auth routes
+// NOT PARTNER FACING
+app.use('/api/maintenance-mode', maintenanceModeRouter);
+app.use(maintenanceModeMiddleware);
+
 // Routes
 app.use('/api/deals', dealsRouter);
 app.use('/api/dispensaries', dispensariesRouter);
@@ -92,6 +104,8 @@ app.use('/api/users', usersRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/create-subscription-session', createSubscriptionSessionRouter);
 app.use('/api/create-extra-plan-session', createExtraPlanSessionRouter);
+app.use('/api/upload', uploadRouter);
+app.use('/api/analytics', analyticsRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 

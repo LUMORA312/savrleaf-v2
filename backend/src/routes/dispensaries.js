@@ -164,7 +164,7 @@ router.post('/', authMiddleware, async (req, res) => {
       adminNotes,
       ratings,
       type: 'additional',
-      accessType: accessType || 'both'
+      accessType: accessType || 'medical/recreational'
     });
     //create subscription
     // const subscriptionTier = await SubscriptionTier.findOne({ name: 'additional_location' });
