@@ -4,6 +4,7 @@ import { getDistanceFromCoords } from '../utils/geocode.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
 import Subscription from '../models/Subscription.js';
 import SubscriptionTier from '../models/SubscriptionTier.js';
+import { ensureDispensaryHasImages, ensureDispensaryHasLogo } from '../utils/defaultCategoryImages.js';
 const router = express.Router();
 
 router.get('/', async (req, res) => {
@@ -158,8 +159,8 @@ router.post('/', authMiddleware, async (req, res) => {
       phoneNumber,
       description,
       amenities,
-      logo,
-      images,
+      logo: dispensaryLogo,
+      images: dispensaryImages,
       user,
       adminNotes,
       ratings,
@@ -275,8 +276,8 @@ router.put('/:id', authMiddleware, async (req, res) => {
     if (phoneNumber !== undefined) dispensary.phoneNumber = phoneNumber;
     if (description !== undefined) dispensary.description = description;
     if (amenities !== undefined) dispensary.amenities = amenities;
-    if (logo !== undefined) dispensary.logo = logo;
-    if (images !== undefined) dispensary.images = images;
+    if (logo !== undefined) dispensary.logo = ensureDispensaryHasLogo(logo);
+    if (images !== undefined) dispensary.images = ensureDispensaryHasImages(images);
     if (accessType !== undefined) dispensary.accessType = accessType;
 
     await dispensary.save();

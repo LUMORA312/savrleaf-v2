@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import slugify from 'slugify';
+import { ensureDealHasImage } from '../utils/defaultCategoryImages.js';
 
 const dealSchema = new mongoose.Schema(
   {
@@ -124,6 +125,15 @@ dealSchema.statics.findCurrentlyActive = function () {
 dealSchema.pre('save', function (next) {
   if (this.isModified('title')) {
     this.slug = slugify(this.title, { lower: true, strict: true });
+  }
+  next();
+});
+
+// Ensure deal has at least one image (use default category image if none provided)
+dealSchema.pre('save', function (next) {
+  // Only apply if images are being set/modified and category exists
+  if (this.category && (!this.images || this.images.length === 0 || !this.images[0])) {
+    this.images = ensureDealHasImage(this.images, this.category);
   }
   next();
 });

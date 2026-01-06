@@ -3,6 +3,7 @@ import User from '../models/User.js';
 import Deal from '../models/Deal.js';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
+import { ensureDealHasImage } from '../utils/defaultCategoryImages.js';
 
 const router = express.Router();
 
@@ -179,7 +180,6 @@ router.post('/', async (req, res) => {
       brand,
       startDate,
       endDate,
-      accessType,
       tags,
       dispensary,
       images,
@@ -228,6 +228,9 @@ router.post('/', async (req, res) => {
     //   });
     // }
 
+    // Ensure deal has at least one image (use default category image if none provided)
+    const dealImages = ensureDealHasImage(images, category);
+
     const newDeal = new Deal({
       title,
       description,
@@ -238,10 +241,9 @@ router.post('/', async (req, res) => {
       brand,
       startDate,
       endDate,
-      accessType,
       tags,
       dispensary,
-      images,
+      images: dealImages,
       strain,
       thcContent,
       descriptiveKeywords: descriptiveKeywords || [],
@@ -262,14 +264,22 @@ router.post('/', async (req, res) => {
 
 router.put('/:id', async (req, res) => {
   try {
+    // Get existing deal to check category if images are being updated
+    const existingDeal = await Deal.findById(req.params.id);
+    if (!existingDeal) {
+      return res.status(404).json({ success: false, message: 'Deal not found' });
+    }
+
+    // If images are being updated, ensure at least one image exists
+    if (req.body.images !== undefined) {
+      const category = req.body.category || existingDeal.category;
+      req.body.images = ensureDealHasImage(req.body.images, category);
+    }
+
     const updatedDeal = await Deal.findByIdAndUpdate(req.params.id, req.body, {
       new: true,
       runValidators: true
     }).populate("dispensary");
-
-    if (!updatedDeal) {
-      return res.status(404).json({ success: false, message: 'Deal not found' });
-    }
 
     res.json({ success: true, deal: updatedDeal });
   } catch (err) {

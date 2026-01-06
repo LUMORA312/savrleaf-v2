@@ -1,5 +1,6 @@
 import mongoose from 'mongoose';
 import { getCoordinatesFromAddress } from '../utils/geocode.js';
+import { ensureDispensaryHasImages, ensureDispensaryHasLogo } from '../utils/defaultCategoryImages.js';
 
 const { Schema, model } = mongoose;
 
