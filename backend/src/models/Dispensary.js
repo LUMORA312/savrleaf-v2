@@ -78,7 +78,7 @@ const DispensarySchema = new Schema(
     },
     images: {
       type: [String],
-      default: [],
+      default: ['https://res.cloudinary.com/da6h7gmay/image/upload/v1766964475/others_gvdmgl.png'],
     },
     status: {
       type: String,
