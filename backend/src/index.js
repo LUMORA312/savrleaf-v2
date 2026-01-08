@@ -39,7 +39,7 @@ const app = express();
 // Allowed origins
 const allowedOrigins = [
   'http://localhost:3000',
-  'https://savrleaf.com',
+  'https://savrleafdeals.com',
   'savrleaf-v2.vercel.app',
   'https://savrleaf-v2-backend.onrender.com'
 ];
