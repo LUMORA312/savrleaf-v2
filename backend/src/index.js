@@ -12,6 +12,7 @@ import authRouter from '../src/routes/auth.js';
 import partnersRouter from '../src/routes/partners.js';
 import adminAuthRoutes from '../src/routes/adminAuth.js';
 import adminRoutes from '../src/routes/adminRoutes.js';
+import genericDispensariesRouter from '../src/routes/genericDispensaries.js';
 import usersRouter from '../src/routes/users.js';
 import subscriptionsRouter from '../src/routes/subscriptions.js';
 import createSubscriptionSessionRouter from '../src/routes/create-subscription-session.js';
@@ -29,6 +30,7 @@ import './models/SubscriptionTier.js';
 import './models/User.js';
 import './models/Analytics.js';
 import './models/MaintenanceMode.js';
+import './models/GenericDispensary.js';
 
 dotenv.config({
   path: process.env.NODE_ENV === 'production' ? '.env.production' : '.env.development',
@@ -101,6 +103,7 @@ app.use('/api/applications', applicationsRouter);
 app.use('/api/auth', authRouter);
 app.use('/api/admin/auth', adminAuthRoutes);
 app.use('/api/admin', adminRoutes);
+app.use('/api/admin/generic-dispensaries', genericDispensariesRouter);
 app.use('/api/users', usersRouter);
 app.use('/api/subscriptions', subscriptionsRouter);
 app.use('/api/create-subscription-session', createSubscriptionSessionRouter);

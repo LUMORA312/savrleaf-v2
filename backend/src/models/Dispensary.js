@@ -135,6 +135,10 @@ const DispensarySchema = new Schema(
       enum: ['medical', 'recreational', 'medical/recreational'],
       default: 'medical',
     },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );

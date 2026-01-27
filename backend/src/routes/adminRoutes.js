@@ -16,7 +16,12 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
     const totalDispensaries = await Dispensary.countDocuments();
     const totalApplications = await Application.countDocuments();
 
-    const applications = await Application.find().lean();
+    // Include archived records in admin dashboard (can filter by ?includeArchived=true)
+    const includeArchived = req.query.includeArchived === 'true';
+    const appFilter = includeArchived ? {} : { isArchived: { $ne: true } };
+    const dispFilter = includeArchived ? {} : { isArchived: { $ne: true } };
+
+    const applications = await Application.find(appFilter).lean();
 
     const users = await User.find()
       .populate({
@@ -25,7 +30,7 @@ router.get('/dashboard', authMiddleware, adminMiddleware, async (req, res) => {
       })
       .lean();
 
-    const dispensaries = await Dispensary.find().lean();
+    const dispensaries = await Dispensary.find(dispFilter).lean();
 
     const deals = await Deal.find()
       .populate({

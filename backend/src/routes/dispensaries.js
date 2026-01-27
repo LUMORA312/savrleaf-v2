@@ -1,5 +1,6 @@
 import express from 'express';
 import Dispensary from '../models/Dispensary.js';
+import GenericDispensary from '../models/GenericDispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
 import authMiddleware, { adminMiddleware } from '../middleware/authMiddleware.js';
 import Subscription from '../models/Subscription.js';
@@ -7,29 +8,45 @@ import SubscriptionTier from '../models/SubscriptionTier.js';
 import { ensureDispensaryHasImages, ensureDispensaryHasLogo } from '../utils/defaultCategoryImages.js';
 const router = express.Router();
 
+const OVERFETCH = 200;
+
+// Real dispensaries first, then generic. Each group keeps its order (by distance when geo, by createdAt otherwise).
+function mergeRealFirst(realList, genList) {
+  return [
+    ...realList.map((d) => ({ ...d, isGeneric: false })),
+    ...genList.map((d) => ({ ...d, isGeneric: true })),
+  ];
+}
+
 router.get('/', async (req, res) => {
   try {
     const {
       search,
       lat,
       lng,
-      distance = 25, // miles
+      distance = 25,
       limit = 50,
       page = 1,
       sortBy = 'createdAt',
       status,
     } = req.query;
 
-    const filters = {};
-
-    if (status) {
-      filters.status = status;
-    }
-
+    // Public endpoint: exclude archived records
+    const dispFilters = { isArchived: { $ne: true } };
+    if (status) dispFilters.status = status;
     if (search) {
-      filters.$or = [
+      dispFilters.$or = [
         { name: { $regex: search, $options: 'i' } },
         { legalName: { $regex: search, $options: 'i' } },
+        { 'address.city': { $regex: search, $options: 'i' } },
+        { 'address.state': { $regex: search, $options: 'i' } },
+      ];
+    }
+
+    const genFilters = {}; // Generic dispensaries don't have isArchived yet, but can add later if needed
+    if (search) {
+      genFilters.$or = [
+        { name: { $regex: search, $options: 'i' } },
         { 'address.city': { $regex: search, $options: 'i' } },
         { 'address.state': { $regex: search, $options: 'i' } },
       ];
@@ -39,52 +56,41 @@ router.get('/', async (req, res) => {
     const currentPage = Math.max(Number(page), 1);
     const skip = (currentPage - 1) * perPage;
 
-    let query;
+    let realList, genList;
+    const geo = lat && lng;
+    const distanceMeters = Number(distance) * 1609.34;
+    const userCoord = geo ? [Number(lng), Number(lat)] : null;
+    const geoQuery = {
+      $nearSphere: {
+        $geometry: { type: 'Point', coordinates: userCoord },
+        $maxDistance: distanceMeters,
+      },
+    };
 
-    if (lat && lng) {
-      const distanceMeters = Number(distance) * 1609.34;
-
-      query = Dispensary.find({
-        ...filters,
-        coordinates: {
-          $nearSphere: {
-            $geometry: { type: 'Point', coordinates: [Number(lng), Number(lat)] },
-            $maxDistance: distanceMeters,
-          },
-        },
-      });
+    if (geo) {
+      const realQ = Dispensary.find({ ...dispFilters, coordinates: geoQuery }).limit(OVERFETCH).lean();
+      const genQ = GenericDispensary.find({ ...genFilters, coordinates: geoQuery }).limit(OVERFETCH).lean();
+      [realList, genList] = await Promise.all([realQ.exec(), genQ.exec()]);
     } else {
-      query = Dispensary.find(filters);
+      const realQ = Dispensary.find(dispFilters).sort({ createdAt: -1 }).limit(OVERFETCH).lean();
+      const genQ = GenericDispensary.find(genFilters).sort({ createdAt: -1 }).limit(OVERFETCH).lean();
+      [realList, genList] = await Promise.all([realQ.exec(), genQ.exec()]);
     }
 
-    query = query.skip(skip).limit(perPage);
+    // Real dispensaries first, then generic. (With geo, realList/genList are already distance-sorted from $nearSphere.)
+    const merged = mergeRealFirst(realList, genList);
 
-    if (sortBy === 'distance' && lat && lng) {
-      // MongoDB will sort by distance automatically with $nearSphere
-    } else {
-      query = query.sort({ createdAt: -1 });
-    }
-
-    const dispensaries = await query.exec();
-
-    let sortedDispensaries = dispensaries;
-
-    if (sortBy === 'distance' && lat && lng && !query.options.sort) {
-      const userCoord = [Number(lng), Number(lat)];
-      sortedDispensaries = dispensaries.slice().sort((a, b) => {
-        const aCoord = a.coordinates?.coordinates || [0, 0];
-        const bCoord = b.coordinates?.coordinates || [0, 0];
-        const aDist = getDistanceFromCoords(userCoord, aCoord);
-        const bDist = getDistanceFromCoords(userCoord, bCoord);
-        return aDist - bDist;
-      });
-    }
-
-    const totalCount = await Dispensary.countDocuments(filters);
+    const geoCountFilter = geo
+      ? { coordinates: { $geoWithin: { $centerSphere: [[Number(lng), Number(lat)], distanceMeters / 6378100] } } }
+      : {};
+    const totalReal = await Dispensary.countDocuments({ ...dispFilters, ...geoCountFilter });
+    const totalGen = await GenericDispensary.countDocuments({ ...genFilters, ...geoCountFilter });
+    const totalCount = totalReal + totalGen;
+    const paginated = merged.slice(skip, skip + perPage);
 
     res.json({
       success: true,
-      dispensaries: sortedDispensaries,
+      dispensaries: paginated,
       pagination: {
         total: totalCount,
         page: currentPage,
@@ -100,7 +106,7 @@ router.get('/', async (req, res) => {
 
 router.get('/my', authMiddleware, async (req, res) => {
   try {
-    const dispensaries = await Dispensary.find({ user: req.user._id });
+    const dispensaries = await Dispensary.find({ user: req.user._id, isArchived: { $ne: true } });
 
     if (!dispensaries || dispensaries.length === 0) {
       return res.status(404).json({ message: 'Dispensary not found for this user' });
@@ -110,6 +116,24 @@ router.get('/my', authMiddleware, async (req, res) => {
   } catch (err) {
     console.error('Error in /dispensaries/my:', err);
     res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.get('/:id', async (req, res) => {
+  try {
+    const { id } = req.params;
+    let doc = await Dispensary.findOne({ _id: id, isArchived: { $ne: true } }).lean();
+    if (doc) {
+      return res.json({ success: true, dispensary: { ...doc, isGeneric: false } });
+    }
+    doc = await GenericDispensary.findById(id).lean();
+    if (doc) {
+      return res.json({ success: true, dispensary: { ...doc, isGeneric: true } });
+    }
+    res.status(404).json({ success: false, message: 'Dispensary not found' });
+  } catch (err) {
+    console.error('Error fetching dispensary by id:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });
 
@@ -285,6 +309,39 @@ router.put('/:id', authMiddleware, async (req, res) => {
     res.json({ success: true, dispensary });
   } catch (err) {
     console.error('Error updating dispensary:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+// Archive/unarchive dispensary (admin only)
+router.patch('/:id/archive', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) {
+      return res.status(404).json({ success: false, message: 'Dispensary not found' });
+    }
+    dispensary.isArchived = true;
+    await dispensary.save();
+    res.json({ success: true, message: 'Dispensary archived', dispensary });
+  } catch (err) {
+    console.error('Error archiving dispensary:', err);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+});
+
+router.patch('/:id/unarchive', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { id } = req.params;
+    const dispensary = await Dispensary.findById(id);
+    if (!dispensary) {
+      return res.status(404).json({ success: false, message: 'Dispensary not found' });
+    }
+    dispensary.isArchived = false;
+    await dispensary.save();
+    res.json({ success: true, message: 'Dispensary unarchived', dispensary });
+  } catch (err) {
+    console.error('Error unarchiving dispensary:', err);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 });

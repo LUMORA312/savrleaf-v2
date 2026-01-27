@@ -99,6 +99,10 @@ const applicationSchema = new mongoose.Schema(
       required: false,
       trim: true,
     },
+    isArchived: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     timestamps: true,

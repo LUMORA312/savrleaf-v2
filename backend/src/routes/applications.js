@@ -302,4 +302,35 @@ router.post('/:id/reject', authMiddleware, adminMiddleware, async (req, res) => 
   }
 });
 
+// Archive/unarchive application (admin only)
+router.patch('/:id/archive', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    application.isArchived = true;
+    await application.save();
+    res.json({ message: 'Application archived', application });
+  } catch (err) {
+    console.error('Error archiving application:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+router.patch('/:id/unarchive', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    application.isArchived = false;
+    await application.save();
+    res.json({ message: 'Application unarchived', application });
+  } catch (err) {
+    console.error('Error unarchiving application:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;
