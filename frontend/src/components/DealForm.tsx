@@ -2,6 +2,7 @@
 
 import { Deal } from '@/types';
 import { useState, useEffect } from 'react';
+import { dealKeywords } from '@/constants/dealKeywords';
 
 interface DealFormProps {
   initialData?: Deal | null;
@@ -18,7 +19,6 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     description: '',
     salePrice: '',
     originalPrice: '',
-    accessType: 'both',
     tags: '',
     images: '', // comma-separated URLs
     dispensary: '',
@@ -28,19 +28,25 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     category: '',
     strain: 'indica',
     thcContent: 0,
+    subcategory: '',
+    descriptiveKeywords: [] as string[],
   });
+
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploading, setUploading] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
   useEffect(() => {
     if (initialData) {
+      const imageUrls = initialData.images || [];
       setForm({
         title: initialData.title || '',
         brand: initialData.brand || '',
         description: initialData.description || '',
         salePrice: initialData.salePrice?.toString() || '',
         originalPrice: initialData.originalPrice?.toString() || '',
-        accessType: initialData.accessType || 'both',
         tags: initialData.tags?.join(', ') || '',
-        images: initialData.images?.join(', ') || '',
+        images: imageUrls.join(', '),
         dispensary: typeof initialData.dispensary === 'string'
           ? initialData.dispensary
           : initialData.dispensary?._id || '',
@@ -50,7 +56,11 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         category: initialData?.category || '',
         strain: initialData?.strain || 'indica',
         thcContent: initialData?.thcContent || 0,
+        subcategory: initialData?.subcategory || '',
+        descriptiveKeywords: initialData?.descriptiveKeywords || [],
       });
+      setUploadedImages(imageUrls);
+      setImagePreviews(imageUrls);
     }
   }, [initialData]);
 
@@ -63,7 +73,6 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       description: '',
       salePrice: '',
       originalPrice: '',
-      accessType: 'both',
       tags: '',
       images: '',
       dispensary: '',
@@ -73,6 +82,8 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       category: '',
       strain: 'indica',
       thcContent: 0,
+      subcategory: '',
+      descriptiveKeywords: [],
     });
   };
 
@@ -89,6 +100,63 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     }));
   };
 
+  const handleImageUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    setFormError('');
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('images', file);
+      });
+      formData.append('folder', 'savrleaf/deals');
+
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.images) {
+        const newImageUrls = data.images.map((img: { url: string }) => img.url);
+        setUploadedImages((prev) => [...prev, ...newImageUrls]);
+        setImagePreviews((prev) => [...prev, ...newImageUrls]);
+        
+        // Update form images field
+        const allImages = [...uploadedImages, ...newImageUrls];
+        setForm((prev) => ({
+          ...prev,
+          images: allImages.join(', '),
+        }));
+      } else {
+        setFormError(data.message || 'Failed to upload images');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      setFormError('Failed to upload images. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+    setImagePreviews(newPreviews);
+    setForm((prev) => ({
+      ...prev,
+      images: newImages.join(', '),
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -102,14 +170,20 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       return;
     }
 
+    // Combine uploaded images with manually entered URLs
+    const manualUrls = form.images.split(',').map((i) => i.trim()).filter(Boolean);
+    const allImages = [...uploadedImages, ...manualUrls.filter(url => !uploadedImages.includes(url))];
+
     const payload = {
       ...form,
       salePrice: Number(form.salePrice),
       originalPrice: Number(form.originalPrice),
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
-      images: form.images.split(',').map((i) => i.trim()).filter(Boolean),
+      images: allImages,
       manuallyActivated: form.manuallyActivated,
       userId: userId,
+      subcategory: form.subcategory || undefined,
+      descriptiveKeywords: form.descriptiveKeywords,
     };
 
     const method = initialData?._id ? 'PUT' : 'POST';
@@ -145,6 +219,24 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         {initialData?._id ? 'Edit Deal' : 'Create New Deal'}
       </h3>
 
+      {/* Helper Box */}
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <h4 className="font-semibold text-blue-900 mb-2 flex items-center">
+          <svg className="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          Quick Tips
+        </h4>
+        <div className="text-sm text-blue-800 space-y-2">
+          <div>
+            <strong>Discount-Only Rule:</strong> Sale price must be less than original price. Only discounted deals are accepted.
+          </div>
+          <div>
+            <strong>Image Upload Tips:</strong> Upload high-quality product images. You can upload multiple images or enter image URLs manually. Images help customers find your deals faster.
+          </div>
+        </div>
+      </div>
+
       {/* Title */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
@@ -159,7 +251,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       </div>
 
       {/* Brand */}
-      <div>
+      {/* <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Brand</label>
         <input
           name="brand"
@@ -168,7 +260,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           placeholder="Brand name"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
-      </div>
+      </div> */}
 
       {/* Category */}
       <div>
@@ -194,6 +286,57 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           <option value="capsule/pill">Capsule/Pill</option>
           <option value="other">Other</option>
         </select>
+      </div>
+
+      {/* Subcategory - Only show for Flower */}
+      {form.category === 'flower' && (
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Subcategory (Optional)
+          </label>
+          <select
+            name="subcategory"
+            value={form.subcategory || ''}
+            onChange={handleChange}
+            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+          >
+            <option value="">None</option>
+            <option value="ground-flower">Ground Flower</option>
+            <option value="baby-buds-popcorn">Baby Buds / Popcorn</option>
+          </select>
+        </div>
+      )}
+
+      {/* Descriptive Keywords */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Descriptive Keywords (Select all that apply)
+        </label>
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
+          {dealKeywords.map((keyword) => (
+            <label key={keyword} className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={form.descriptiveKeywords.includes(keyword)}
+                onChange={(e) => {
+                  if (e.target.checked) {
+                    setForm(prev => ({
+                      ...prev,
+                      descriptiveKeywords: [...prev.descriptiveKeywords, keyword]
+                    }));
+                  } else {
+                    setForm(prev => ({
+                      ...prev,
+                      descriptiveKeywords: prev.descriptiveKeywords.filter(k => k !== keyword)
+                    }));
+                  }
+                }}
+                className="h-4 w-4 text-orange-600 focus:ring-orange-500 border-gray-300 rounded"
+              />
+              <span className="text-sm text-gray-700 capitalize">{keyword.replace(/-/g, ' ')}</span>
+            </label>
+          ))}
+        </div>
       </div>
 
       {/* Description */}
@@ -335,21 +478,66 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </div>
       </div>
 
+      
+
       {/* Images */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
+        
+        {/* File Upload */}
+        <div className="mb-3">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handleImageUpload(e.target.files)}
+            disabled={uploading}
+            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          {uploading && (
+            <p className="text-sm text-orange-600 mt-1">Uploading images...</p>
+          )}
+        </div>
+
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
+            {imagePreviews.map((url, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={url}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-lg border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                  aria-label="Remove image"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Manual URL Input (Optional) */}
         <textarea
           name="images"
           value={form.images}
           onChange={handleChange}
-          placeholder="Image URLs, comma separated"
+          placeholder="Or enter image URLs manually (comma separated)"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           rows={2}
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Upload images using the file input above, or enter image URLs manually.
+        </p>
       </div>
 
       {/* Manually Activated */}
-      <div className="flex items-center gap-2">
+      {/* <div className="flex items-center gap-2">
         <input
           type="checkbox"
           name="manuallyActivated"
@@ -361,7 +549,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         <label htmlFor="manuallyActivated" className="text-sm text-gray-700">
           Manually Activate Deal
         </label>
-      </div>
+      </div> */}
 
       {formError && (
         <div className="p-3 bg-red-100 text-red-800 rounded">{formError}</div>

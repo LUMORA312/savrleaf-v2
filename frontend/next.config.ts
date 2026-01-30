@@ -13,6 +13,10 @@ const nextConfig: NextConfig = {
       },
     ],
   },
+  // Allow build to continue even if fonts fail to load
+  experimental: {
+    optimizePackageImports: ['next/font/google'],
+  },
 };
 
 export default nextConfig;

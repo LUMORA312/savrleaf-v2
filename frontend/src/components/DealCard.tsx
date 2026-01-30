@@ -5,6 +5,7 @@ import Image from 'next/image';
 import { Deal } from '@/types';
 import defaultDealImg from '../assets/deal.jpg';
 import { calculateDistanceInMiles } from '@/utils/distance';
+import { getCategoryImage } from '@/utils/categoryImages';
 
 interface DealCardProps {
   deal: Deal;
@@ -13,9 +14,12 @@ interface DealCardProps {
 
 export default function DealCard({ deal, userLocation }: DealCardProps) {
   const [isOpen, setIsOpen] = useState(false);
-  // TO DO: UNCOMMENT WHEN REAL DATA
-  // const imageSrc = deal.images?.[0] || defaultDealImg.src;
-  const imageSrc = defaultDealImg.src;
+  
+  // Use deal images if available, otherwise use category fallback, finally default image
+  const categoryImage = getCategoryImage(deal.category, deal.images);
+  const imageSrc = categoryImage.startsWith('/') 
+    ? categoryImage 
+    : (categoryImage || defaultDealImg.src);
 
   // Get dispensary name
   const dispensaryName = typeof deal.dispensary === 'object' && deal.dispensary !== null
@@ -29,11 +33,36 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
     distance = calculateDistanceInMiles(userLocation.lat, userLocation.lng, lat, lng);
   }
 
+  // Track deal click event for analytics (ADMIN ONLY - not partner facing)
+  const trackDealClick = async () => {
+    try {
+      const dealId = typeof deal._id === 'string' ? deal._id : deal._id;
+      if (!dealId) return;
+
+      await fetch(`${process.env.NEXT_PUBLIC_API_URL}/analytics/track`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          dealId,
+          distance: distance || null,
+        }),
+      });
+    } catch (error) {
+      // Silently fail - analytics tracking should not break the user experience
+      console.error('Failed to track deal click:', error);
+    }
+  };
+
   return (
     <>
       {/* Card */}
       <div
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          setIsOpen(true);
+          trackDealClick();
+        }}
         className="cursor-pointer bg-gray-50 shadow-lg rounded-2xl p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[320px] w-full flex flex-col justify-between"
       >
         <div>
@@ -153,12 +182,29 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                 )}
                 
                 {/* Price and Access Type */}
-                <div className="mt-auto flex justify-between items-center text-sm pt-4 border-t">
-                  <div>
+                <div className="mt-auto flex flex-col gap-3 pt-4 border-t">
+                  <div className="flex justify-between items-center text-sm">
                     <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
                     <span className="text-green-600 font-semibold text-lg">${deal.salePrice?.toFixed(2)}</span>
                   </div>
-                  <span className="text-xs text-gray-500">{deal.accessType?.toUpperCase()}</span>
+                  {/* Redirect to dispensary website */}
+                  {typeof deal.dispensary === 'object' && deal.dispensary?.websiteUrl ? (
+                    <a
+                      href={deal.dispensary.websiteUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
+                    >
+                      Get this deal — Visit {dispensaryName}
+                    </a>
+                  ) : typeof deal.dispensary === 'object' && deal.dispensary?._id ? (
+                    <a
+                      href={`/dispensary/${deal.dispensary._id}`}
+                      className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
+                    >
+                      View dispensary
+                    </a>
+                  ) : null}
                 </div>
               </div>
             </div>

@@ -5,6 +5,7 @@ import { format } from 'date-fns';
 import Image from 'next/image';
 import defaultDealImg from '@/assets/deal.jpg';
 import { Deal, Dispensary } from '@/types';
+import { useRouter } from 'next/navigation';
 
 interface DealsListProps {
   deals: Deal[];
@@ -16,7 +17,7 @@ interface DealsListProps {
 export default function DealsList({ deals, setDeals, onEdit, dispensaries }: DealsListProps) {
   const [selectedDispensaryId, setSelectedDispensaryId] = useState<string>('all');
   const [searchQuery, setSearchQuery] = useState<string>('');
-
+  const router = useRouter();
   // Filter deals based on search query
   const searchFilteredDeals = useMemo(() => {
     if (!searchQuery.trim()) {
@@ -138,10 +139,10 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
     }
   };
 
-  const displayAccessType = (type: string) => {
-    if (type === 'both') return 'Med/Rec';
-    return type.charAt(0).toUpperCase() + type.slice(1);
-  };
+  // const displayAccessType = (type: string) => {
+  //   if (type === 'both') return 'Med/Rec';
+  //   return type.charAt(0).toUpperCase() + type.slice(1);
+  // };
 
   const renderDealCard = (deal: Deal) => {
     const startDate = deal.startDate
@@ -150,14 +151,22 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
     const endDate = deal.endDate
       ? format(new Date(deal.endDate), 'MMM dd, yyyy')
       : 'N/A';
-    const accessTypes = Array.isArray(deal.accessType)
-      ? deal.accessType
-      : [deal.accessType].filter(Boolean);
+
+    const isActive = new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date() && deal.isActive;
 
     return (
       <div
         key={deal._id}
-        className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${deal.isActive ? 'border-green-500' : 'border-red-500'}`}
+        className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${isActive ? 'border-green-500' : 'border-red-500'}`}
+      // Make the entire card clickable to open deal.dispensary.websiteUrl in a new tab
+      onClick={() => {
+        // Ensure dispensary is an object and websiteUrl is present and non-empty
+        const dispensary = typeof deal?.dispensary === 'object' ? deal.dispensary : null;
+        if (dispensary?.websiteUrl) {
+          window.open(dispensary.websiteUrl, '_blank', 'noopener,noreferrer');
+        }
+      }}
+      style={{ cursor: (typeof deal?.dispensary === 'object' && deal.dispensary?.websiteUrl) ? 'pointer' : 'default' }}
       >
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
           <Image
@@ -175,8 +184,8 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
             <p className="text-sm text-gray-600 line-clamp-2">{deal.description}</p>
           </div>
           <div>
-            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${deal.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-              {deal.isActive ? 'Active' : 'Inactive'}
+            <span className={`px-2 py-1 rounded-full text-xs font-semibold ${isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+              {isActive ? 'Active' : 'Inactive'}
             </span>
 
             {/* <span className={`px-2 py-1 rounded-full text-xs font-semibold ml-2 ${!deal.manuallyActivated ? 'bg-red-100 text-red-700' : 'bg-green-100 text-green-700'}`}>
@@ -232,7 +241,10 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
 
         <div className="mt-4 flex gap-3">
           <button
-            onClick={() => onEdit && onEdit(deal)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click
+              onEdit && onEdit(deal);
+            }}
             className="flex-1 flex items-center justify-center gap-2 bg-orange-500 hover:bg-orange-700 focus:outline-none focus:ring-2 focus:ring-orange-400 text-white py-2 rounded-lg text-sm font-semibold shadow-md transition cursor-pointer"
             type="button"
           >
@@ -251,7 +263,10 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
           </button>
 
           <button
-            onClick={() => handleDelete(deal._id)}
+            onClick={(e) => {
+              e.stopPropagation(); // Prevent card click
+              handleDelete(deal._id);
+            }}
             className="flex-1 flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-400 text-white py-2 rounded-lg text-sm font-semibold shadow-md transition cursor-pointer"
             type="button"
           >

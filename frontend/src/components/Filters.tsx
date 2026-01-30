@@ -10,7 +10,7 @@ interface FiltersProps {
 }
 
 export interface FilterValues {
-  accessType: 'both' | 'medical' | 'recreational' | '';
+  accessType: 'medical/recreational' | 'medical' | 'recreational' | '';
   radius: string;
   sortBy: 'priceAsc' | 'priceDesc' | 'ratingDesc' | 'newest' | '';
   amenities: string[];
@@ -155,7 +155,7 @@ export default function Filters({
         )}
 
         {/* Title */}
-        {forType === 'deal' && (
+        {/* {forType === 'deal' && (
           <div>
             <label className="block text-sm font-semibold mb-1">Title</label>
             <input
@@ -166,7 +166,7 @@ export default function Filters({
               className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm"
             />
           </div>
-        )}
+        )} */}
 
         {/* Brand */}
         {forType === 'deal' && (

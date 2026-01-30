@@ -147,7 +147,7 @@ export default function UserInfo({ user, dispensaries: dispensariesProp }: UserI
         <p className="mt-8 text-sm text-gray-500 italic text-center">
           If you need to make any changes to your information, feel free to{' '}
           <a
-            href="mailto:support@savrleaf.com"
+            href="mailto:support@savrleafdeals.com"
             className="text-orange-600 hover:underline"
           >
             reach out to us

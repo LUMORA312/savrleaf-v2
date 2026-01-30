@@ -5,7 +5,12 @@ import { poppins } from "@/fonts";
 
 export const metadata = {
   title: "SavrLeaf",
-  description: "The First Cannabis Platform for Discounted and Sale Items Only",
+  description: "The First Cannabis Platform for Discounted Deals Only",
+  icons: {
+    icon: '/favicon.ico',
+    shortcut: '/favicon.ico',
+    apple: '/favicon.ico',
+  },
 };
 
 export default function RootLayout({

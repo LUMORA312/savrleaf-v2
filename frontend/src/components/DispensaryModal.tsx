@@ -118,8 +118,10 @@ export default function DispensaryModal({
                   : 'bg-yellow-100 text-yellow-700'
               }`}
             >
-              {dispensary.status.charAt(0).toUpperCase() +
-                dispensary.status.slice(1)}
+              {dispensary.status
+                ? dispensary.status.charAt(0).toUpperCase() +
+                  dispensary.status.slice(1)
+                : 'Pending'}
             </span>
           </p>
         </div>
@@ -156,7 +158,7 @@ export default function DispensaryModal({
         )}
 
         {/* Images */}
-        {dispensary.images?.length > 0 && (
+        {dispensary.images && dispensary.images.length > 0 && (
           <div className="bg-gray-50 rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-2">Images</h3>
             <div className="grid grid-cols-2 gap-3 mt-2">
@@ -191,7 +193,7 @@ export default function DispensaryModal({
         )}
 
         {/* Ratings */}
-        {dispensary.ratings?.length > 0 && (
+        {dispensary.ratings && dispensary.ratings.length > 0 && (
           <div className="bg-gray-50 rounded-xl shadow-sm p-4">
             <h3 className="text-sm font-semibold text-gray-700 mb-1">Ratings</h3>
             <p className="text-gray-600">

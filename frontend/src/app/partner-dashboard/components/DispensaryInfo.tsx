@@ -117,7 +117,7 @@ function DispensaryCard({
 }: {
   dispensary: Dispensary;
   imageSrc: string;
-  isActive: boolean;
+  isActive: boolean | undefined;
   isPurchased: boolean;
   skuLimit: number;
   usedSkus: number;
@@ -236,7 +236,7 @@ function DispensaryCard({
       {/* Large Image */}
       <div className="h-44 w-full rounded-xl overflow-hidden mb-4">
         <img
-          src={dispensary.images[0]}
+          src={dispensary.images?.[0] || defaultDispensaryImg.src}
           alt={dispensary.name}
           className="h-full w-full object-cover"
           loading="lazy"

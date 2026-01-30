@@ -34,11 +34,7 @@ export default function PartnerLogin() {
       const { token, user, firstLogin } = res.data;
 
       login(token, user);
-      if (firstLogin) {
-        router.push(`/partner-dashboard?tab=planSelection`);
-      } else {
-        router.push('/partner-dashboard');
-      }
+      router.push('/partner-dashboard');
     } catch (err: unknown) {
       console.error('Login error:', err);
 

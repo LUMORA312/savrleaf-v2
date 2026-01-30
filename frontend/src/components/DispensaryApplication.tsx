@@ -32,7 +32,7 @@ type ApplicationFormData = {
   amenities: string[];
   subscriptionTier: string;
   additionalLocationsCount: number;
-  accessType: 'medical' | 'recreational' | 'both';
+  accessType: 'medical' | 'recreational' | 'medical/recreational';
 };
 
 export default function DispensaryApplicationForm() {
@@ -254,9 +254,9 @@ export default function DispensaryApplicationForm() {
             <div className="grid grid-cols-1 sm:grid-cols-1 gap-0">
               <label className="block font-medium text-sm text-gray-800 mb-1">Access Type</label>
               <select {...register('accessType' as const)} className="input">
-                <option value="medical">medical</option>
-                <option value="recreational">recreational</option>
-                <option value="both">both</option>
+                <option value="medical">Medical</option>
+                <option value="recreational">Recreational</option>
+                <option value="medical/recreational">Medical & Recreational</option>
               </select>
             </div>
           </section>

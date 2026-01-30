@@ -28,13 +28,23 @@ export default function Header() {
             className="h-8 w-auto"
           />
           <span className="text-xl font-semibold text-gray-900 tracking-tight">
-            SavrLeaf<sup className="text-xs align-super">™</sup>
+            SavrLeaf<sup className="text-xs align-super">®</sup>
           </span>
         </Link>
 
         {/* Navigation */}
         <nav>
           <ul className="flex items-center space-x-5 text-sm text-orange-600 cursor-pointer">
+            {!isAuthenticated && (
+              <li>
+                <a
+                  href="#how-it-works"
+                  className="font-bold text-orange-600 hover:text-orange-700 transition-colors cursor-pointer"
+                >
+                  How It Works
+                </a>
+              </li>
+            )}
             {isAuthenticated && (
               <li>
                 <button

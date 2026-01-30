@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
 import { Deal, Dispensary } from '@/types';
 import HeroSection from './HeroSection';
@@ -10,9 +10,14 @@ import DealsMapView from './DealsMapView';
 import { calculateDistanceInMiles, getCoordinatesForZip } from '@/utils/distance';
 import { amenitiesOptions } from '@/constants/amenities';
 
+const DISPENSARY_PER_PAGE = 12;
+
 export default function PublicHomepage() {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
+  const [dispensariesLoading, setDispensariesLoading] = useState(false);
+  const [dispensaryPage, setDispensaryPage] = useState(1);
+  const [dispensaryPagination, setDispensaryPagination] = useState<{ total: number; page: number; pages: number; perPage: number } | null>(null);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [filters, setFilters] = useState<FilterValues>({
@@ -130,40 +135,65 @@ export default function PublicHomepage() {
     fetchDeals();
   }, [filters, currentLocation]);
 
-  // Fetch dispensaries (unchanged)
+  // Reset dispensary page to 1 when search, radius, or location changes
+  const prevDispensaryFilterRef = useRef('');
+  useEffect(() => {
+    const sig = `${filters.searchTerm}|${filters.radius}|${currentLocation?.latitude ?? ''}|${currentLocation?.longitude ?? ''}`;
+    if (prevDispensaryFilterRef.current && prevDispensaryFilterRef.current !== sig) {
+      setDispensaryPage(1);
+    }
+    prevDispensaryFilterRef.current = sig;
+  }, [filters.searchTerm, filters.radius, currentLocation?.latitude, currentLocation?.longitude]);
+
+  // Fetch dispensaries (real + generic from API; supports search, lat/lng, distance, pagination)
   useEffect(() => {
     const fetchDispensaries = async () => {
+      setDispensariesLoading(true);
       try {
-        const dispensariesRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dispensaries`);
+        const params: Record<string, string | number> = {
+          page: dispensaryPage,
+          limit: DISPENSARY_PER_PAGE,
+        };
+        if (filters.searchTerm) params.search = filters.searchTerm;
+        if (currentLocation && filters.radius && Number(filters.radius) > 0) {
+          params.lat = currentLocation.latitude;
+          params.lng = currentLocation.longitude;
+          params.distance = Number(filters.radius);
+        }
+        const dispensariesRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/dispensaries`, { params });
         setDispensaries(dispensariesRes.data?.dispensaries || []);
+        setDispensaryPagination(dispensariesRes.data?.pagination ?? null);
       } catch (err: unknown) {
         console.error('Failed to fetch dispensaries:', err);
+        setDispensaryPagination(null);
+      } finally {
+        setDispensariesLoading(false);
       }
     };
 
     fetchDispensaries();
-  }, []);
+  }, [filters.searchTerm, filters.radius, currentLocation, dispensaryPage]);
 
 
-  // ======== Filter Dispensaries ========
+  // ======== Filter Dispensaries (client-side: amenities, sort; API already does search + geo) ========
   const filteredDispensaries = useMemo(() => {
     let result = [...dispensaries];
 
     if (filters.amenities.length > 0) {
-      result = result.filter(d => filters.amenities.every(a => d.amenities.includes(a)));
+      result = result.filter(d => filters.amenities.every(a => (d.amenities || []).includes(a)));
     }
 
     if (filters.searchTerm && filters.searchTerm.length > 0) {
       const term = filters.searchTerm.toLowerCase();
       result = result.filter(d =>
-        d.name.toLowerCase().includes(term) ||
-        d.legalName.toLowerCase().includes(term)
+        d.name?.toLowerCase().includes(term) ||
+        (d as { legalName?: string }).legalName?.toLowerCase().includes(term)
       );
     }
 
     if (currentLocation) {
       result = result.filter(d => {
-        if (!d.coordinates) return false;
+        if (!d.coordinates?.coordinates) return false;
         const [longitude, latitude] = d.coordinates.coordinates;
         const distance = calculateDistanceInMiles(
           currentLocation.latitude,
@@ -175,18 +205,29 @@ export default function PublicHomepage() {
       });
     }
 
+    // Primary: real dispensaries first, then generic. Secondary: selected sort (rating or newest).
+    const realFirst = (a: Dispensary, b: Dispensary) =>
+      ((a as { isGeneric?: boolean }).isGeneric ? 1 : 0) - ((b as { isGeneric?: boolean }).isGeneric ? 1 : 0);
+
     if (filters.sortBy === 'ratingDesc') {
       result.sort((a, b) => {
-        const aRating = a.ratings.length ? a.ratings.reduce((sum, r) => sum + r, 0) / a.ratings.length : 0;
-        const bRating = b.ratings.length ? b.ratings.reduce((sum, r) => sum + r, 0) / b.ratings.length : 0;
-        return bRating - aRating;
+        const byReal = realFirst(a, b);
+        if (byReal !== 0) return byReal;
+        const ra = a.ratings?.length ? a.ratings.reduce((s, r) => s + r, 0) / a.ratings.length : 0;
+        const rb = b.ratings?.length ? b.ratings.reduce((s, r) => s + r, 0) / b.ratings.length : 0;
+        return rb - ra;
       });
     } else if (filters.sortBy === 'newest') {
       result.sort((a, b) => {
+        const byReal = realFirst(a, b);
+        if (byReal !== 0) return byReal;
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0;
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0;
         return dateB - dateA;
       });
+    } else {
+      // No explicit sort (e.g. distance from API): still enforce real first
+      result.sort(realFirst);
     }
 
     return result;
@@ -213,6 +254,37 @@ export default function PublicHomepage() {
         handleZipCodeChange={(e) => setZipCode(e.target.value)}
         handleSearch={handleSearch}
       />
+
+      {/* How It Works Section */}
+      <section id="how-it-works" className="bg-white py-16 px-6">
+        <div className="max-w-4xl mx-auto">
+          <h2 className="text-3xl font-bold text-center text-gray-900 mb-12">How It Works</h2>
+          <div className="grid md:grid-cols-2 gap-8">
+            <div className="bg-orange-50 rounded-2xl p-6 border border-orange-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg mr-4">
+                  1
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Search for Deals</h3>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                Use the search bar to find discounted cannabis deals by title, category, or brand. Enter your ZIP code or use your current location to find deals near you. Filter by distance, price, strain, and more to find exactly what you're looking for.
+              </p>
+            </div>
+            <div className="bg-orange-50 rounded-2xl p-6 border border-orange-100">
+              <div className="flex items-center mb-4">
+                <div className="bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg mr-4">
+                  2
+                </div>
+                <h3 className="text-xl font-semibold text-gray-900">Click to Visit Dispensary</h3>
+              </div>
+              <p className="text-gray-700 leading-relaxed">
+                When you find a deal you like, click on it to view details. Clicking on a deal will redirect you to the dispensary's website where you can complete your purchase. All purchases are made directly through the licensed dispensary.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <Filters
         filterValues={filters}
@@ -247,7 +319,7 @@ export default function PublicHomepage() {
                     : 'text-gray-600 hover:text-gray-800'
                 }`}
               >
-                Map View
+                Map View 
               </button>
             </div>
           </div>
@@ -270,20 +342,52 @@ export default function PublicHomepage() {
           )}
         </div>
       ) : (
-        <DealsDispensariesTabs
-          deals={deals}
-          dispensaries={filteredDispensaries}
-          loading={loading}
-          activeTab={activeTab === 'deal' ? 'deals' : 'dispensaries'}
-          setActiveTab={(tab) => {
-            setActiveTab(tab === 'deals' ? 'deal' : 'dispensary');
-            // Reset to list view when switching to dispensaries
-            if (tab === 'dispensaries') {
-              setViewMode('list');
-            }
-          }}
-          userLocation={userLocationForCards}
-        />
+        <>
+          {activeTab === 'dispensary' && (
+            <div className="max-w-7xl mx-auto px-6 mb-4">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {dispensariesLoading ? 'Loading...' : `${dispensaryPagination?.total ?? filteredDispensaries.length} ${(dispensaryPagination?.total ?? filteredDispensaries.length) === 1 ? 'Dispensary' : 'Dispensaries'} Found`}
+              </h2>
+            </div>
+          )}
+          <DealsDispensariesTabs
+            deals={deals}
+            dispensaries={filteredDispensaries}
+            loading={activeTab === 'deal' ? loading : dispensariesLoading}
+            activeTab={activeTab === 'deal' ? 'deals' : 'dispensaries'}
+            setActiveTab={(tab) => {
+              setActiveTab(tab === 'deals' ? 'deal' : 'dispensary');
+              // Reset to list view when switching to dispensaries
+              if (tab === 'dispensaries') {
+                setViewMode('list');
+              }
+            }}
+            userLocation={userLocationForCards}
+          />
+          {activeTab === 'dispensary' && dispensaryPagination && dispensaryPagination.pages > 1 && (
+            <div className="max-w-7xl mx-auto px-6 mt-6 mb-10 flex flex-wrap items-center justify-center gap-4">
+              <span className="text-sm text-gray-600">
+                {dispensaryPagination.total} {dispensaryPagination.total === 1 ? 'dispensary' : 'dispensaries'} · Page {dispensaryPagination.page} of {dispensaryPagination.pages}
+              </span>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setDispensaryPage((p) => Math.max(1, p - 1))}
+                  disabled={dispensaryPagination.page <= 1 || dispensariesLoading}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-white border border-gray-300 text-gray-700 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  Previous
+                </button>
+                <button
+                  onClick={() => setDispensaryPage((p) => Math.min(dispensaryPagination.pages, p + 1))}
+                  disabled={dispensaryPagination.page >= dispensaryPagination.pages || dispensariesLoading}
+                  className="px-4 py-2 rounded-lg text-sm font-medium bg-orange-600 text-white hover:bg-orange-700 disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  Next
+                </button>
+              </div>
+            </div>
+          )}
+        </>
       )}
     </div>
   );

@@ -83,6 +83,21 @@ export default function Footer() {
           </div>
         </div>
 
+        {/* Partner CTA */}
+        <div className="border-t border-green-800 pt-8 pb-6">
+          <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl p-6 text-center">
+            <p className="text-white text-lg font-semibold mb-4">
+              Are you a dispensary? List your discounted deals on SavrLeafDeals.
+            </p>
+            <Link
+              href="/partner-signup"
+              className="inline-block bg-white text-orange-600 px-6 py-3 rounded-lg font-bold hover:bg-orange-50 transition-colors"
+            >
+              Partner Application / Apply Here
+            </Link>
+          </div>
+        </div>
+
         {/* Footer Bottom Bar */}
         <div className="border-t border-green-800 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-sm text-gray-400">
           <div>

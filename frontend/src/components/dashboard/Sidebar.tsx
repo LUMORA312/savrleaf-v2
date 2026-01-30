@@ -3,7 +3,7 @@
 import { TabKey } from './DashboardLayout';
 import Image from 'next/image';
 import logo from '@/assets/logo.png';
-import { Home, Tag, Store, User, FileText, CreditCard, X, MapPin } from 'lucide-react';
+import { Home, Tag, Store, User, FileText, CreditCard, X, MapPin, BarChart3, Upload } from 'lucide-react';
 import { JSX } from 'react';
 import Link from 'next/link';
 
@@ -25,6 +25,8 @@ const iconMap: Record<TabKey, JSX.Element> = {
   applications: <FileText className="w-5 h-5" />,
   planSelection: <CreditCard className="w-5 h-5" />,
   mapView: <MapPin className="w-5 h-5" />,
+  analytics: <BarChart3 className="w-5 h-5" />,
+  genericDispensaries: <Upload className="w-5 h-5" />,
 };
 
 export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpen = false, onClose }: SidebarProps) {
@@ -34,8 +36,10 @@ export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpe
         { key: 'deals', label: 'Deals' },
         { key: 'users', label: 'Users' },
         { key: 'dispensary', label: 'Dispensaries' },
+        { key: 'genericDispensaries', label: 'Generic Dispensaries' },
         // { key: 'mapView', label: 'Map View' },
         { key: 'applications', label: 'Applications' },
+        { key: 'analytics', label: 'Analytics' },
       ]
     : [
         { key: 'overview', label: 'Overview' },

@@ -31,6 +31,56 @@ export default function PartnerSignupPage() {
           Apply to join as a Dispensary Partner
         </h1>
 
+        {/* Partner Guide */}
+        <div className="max-w-4xl mx-auto mb-12 bg-white rounded-2xl shadow-lg p-8 border border-orange-100">
+          <h2 className="text-2xl font-bold text-center text-gray-900 mb-8">How It Works</h2>
+          <div className="grid md:grid-cols-3 gap-6 mb-8">
+            <div className="text-center">
+              <div className="bg-orange-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
+                1
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Apply</h3>
+              <p className="text-gray-600 text-sm">
+                Fill out the application form below with your dispensary information and contact details.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
+                2
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Approval & Payment</h3>
+              <p className="text-gray-600 text-sm">
+                Once approved, complete your subscription payment to activate your account.
+              </p>
+            </div>
+            <div className="text-center">
+              <div className="bg-orange-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
+                3
+              </div>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Deals</h3>
+              <p className="text-gray-600 text-sm">
+                Start uploading your discounted deals today and reach more customers.
+              </p>
+            </div>
+          </div>
+
+          {/* Pricing Information */}
+          <div className="bg-orange-50 border border-orange-200 rounded-lg p-6 mt-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Pricing</h3>
+            <div className="text-center space-y-2 text-gray-700">
+              <p className="text-base">
+                <strong>$159/month</strong> for the first location
+              </p>
+              <p className="text-base">
+                <strong>$99/month</strong> for each additional location (approval required)
+              </p>
+              <p className="text-sm text-gray-600 mt-3">
+                Term options available: 3 months (save 5%), 6 months (save 10%), 12 months (save 15%)
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Subscription Tiers Row */}
         {/* <div className="flex flex-col items-center mb-2">
           <h2 className="text-xl font-semibold text-orange-700 mb-4">Choose Your Plan</h2>
@@ -57,8 +107,8 @@ export default function PartnerSignupPage() {
         {/* Enterprise Fine Print */}
         <p className="mt-4 w-full text-center text-sm text-gray-500">
           Enterprise plan: custom quote, applicants should email{' '}
-          <a href="mailto:info@savrleaf.com" className="text-green-600 underline">
-            info@savrleaf.com
+          <a href="mailto:info@savrleafdeals.com" className="text-green-600 underline">
+            info@savrleafdeals.com
           </a>
         </p>
 

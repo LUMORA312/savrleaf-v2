@@ -34,7 +34,15 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
     logo: '',
     images: '', // comma-separated URLs
     hours: {} as Record<string, string>,
+    accessType: 'medical' as 'medical' | 'recreational' | 'medical/recreational',
   });
+
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
+  const [uploadedLogo, setUploadedLogo] = useState<string>('');
+  const [uploading, setUploading] = useState(false);
+  const [uploadingLogo, setUploadingLogo] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [logoPreview, setLogoPreview] = useState<string>('');
 
   const [hoursForm, setHoursForm] = useState({
     monday: '',
@@ -50,6 +58,8 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
 
   useEffect(() => {
     if (initialData) {
+      const imageUrls = initialData.images || [];
+      const logoUrl = initialData.logo || '';
       setForm({
         name: initialData.name || '',
         legalName: initialData.legalName || '',
@@ -65,10 +75,16 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
         websiteUrl: initialData.websiteUrl || '',
         description: initialData.description || '',
         amenities: initialData.amenities || [],
-        logo: initialData.logo || '',
-        images: initialData.images?.join(', ') || '',
+        logo: logoUrl,
+        images: imageUrls.join(', '),
         hours: initialData.hours || {},
+        accessType: initialData.accessType || 'medical',
       });
+
+      setUploadedImages(imageUrls);
+      setUploadedLogo(logoUrl);
+      setImagePreviews(imageUrls);
+      setLogoPreview(logoUrl);
 
       if (initialData.hours) {
         setHoursForm({
@@ -123,6 +139,112 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
     }));
   };
 
+  const handleLogoUpload = async (file: File | null) => {
+    if (!file) return;
+
+    setUploadingLogo(true);
+    setFormError('');
+
+    try {
+      const formData = new FormData();
+      formData.append('image', file);
+      formData.append('folder', 'savrleaf/dispensaries/logos');
+
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/image`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.url) {
+        setUploadedLogo(data.url);
+        setLogoPreview(data.url);
+        setForm((prev) => ({
+          ...prev,
+          logo: data.url,
+        }));
+      } else {
+        setFormError(data.message || 'Failed to upload logo');
+      }
+    } catch (error) {
+      console.error('Logo upload error:', error);
+      setFormError('Failed to upload logo. Please try again.');
+    } finally {
+      setUploadingLogo(false);
+    }
+  };
+
+  const handleImageUpload = async (files: FileList | null) => {
+    if (!files || files.length === 0) return;
+
+    setUploading(true);
+    setFormError('');
+
+    try {
+      const formData = new FormData();
+      Array.from(files).forEach((file) => {
+        formData.append('images', file);
+      });
+      formData.append('folder', 'savrleaf/dispensaries');
+
+      const token = localStorage.getItem('token');
+      const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload/images`, {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      const data = await response.json();
+
+      if (data.success && data.images) {
+        const newImageUrls = data.images.map((img: { url: string }) => img.url);
+        setUploadedImages((prev) => [...prev, ...newImageUrls]);
+        setImagePreviews((prev) => [...prev, ...newImageUrls]);
+        
+        // Update form images field
+        const allImages = [...uploadedImages, ...newImageUrls];
+        setForm((prev) => ({
+          ...prev,
+          images: allImages.join(', '),
+        }));
+      } else {
+        setFormError(data.message || 'Failed to upload images');
+      }
+    } catch (error) {
+      console.error('Upload error:', error);
+      setFormError('Failed to upload images. Please try again.');
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    const newImages = uploadedImages.filter((_, i) => i !== index);
+    const newPreviews = imagePreviews.filter((_, i) => i !== index);
+    setUploadedImages(newImages);
+    setImagePreviews(newPreviews);
+    setForm((prev) => ({
+      ...prev,
+      images: newImages.join(', '),
+    }));
+  };
+
+  const handleRemoveLogo = () => {
+    setUploadedLogo('');
+    setLogoPreview('');
+    setForm((prev) => ({
+      ...prev,
+      logo: '',
+    }));
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError('');
@@ -148,6 +270,10 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
       }
     });
 
+    // Combine uploaded images with manually entered URLs
+    const manualUrls = form.images.split(',').map((i) => i.trim()).filter(Boolean);
+    const allImages = [...uploadedImages, ...manualUrls.filter(url => !uploadedImages.includes(url))];
+
     const payload = {
       name: form.name,
       legalName: form.legalName,
@@ -157,9 +283,10 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
       websiteUrl: form.websiteUrl || undefined,
       description: form.description || undefined,
       amenities: form.amenities,
-      logo: form.logo || undefined,
-      images: form.images.split(',').map((i) => i.trim()).filter(Boolean),
+      logo: uploadedLogo || form.logo || undefined,
+      images: allImages,
       hours: Object.keys(hours).length > 0 ? hours : undefined,
+      accessType: form.accessType,
       // Allow admins to create a dispensary on behalf of a partner
       ...(userIdOverride ? { userId: userIdOverride } : {}),
     };
@@ -317,6 +444,25 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
         </div>
       </div>
 
+      {/* Access Type */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Access Type *
+        </label>
+        <select
+          name="accessType"
+          value={form.accessType}
+          onChange={handleChange}
+          required
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        >
+          <option value="medical">Medical</option>
+          <option value="recreational">Recreational</option>
+          <option value="medical/recreational">Medical & Recreational</option>
+        </select>
+        <p className="text-xs text-gray-500 mt-1">Each location can independently set its access type</p>
+      </div>
+
       {/* Amenities */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Amenities</label>
@@ -337,13 +483,48 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
 
       {/* Logo */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Logo URL</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Logo</label>
+        
+        {/* Logo Preview */}
+        {logoPreview && (
+          <div className="mb-3 relative inline-block">
+            <img
+              src={logoPreview}
+              alt="Logo preview"
+              className="w-32 h-32 object-contain border border-gray-300 rounded-lg"
+            />
+            <button
+              type="button"
+              onClick={handleRemoveLogo}
+              className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs"
+              aria-label="Remove logo"
+            >
+              ×
+            </button>
+          </div>
+        )}
+
+        {/* Logo Upload */}
+        <div className="mb-2">
+          <input
+            type="file"
+            accept="image/*"
+            onChange={(e) => handleLogoUpload(e.target.files?.[0] || null)}
+            disabled={uploadingLogo}
+            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          {uploadingLogo && (
+            <p className="text-sm text-orange-600 mt-1">Uploading logo...</p>
+          )}
+        </div>
+
+        {/* Manual URL Input (Optional) */}
         <input
           name="logo"
           type="url"
           value={form.logo}
           onChange={handleChange}
-          placeholder="https://example.com/logo.png"
+          placeholder="Or enter logo URL manually"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
       </div>
@@ -351,14 +532,57 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
       {/* Images */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Images</label>
+        
+        {/* File Upload */}
+        <div className="mb-3">
+          <input
+            type="file"
+            accept="image/*"
+            multiple
+            onChange={(e) => handleImageUpload(e.target.files)}
+            disabled={uploading}
+            className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+          />
+          {uploading && (
+            <p className="text-sm text-orange-600 mt-1">Uploading images...</p>
+          )}
+        </div>
+
+        {/* Image Previews */}
+        {imagePreviews.length > 0 && (
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 mb-3">
+            {imagePreviews.map((url, index) => (
+              <div key={index} className="relative group">
+                <img
+                  src={url}
+                  alt={`Preview ${index + 1}`}
+                  className="w-full h-24 object-cover rounded-lg border border-gray-300"
+                />
+                <button
+                  type="button"
+                  onClick={() => handleRemoveImage(index)}
+                  className="absolute top-1 right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-xs"
+                  aria-label="Remove image"
+                >
+                  ×
+                </button>
+              </div>
+            ))}
+          </div>
+        )}
+
+        {/* Manual URL Input (Optional) */}
         <textarea
           name="images"
           value={form.images}
           onChange={handleChange}
-          placeholder="Image URLs, comma separated"
+          placeholder="Or enter image URLs manually (comma separated)"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           rows={2}
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Upload images using the file input above, or enter image URLs manually.
+        </p>
       </div>
 
       {formError && (

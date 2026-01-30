@@ -31,10 +31,10 @@ const PrivacyPage = () => {
                 information necessary to provide our services. <br />
                 We never sell your data. For questions, contact{' '}
                 <a
-                  href="mailto:support@savrleaf.com"
+                  href="mailto:support@savrleafdeals.com"
                   className="underline text-orange-600 hover:text-orange-800 transition-colors"
                 >
-                  support@savrleaf.com
+                  support@savrleafdeals.com
                 </a>.
               </p>
             </section>
@@ -128,10 +128,10 @@ const PrivacyPage = () => {
                     <p>
                       For privacy questions or data requests, contact us at:{' '}
                       <a
-                        href="mailto:support@savrleaf.com"
+                        href="mailto:support@savrleafdeals.com"
                         className="font-semibold underline text-orange-600 hover:text-orange-800 transition-colors"
                       >
-                        support@savrleaf.com
+                        support@savrleafdeals.com
                       </a>
                     </p>
                   ),

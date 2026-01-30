@@ -9,12 +9,15 @@ import axios from 'axios';
 import Modal from '@/components/Modal';
 import DealForm from '@/components/DealForm';
 import ApplicationModal from '@/components/ApplicationModal';
-import { Application, Deal, Dispensary, Subscription, User } from '@/types';
+import { Application, Deal, Dispensary, GenericDispensary, Subscription, User } from '@/types';
 import DispensaryModal from '@/components/DispensaryModal';
 import UserModal from '@/components/UserModal';
 import DispensaryForm from '@/components/DispensaryForm';
 import { countUserActiveDeals } from '@/utils/usedSkus';
 import MapView from '@/components/MapView';
+import Analytics from '@/components/Analytics';
+import MaintenanceModeToggle from '@/components/MaintenanceModeToggle';
+import ChangePassword from '@/components/ChangePassword';
 
 interface OverviewData {
   totalUsers: number;
@@ -43,6 +46,7 @@ export default function AdminDashboardPage() {
   const handleCloseDispensaryModal = () => setSelectedDispensary(null);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
 const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
+  const [showChangePasswordModal, setShowChangePasswordModal] = useState(false);
 
   const [fetching, setFetching] = useState(true);
   const [fetchError, setFetchError] = useState('');
@@ -57,6 +61,11 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
   const [email, setEmail] = useState('');
+
+  const [genericDispensaries, setGenericDispensaries] = useState<GenericDispensary[]>([]);
+  const [genericDispensariesLoading, setGenericDispensariesLoading] = useState(false);
+  const [genericUploading, setGenericUploading] = useState(false);
+  const [genericUploadResult, setGenericUploadResult] = useState<{ imported: number; skipped: number; errors?: string[] } | null>(null);
 
   // Filter deals based on search and filters - MUST be before any early returns
   const filteredDeals = useMemo(() => {
@@ -163,6 +172,80 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
 
     fetchDashboard();
   }, [loading, isAuthenticated, user, router]);
+
+  useEffect(() => {
+    if (activeTab !== 'genericDispensaries' || !isAuthenticated || user?.role !== 'admin') return;
+    const fetchGeneric = async () => {
+      setGenericDispensariesLoading(true);
+      try {
+        const token = localStorage.getItem('token');
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        setGenericDispensaries(res.data?.genericDispensaries || []);
+      } catch (err) {
+        console.error('Failed to fetch generic dispensaries:', err);
+      } finally {
+        setGenericDispensariesLoading(false);
+      }
+    };
+    fetchGeneric();
+  }, [activeTab, isAuthenticated, user?.role]);
+
+  const fetchGenericDispensaries = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setGenericDispensaries(res.data?.genericDispensaries || []);
+    } catch (err) {
+      console.error('Failed to fetch generic dispensaries:', err);
+    }
+  };
+
+  const handleGenericUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setGenericUploading(true);
+    setGenericUploadResult(null);
+    try {
+      const token = localStorage.getItem('token');
+      const form = new FormData();
+      form.append('file', file);
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries/upload`,
+        form,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      setGenericUploadResult({
+        imported: res.data.imported ?? 0,
+        skipped: res.data.skipped ?? 0,
+        errors: res.data.errors,
+      });
+      await fetchGenericDispensaries();
+    } catch (err: unknown) {
+      const ax = err as { response?: { data?: { message?: string } } };
+      setGenericUploadResult({ imported: 0, skipped: 0, errors: [ax.response?.data?.message || 'Upload failed'] });
+    } finally {
+      setGenericUploading(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleDeleteGeneric = async (id: string) => {
+    if (!confirm('Delete this generic dispensary?')) return;
+    try {
+      const token = localStorage.getItem('token');
+      await axios.delete(`${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries/${id}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      setGenericDispensaries((prev) => prev.filter((d) => d._id !== id));
+    } catch (err) {
+      console.error('Delete generic dispensary failed:', err);
+      alert('Failed to delete.');
+    }
+  };
 
   if (loading || fetching) {
     return (
@@ -289,6 +372,74 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
     }
   };
 
+  const handleArchiveApplication = async (id: string) => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/archive`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setApplications((prev) =>
+        prev.map((a) => (a._id === id ? { ...a, isArchived: true } : a))
+      );
+      alert('Application archived');
+    } catch (err) {
+      console.error('Error archiving application:', err);
+      alert('Failed to archive application');
+    }
+  };
+
+  const handleUnarchiveApplication = async (id: string) => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/unarchive`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setApplications((prev) =>
+        prev.map((a) => (a._id === id ? { ...a, isArchived: false } : a))
+      );
+      alert('Application unarchived');
+    } catch (err) {
+      console.error('Error unarchiving application:', err);
+      alert('Failed to unarchive application');
+    }
+  };
+
+  const handleArchiveDispensary = async (id: string) => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/dispensaries/${id}/archive`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setDispensaries((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isArchived: true } : d))
+      );
+      alert('Dispensary archived');
+    } catch (err) {
+      console.error('Error archiving dispensary:', err);
+      alert('Failed to archive dispensary');
+    }
+  };
+
+  const handleUnarchiveDispensary = async (id: string) => {
+    try {
+      const res = await axios.patch(
+        `${process.env.NEXT_PUBLIC_API_URL}/dispensaries/${id}/unarchive`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      setDispensaries((prev) =>
+        prev.map((d) => (d._id === id ? { ...d, isArchived: false } : d))
+      );
+      alert('Dispensary unarchived');
+    } catch (err) {
+      console.error('Error unarchiving dispensary:', err);
+      alert('Failed to unarchive dispensary');
+    }
+  };
+
   const updateDispensaryStatus = async (id: string, status: 'approved' | 'rejected' | 'pending') => {
     try {
       const token = localStorage.getItem('token');
@@ -407,6 +558,28 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
           <h2 className="mb-6 text-3xl font-extrabold text-orange-700 tracking-tight">
             Admin Overview
           </h2>
+          
+          {/* ADMIN ONLY - Maintenance Mode Toggle */}
+          <div className="mb-6">
+            <MaintenanceModeToggle />
+          </div>
+
+          {/* Change Password Section */}
+          <div className="mb-6 bg-white p-6 rounded-xl shadow border border-orange-200">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-1">Account Security</h3>
+                <p className="text-sm text-gray-600">Change your admin password</p>
+              </div>
+              <button
+                onClick={() => setShowChangePasswordModal(true)}
+                className="px-4 py-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold rounded-lg transition-colors"
+              >
+                Change Password
+              </button>
+            </div>
+          </div>
+
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center border border-blue-200">
               <h3 className="text-lg font-semibold text-blue-700">Total Users</h3>
@@ -539,7 +712,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <h2 className="text-3xl font-extrabold text-orange-700">Dispensaries</h2>
-            <div className="flex items-center gap-3">
+            {/* <div className="flex items-center gap-3">
               <p className="text-xs text-gray-500 hidden sm:block">
                 Select a partner in the Users tab, then add a dispensary for them.
               </p>
@@ -556,7 +729,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
               >
                 Add Dispensary
               </button>
-            </div>
+            </div> */}
           </div>
           <AdminTable
             data={dispensaries}
@@ -568,35 +741,67 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                 key: 'status',
                 label: 'Status',
                 render: (disp: Dispensary) => (
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${disp.status === 'approved'
-                      ? 'bg-green-100 text-green-800'
-                      : disp.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                  >
-                    {disp.status.toUpperCase()}
-                  </span>
+                  <div className="flex flex-col gap-1 w-25 items-center justify-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${disp.status === 'approved'
+                        ? 'bg-green-100 text-green-800'
+                        : disp.status === 'rejected'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                    >
+                      {(disp.status || 'pending').toUpperCase()}
+                    </span>
+                    {disp.isArchived && (
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                        ARCHIVED
+                      </span>
+                    )}
+                  </div>
                 ),
               },
             ]}
             actions={(disp) => (
-              <button
-                className={`px-3 py-1 rounded cursor-pointer ${disp.status === 'approved'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-green-600 text-white'
-                  }`}
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  await updateDispensaryStatus(
-                    disp._id,
-                    disp.status === 'approved' ? 'rejected' : 'approved'
-                  );
-                }}
-              >
-                {disp.status === 'approved' ? 'Deactivate' : 'Activate'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  className={`px-3 py-1 rounded cursor-pointer text-white ${disp.status === 'approved'
+                    ? 'bg-red-600'
+                    : 'bg-green-600'
+                    }`}
+                  onClick={async (e) => {
+                    e.stopPropagation();
+                    if (disp.status) {
+                      await updateDispensaryStatus(
+                        disp._id,
+                        (disp.status === 'approved' ? 'rejected' : 'approved') as 'approved' | 'rejected' | 'pending'
+                      );
+                    }
+                  }}
+                >
+                  {disp.status === 'approved' ? 'Deactivate' : 'Activate'}
+                </button>
+                {disp.isArchived ? (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-blue-600 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnarchiveDispensary(disp._id);
+                    }}
+                  >
+                    Unarchive
+                  </button>
+                ) : (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-gray-600 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleArchiveDispensary(disp._id);
+                    }}
+                  >
+                    Archive
+                  </button>
+                )}
+              </div>
             )}
             onRowClick={handleViewDispensary}
           />
@@ -972,41 +1177,146 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                 key: 'status',
                 label: 'Status',
                 render: (app: Application) => (
-                  <span
-                    className={`px-2 py-1 rounded-full text-xs font-semibold ${app.status === 'approved'
-                      ? 'bg-green-100 text-green-800'
-                      : app.status === 'rejected'
-                        ? 'bg-red-100 text-red-800'
-                        : 'bg-yellow-100 text-yellow-800'
-                      }`}
-                  >
-                    {app.status.toUpperCase()}
-                  </span>
+                  <div className="flex flex-col gap-1 w-25 items-center justify-center">
+                    <span
+                      className={`px-2 py-1 rounded-full text-xs font-semibold ${app.status === 'approved'
+                        ? 'bg-green-100 text-green-800'
+                        : app.status === 'rejected'
+                          ? 'bg-red-100 text-red-800'
+                          : 'bg-yellow-100 text-yellow-800'
+                        }`}
+                    >
+                      {app.status.toUpperCase()}
+                    </span>
+                    {app.isArchived && (
+                      <span className="px-2 py-1 rounded-full text-xs font-semibold bg-gray-100 text-gray-800">
+                        ARCHIVED
+                      </span>
+                    )}
+                  </div>
                 ),
               },
               { key: 'dispensaryName', label: 'Dispensary' },
               { key: 'createdAt', label: 'Date of Application'}
             ]}
             actions={(app) => (
-              <button
-                className={`px-3 py-1 rounded cursor-pointer ${app.status === 'approved'
-                  ? 'bg-red-600 text-white'
-                  : 'bg-green-600 text-white'
-                  }`}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  if (app.status === 'approved') {
-                    handleRejectApplication(app._id);
-                  } else {
-                    handleApproveApplication(app._id);
-                  }
-                }}
-              >
-                {app.status === 'approved' ? 'Reject' : 'Approve'}
-              </button>
+              <div className="flex gap-2">
+                <button
+                  className={`px-3 py-1 rounded cursor-pointer text-white ${app.status === 'approved'
+                    ? 'bg-red-600'
+                    : 'bg-green-600'
+                    }`}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    if (app.status === 'approved') {
+                      handleRejectApplication(app._id);
+                    } else {
+                      handleApproveApplication(app._id);
+                    }
+                  }}
+                >
+                  {app.status === 'approved' ? 'Reject' : 'Approve'}
+                </button>
+                {app.isArchived ? (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-blue-600 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleUnarchiveApplication(app._id);
+                    }}
+                  >
+                    Unarchive
+                  </button>
+                ) : (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-gray-600 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleArchiveApplication(app._id);
+                    }}
+                  >
+                    Archive
+                  </button>
+                )}
+              </div>
             )}
             onRowClick={handleViewApplication}
           />
+        </>
+      )}
+
+      {activeTab === 'genericDispensaries' && (
+        <>
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
+            <h2 className="text-3xl font-extrabold text-orange-700">Generic Dispensaries</h2>
+            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 cursor-pointer transition">
+              <input
+                type="file"
+                accept=".csv,.xlsx,.xls"
+                className="hidden"
+                onChange={handleGenericUpload}
+                disabled={genericUploading}
+              />
+              {genericUploading ? 'Uploading…' : 'Upload CSV or Excel'}
+            </label>
+          </div>
+          {genericUploadResult && (
+            <div className="mb-4 p-4 rounded-lg bg-gray-100 border border-gray-200">
+              <p className="text-sm text-gray-700">
+                Imported: <strong>{genericUploadResult.imported}</strong> · Skipped (duplicates/invalid): <strong>{genericUploadResult.skipped}</strong>
+              </p>
+              {genericUploadResult.errors && genericUploadResult.errors.length > 0 && (
+                <ul className="mt-2 text-sm text-amber-700 list-disc list-inside">
+                  {genericUploadResult.errors.slice(0, 10).map((e, i) => (
+                    <li key={i}>{e}</li>
+                  ))}
+                  {genericUploadResult.errors.length > 10 && (
+                    <li>… and {genericUploadResult.errors.length - 10} more</li>
+                  )}
+                </ul>
+              )}
+            </div>
+          )}
+          {genericDispensariesLoading ? (
+            <p className="text-gray-500">Loading generic dispensaries…</p>
+          ) : (
+            <AdminTable
+              data={genericDispensaries}
+              columns={[
+                { key: 'name', label: 'Name' },
+                {
+                  key: 'address',
+                  label: 'Address',
+                  render: (d: GenericDispensary) =>
+                    [d.address?.street1, d.address?.city, d.address?.state, d.address?.zipCode].filter(Boolean).join(', '),
+                },
+                {
+                  key: 'contact',
+                  label: 'Contact',
+                  render: (d: GenericDispensary) => d.phoneNumber || d.email || '—',
+                },
+                { key: 'licenseNumber', label: 'License', render: (d: GenericDispensary) => d.licenseNumber || '—' },
+                { key: 'websiteUrl', label: 'Website', render: (d: GenericDispensary) => d.websiteUrl ? 'Yes' : '—' },
+                {
+                  key: 'createdAt',
+                  label: 'Added',
+                  render: (d: GenericDispensary) =>
+                    d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—',
+                },
+              ]}
+              actions={(d) => (
+                <button
+                  className="px-3 py-1 rounded cursor-pointer bg-red-600 text-white text-sm"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    handleDeleteGeneric(d._id);
+                  }}
+                >
+                  Delete
+                </button>
+              )}
+            />
+          )}
         </>
       )}
 
@@ -1016,7 +1326,12 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             initialData={selectedDeal}
             onSave={handleSaveDeal}
             onCancel={handleCancelForm}
-            dispensaryOptions={dispensaries}
+            dispensaryOptions={dispensaries.map(d => ({
+              _id: d._id,
+              name: d.name,
+              isActive: d.isActive ?? false,
+              isPurchased: d.isPurchased ?? false,
+            }))}
             userId={
               typeof selectedDeal.dispensary === 'string'
                 ? dispensaries.find(d => d._id === selectedDeal.dispensary)?.user || ''
@@ -1043,6 +1358,19 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
           // onUpdateSubscription={handleUpdateSubscription}
           onUpdateExtraLimit={handleUpdateDispensaryExtraLimit}
         />
+      )}
+
+      {/* ADMIN ONLY - Analytics Tab */}
+      {activeTab === 'analytics' && <Analytics />}
+
+      {/* Change Password Modal */}
+      {showChangePasswordModal && (
+        <Modal isOpen={showChangePasswordModal} onClose={() => setShowChangePasswordModal(false)}>
+          <ChangePassword
+            onSuccess={() => setShowChangePasswordModal(false)}
+            onCancel={() => setShowChangePasswordModal(false)}
+          />
+        </Modal>
       )}
     </DashboardLayout>
   );

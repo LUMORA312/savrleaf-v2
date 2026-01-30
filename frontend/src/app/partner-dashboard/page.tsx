@@ -66,10 +66,6 @@ function PartnerDashboardContent() {
         });
 
         setUser(res.data.user);
-        if (res.data.user.firstLogin) {
-          setActiveTab('planSelection');
-          await axios.post(`${process.env.NEXT_PUBLIC_API_URL}/users/${authUser?.email}/first-login`, {}, { headers: { Authorization: `Bearer ${token}` } });
-        }
         setOverview(res.data.overview);
         setDispensaries(res.data.dispensaries);
         setDeals(res.data.deals);
@@ -577,7 +573,12 @@ function PartnerDashboardContent() {
             initialData={selectedDeal}
             onSave={handleSaveDeal}
             onCancel={handleCancelForm}
-            dispensaryOptions={dispensaries}
+            dispensaryOptions={dispensaries.map(d => ({
+              _id: d._id,
+              name: d.name,
+              isActive: d.isActive ?? false,
+              isPurchased: d.isPurchased ?? false,
+            }))}
             userId={user?.id}
           />
         </Modal>
