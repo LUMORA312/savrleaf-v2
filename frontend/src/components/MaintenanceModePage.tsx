@@ -8,6 +8,7 @@
 
 import { Wrench } from 'lucide-react';
 import Image from 'next/image';
+import Link from 'next/link';
 import logo from '../assets/logo.png';
 
 interface MaintenanceModePageProps {
@@ -37,6 +38,15 @@ export default function MaintenanceModePage({ message }: MaintenanceModePageProp
         <p className="text-gray-600 mb-6 text-lg">
           {message || defaultMessage}
         </p>
+
+        <div className="mb-6">
+          <Link
+            href="/admin-login"
+            className="inline-block bg-orange-600 hover:bg-orange-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors"
+          >
+            Admin Login
+          </Link>
+        </div>
 
         <div className="text-sm text-gray-500">
           <p>We apologize for any inconvenience.</p>
