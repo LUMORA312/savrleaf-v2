@@ -35,7 +35,7 @@ export default function Header() {
         {/* Navigation */}
         <nav>
           <ul className="flex items-center space-x-5 text-sm text-orange-600 cursor-pointer">
-            {!isAuthenticated && (
+            {/* {!isAuthenticated && (
               <li>
                 <a
                   href="#how-it-works"
@@ -44,7 +44,7 @@ export default function Header() {
                   How It Works
                 </a>
               </li>
-            )}
+            )} */}
             {isAuthenticated && (
               <li>
                 <button

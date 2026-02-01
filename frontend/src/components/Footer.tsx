@@ -53,6 +53,8 @@ export default function Footer() {
                 ['Terms of Service', '/terms'],
                 ['Privacy Policy', '/privacy'],
                 ['Contact Us', '/contact'],
+                ['About', '/about'],
+                ['How It Works', '/how-it-works'],
               ].map(([label, path]) => (
                 <li key={path}>
                   <Link className="text-gray-300 hover:text-green-400 transition" href={path}>
