@@ -135,6 +135,7 @@ export default function DispensaryDetailPage() {
                     </div>
                   )}
                   <div className="flex-1">
+                    {dispensary?.type ? "" : "Nutural / Basic"}
                     <div className="flex items-center gap-2 flex-wrap mb-2">
                       <h1 className="text-3xl font-bold text-gray-900">{dispensary.name}</h1>
                       {(dispensary as { isGeneric?: boolean }).isGeneric && (
@@ -179,7 +180,7 @@ export default function DispensaryDetailPage() {
                     <p>
                       <strong>Website:</strong>{' '}
                       <a
-                        href={dispensary.websiteUrl}
+                        href={ dispensary.type ? dispensary.websiteUrl : `https://www.google.com/maps/@${dispensary.coordinates.coordinates[0]},${dispensary.coordinates.coordinates[1]}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-600 hover:underline"
