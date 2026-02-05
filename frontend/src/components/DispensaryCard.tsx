@@ -85,13 +85,16 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
                 />
               </div>
               <div className="flex-1 flex flex-col gap-2">
+                <p className="text-gray-600">
+                  Nutural / Basic
+                </p>
                 <h2 className="text-2xl font-bold">{dispensary.name}</h2>
                 {dispensary.legalName && <p className="text-gray-600">Legal Name: {dispensary.legalName}</p>}
                 <p className="text-gray-600">
                   Address: {dispensary.address.street1} {dispensary.address.street2 && `, ${dispensary.address.street2}`}, {dispensary.address.city}, {dispensary.address.state} {dispensary.address.zipCode}
                 </p>
                 {dispensary.phoneNumber && <p className="text-gray-600">Phone: {dispensary.phoneNumber}</p>}
-                {dispensary.websiteUrl && <p className="text-gray-600">Website: <a href={dispensary.websiteUrl} target="_blank" className="text-orange-600 underline">{dispensary.websiteUrl}</a></p>}
+                {dispensary.websiteUrl && <p className="text-gray-600">Website: <a href={`https://www.google.com/maps/@${dispensary.coordinates.coordinates[0]},${dispensary.coordinates.coordinates[1]}`} target="_blank" className="text-orange-600 underline">{dispensary.websiteUrl}</a></p>}
                 <p className="text-gray-600">{dispensary.description || 'No description available.'}</p>
                 {dispensary.amenities.length > 0 && (
                   <p className="text-gray-600">Amenities: {dispensary.amenities.join(', ')}</p>
