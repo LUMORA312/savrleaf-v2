@@ -135,13 +135,13 @@ export default function DispensaryDetailPage() {
                     </div>
                   )}
                   <div className="flex-1">
-                    {dispensary?.type ? "" : "Nutural / Basic"}
                     <div className="flex items-center gap-2 flex-wrap mb-2">
                       <h1 className="text-3xl font-bold text-gray-900">{dispensary.name}</h1>
                       {(dispensary as { isGeneric?: boolean }).isGeneric && (
                         <span className="px-2 py-1 text-xs font-semibold bg-slate-200 text-slate-700 rounded">Generic</span>
                       )}
                     </div>
+                      {dispensary?.type ? "" : "Nutural / Basic"}
                     {dispensary.accessType && (
                       <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-2">
                         {dispensary.accessType.replace('/', ' & ')}
@@ -180,7 +180,7 @@ export default function DispensaryDetailPage() {
                     <p>
                       <strong>Website:</strong>{' '}
                       <a
-                        href={ dispensary.type ? dispensary.websiteUrl : `https://www.google.com/maps/@${dispensary.coordinates.coordinates[0]},${dispensary.coordinates.coordinates[1]}`}
+                        href={ dispensary.type ? dispensary.websiteUrl : `https://www.google.com/maps/@${dispensary.coordinates.coordinates[1]},${dispensary.coordinates.coordinates[0]}`}
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-600 hover:underline"
