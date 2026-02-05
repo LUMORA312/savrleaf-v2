@@ -182,7 +182,7 @@ export default function DispensaryDetailPage() {
                       <a
                         href={ dispensary.type 
                                 ? dispensary.websiteUrl 
-                                : `https://www.google.com/maps/search/?api=1&query=${dispensary.coordinates.coordinates[1]},${dispensary.coordinates.coordinates[0]}` }
+                                : `https://www.google.com/maps/search/?api=1&query=${dispensary.coordinates.coordinates[1]},${dispensary.coordinates.coordinates[0]},15z` }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-600 hover:underline"
