@@ -101,7 +101,7 @@ function DispensaryCard({
           <div>
             <strong className="font-semibold text-gray-700">Website:</strong> <br />
             <a
-              href={dispensary.websiteUrl}
+              href={dispensary.type ? dispensary.websiteUrl : `https://www.google.com/maps/@${dispensary.coordinates.coordinates[0]},${dispensary.coordinates.coordinates[1]}`}
               target="_blank"
               rel="noopener noreferrer"
               className="text-orange-600 hover:underline break-words"

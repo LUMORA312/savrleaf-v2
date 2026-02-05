@@ -14,6 +14,7 @@ export interface Coordinates {
 export interface Dispensary {
   _id: string;
   name: string;
+  type: string;
   legalName: string;
   address: Address;
   coordinates: Coordinates;
