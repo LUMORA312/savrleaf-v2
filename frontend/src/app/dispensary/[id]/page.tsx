@@ -180,15 +180,18 @@ export default function DispensaryDetailPage() {
                     <p>
                       <strong>Website:</strong>{' '}
                       <a
-                        href={ dispensary.type 
-                                ? dispensary.websiteUrl 
-                                : `https://www.google.com/maps/search/?api=1&query=${dispensary.coordinates.coordinates[1]},${dispensary.coordinates.coordinates[0]},15z` }
+                        href={
+                          dispensary.type
+                            ? dispensary.websiteUrl
+                            : `https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`
+                        }
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-orange-600 hover:underline"
                       >
                         {dispensary.name}
                       </a>
+
 
                     </p>
                   )}
