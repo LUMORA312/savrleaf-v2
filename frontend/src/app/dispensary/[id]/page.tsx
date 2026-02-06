@@ -231,7 +231,11 @@ export default function DispensaryDetailPage() {
                 </p>
                 {isGeneric && dispensary.websiteUrl ? (
                   <a
-                    href={dispensary.websiteUrl}
+                    href={
+                          dispensary.type
+                            ? dispensary.websiteUrl
+                            : `https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`
+                        }
                     target="_blank"
                     rel="noopener noreferrer"
                     className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
