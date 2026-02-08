@@ -81,7 +81,7 @@ export default function HeroSection({
         </div>
         
         {/* Headline — LOCKED: exact copy only */}
-        <h1 style={{ line-height: "40px;"}} className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-12 leading-tight text-gray-900 max-w-4xl mx-auto">
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-12 leading-tight text-gray-900 max-w-4xl mx-auto">
           SavrLeafDeals.com<br/> Discounted cannabis deals only.<br />No sign-ups. No logins.<br />21+ only.
         </h1>
 
