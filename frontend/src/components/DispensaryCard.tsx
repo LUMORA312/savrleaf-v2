@@ -79,7 +79,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
               if (dispensary.type) {
                 window.open(dispensary.websiteUrl, '_blank');
               } else {
-                window.open(`https://www.google.com/maps/dir/?api=1&destination=${dispensary.latitude},${dispensary.longitude}`, '_blank');
+                window.open(`https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`, '_blank');
               }
             }}
           >
