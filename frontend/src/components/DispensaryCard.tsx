@@ -18,11 +18,10 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
   return (
     <>
       {/* Card */}
-      <div
-        onClick={handleCardClick}
+      <div        
         className="cursor-pointer bg-gray-50 shadow-lg rounded-2xl p-4 transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl min-h-[280px] w-full flex flex-col justify-between"
       >
-        <div>
+        <div onClick={handleCardClick}>
           {/* Logo and name */}
           <div className="flex items-center mb-4 gap-3">
             {dispensary.logo ? (
