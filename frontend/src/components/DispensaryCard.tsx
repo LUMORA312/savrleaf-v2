@@ -72,8 +72,17 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
           License: {dispensary.licenseNumber || 'N/A'}
         </div>
         <br/>
-        <div className="flex justify-center space-x-4 mb-2">
-          <button className="px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer bg-orange-600 text-white shadow-md">
+        <<div className="flex justify-center space-x-4 mb-2">
+          <button
+            className="px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer bg-orange-600 text-white shadow-md"
+            onClick={() => {
+              if (dispensary.type) {
+                window.open(dispensary.websiteUrl, '_blank');
+              } else {
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${dispensary.latitude},${dispensary.longitude}`, '_blank');
+              }
+            }}
+          >
             {dispensary.type ? 'Visit Website' : 'Go Directions'}
           </button>
         </div>
