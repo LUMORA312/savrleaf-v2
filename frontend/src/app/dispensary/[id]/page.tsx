@@ -141,7 +141,7 @@ export default function DispensaryDetailPage() {
                         <span className="px-2 py-1 text-xs font-semibold bg-slate-200 text-slate-700 rounded">Generic</span>
                       )}
                     </div>
-                      {dispensary?.type ? "" : "Nutural / Basic"}
+                      {/* {dispensary?.type ? "" : "Nutural / Basic"} */}
                     {dispensary.accessType && (
                       <span className="inline-block px-3 py-1 bg-orange-100 text-orange-700 rounded-full text-sm font-medium mb-2">
                         {dispensary.accessType.replace('/', ' & ')}
@@ -241,12 +241,13 @@ export default function DispensaryDetailPage() {
                     Visit Website
                   </a>
                 ) : (
-                  <Link
-                    href="/"
-                    className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                  >
-                    Browse All Deals
-                  </Link>
+                  <div></div>
+                  // <Link
+                  //   href="/"
+                  //   className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                  // >
+                  //   Browse All Deals
+                  // </Link>
                 )}
               </div>
             )}
