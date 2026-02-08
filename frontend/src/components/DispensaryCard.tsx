@@ -8,7 +8,8 @@ import defaultDispensaryImg from '../assets/dispensary.jpg';
 
 export default function DispensaryCard({ dispensary }: { dispensary: Dispensary }) {
   const router = useRouter();
-  const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  // const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  const imageSrc = defaultDispensaryImg.src;
 
   const handleCardClick = () => {
     router.push(`/dispensary/${dispensary._id}`);

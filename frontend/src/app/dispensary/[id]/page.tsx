@@ -191,8 +191,6 @@ export default function DispensaryDetailPage() {
                       >
                         {dispensary.name}
                       </a>
-
-
                     </p>
                   )}
 

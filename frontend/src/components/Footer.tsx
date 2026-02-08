@@ -15,7 +15,7 @@ export default function Footer() {
                 Must Be 21+ • Legal Disclaimer
               </p>
               <p>
-                <strong className="text-yellow-50">SavrLeaf™ does not sell or handle cannabis products.</strong> We connect consumers with licensed dispensaries. All purchases are made through licensed third-party retailers. Please consume responsibly and follow local laws.
+                <strong className="text-yellow-50">SavrLeaf® does not sell or handle cannabis products.</strong> We connect consumers with licensed dispensaries. All purchases are made through licensed third-party retailers. Please consume responsibly and follow local laws.
               </p>
             </div>
           </div>
@@ -33,7 +33,7 @@ export default function Footer() {
                 height={36}
                 className="w-9 h-9 rounded-lg object-cover"
               />
-              <h2 className="text-2xl font-bold text-white">SavrLeaf™</h2>
+              <h2 className="text-2xl font-bold text-white">SavrLeaf®</h2>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Find the best verified cannabis deals from trusted dispensaries near you. Explore new products and compare prices with confidence.
@@ -103,9 +103,9 @@ export default function Footer() {
         {/* Footer Bottom Bar */}
         <div className="border-t border-green-800 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-sm text-gray-400">
           <div>
-            <p>© 2025 SavrLeaf™. All rights reserved.</p>
+            <p>© 2025 SavrLeaf®. All rights reserved.</p>
             <p className="text-xs mt-1">
-              SavrLeaf™ is a registered trademark of LumoraSolutionsLLC. Product names and logos are property of their respective owners.
+              SavrLeaf® is a registered trademark of LumoraSolutionsLLC. Product names and logos are property of their respective owners.
             </p>
           </div>
           <div className="text-xs text-gray-500 max-w-md text-left md:text-right">
