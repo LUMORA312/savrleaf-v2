@@ -33,7 +33,7 @@ export default function Footer() {
                 height={36}
                 className="w-9 h-9 rounded-lg object-cover"
               />
-              <h2 className="text-2xl font-bold text-white">SavrLeaf<sup className="text-[12px] relative -top-[0.89m]">®</sup></h2>
+              <h2 className="text-2xl font-bold text-white">SavrLeaf<sup className="text-xs align-super">®</sup></h2>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Find the best verified cannabis deals from trusted dispensaries near you. Explore new products and compare prices with confidence.
