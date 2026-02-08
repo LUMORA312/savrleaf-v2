@@ -15,7 +15,7 @@ export default function Footer() {
                 Must Be 21+ • Legal Disclaimer
               </p>
               <p>
-                <strong className="text-yellow-50"><sup className="text-xs align-super">®</sup> does not sell or handle cannabis products.</strong> We connect consumers with licensed dispensaries. All purchases are made through licensed third-party retailers. Please consume responsibly and follow local laws.
+                <strong className="text-yellow-50">SavrLeaf<sup className="text-xs align-super">®</sup> does not sell or handle cannabis products.</strong> We connect consumers with licensed dispensaries. All purchases are made through licensed third-party retailers. Please consume responsibly and follow local laws.
               </p>
             </div>
           </div>
@@ -33,7 +33,7 @@ export default function Footer() {
                 height={36}
                 className="w-9 h-9 rounded-lg object-cover"
               />
-              <h2 className="text-2xl font-bold text-white"><sup className="text-xs align-super">®</sup></h2>
+              <h2 className="text-2xl font-bold text-white">SavrLeaf<sup className="text-xs align-super">®</sup></h2>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
               Find the best verified cannabis deals from trusted dispensaries near you. Explore new products and compare prices with confidence.
