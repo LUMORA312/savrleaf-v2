@@ -73,7 +73,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
           License: {dispensary.licenseNumber || 'N/A'}
         </div>
         <div className="flex space-x-4 mb-6">
-          <button class="px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer bg-orange-600 text-white shadow-md">{dispensary.type ? 'Visit Website' : 'Go Directions'}</button>
+          <button className="px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer bg-orange-600 text-white shadow-md">{dispensary.type ? 'Visit Website' : 'Go Directions'}</button>
         </div>
         
       </div>
