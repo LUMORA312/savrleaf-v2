@@ -14,7 +14,7 @@ const PrivacyPage = () => {
               Privacy Policy
             </h1>
             <p className="mt-3 text-base sm:text-lg text-gray-700 max-w-2xl mx-auto">
-              Your privacy is important to us at SavrLeaf®. This page explains how
+              Your privacy is important to us at <sup class="text-xs align-super">®</sup>. This page explains how
               we handle your information.
             </p>
           </header>
@@ -24,10 +24,10 @@ const PrivacyPage = () => {
             {/* Highlight Banner */}
             <section className="bg-orange-50 border border-orange-200 rounded-lg p-6 mb-10 text-center">
               <h2 className="text-2xl font-bold text-orange-800 mb-4">
-                SavrLeaf® Privacy Policy
+                SavrLeaf<sup class="text-xs align-super">®</sup> Privacy Policy
               </h2>
               <p className="text-base text-orange-700 font-medium leading-relaxed">
-                We respect your privacy. SavrLeaf® collects only the minimal
+                We respect your privacy. SavrLeaf<sup class="text-xs align-super">®</sup> collects only the minimal
                 information necessary to provide our services. <br />
                 We never sell your data. For questions, contact{' '}
                 <a
@@ -47,7 +47,7 @@ const PrivacyPage = () => {
                   content: (
                     <>
                       <p>
-                        SavrLeaf® collects minimal information necessary to provide
+                        <sup class="text-xs align-super">®</sup> collects minimal information necessary to provide
                         our services:
                       </p>
                       <ul>

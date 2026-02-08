@@ -11,7 +11,8 @@ const AboutPage = () => {
           {/* Page Header */}
           <header className="mb-12 text-center">
             <h1 className="text-3xl sm:text-4xl font-bold text-orange-600 tracking-tight">
-              About SavrLeaf®
+              About SavrLeaf
+              <sup class="text-xs align-super">®</sup>
             </h1>
           </header>
 
@@ -20,7 +21,7 @@ const AboutPage = () => {
             {/* Intro Paragraph */}
             <section className="mb-10">
               <p className="text-gray-700 leading-relaxed text-lg mb-4">
-                SavrLeaf® is a cannabis deal-discovery platform built exclusively for discounted and sale-priced products from licensed dispensaries. The platform is intentionally simple — helping shoppers 21+ find real deals by location or ingestion type, without accounts, logins, or clutter.
+                SavrLeaf<sup class="text-xs align-super">®</sup> is a cannabis deal-discovery platform built exclusively for discounted and sale-priced products from licensed dispensaries. The platform is intentionally simple — helping shoppers 21+ find real deals by location or ingestion type, without accounts, logins, or clutter.
               </p>
               <p className="text-gray-700 leading-relaxed text-lg">
                 SavrLeaf does not process transactions and does not sell cannabis. All deals redirect users directly to participating dispensaries, allowing retailers to move discounted inventory efficiently while maintaining full control of pricing and fulfillment.
@@ -79,7 +80,7 @@ const AboutPage = () => {
             <section className="mb-6">
               <div className="text-gray-700 leading-relaxed space-y-2">
                 <p>SavrLeafDeals.com is operated by LumoraSolutions LLC.</p>
-                <p>SavrLeaf® is a registered trademark.</p>
+                <p>SavrLeaf<sup class="text-xs align-super">®</sup> is a registered trademark.</p>
                 <p>
                   Contact:{' '}
                   <a

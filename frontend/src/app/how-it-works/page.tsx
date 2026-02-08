@@ -20,7 +20,7 @@ const HowItWorksPage = () => {
             {/* Intro Paragraph */}
             <section className="mb-10">
               <p className="text-gray-700 leading-relaxed text-lg">
-                SavrLeaf® is designed to reduce noise in cannabis shopping by displaying only discounted products and sending shoppers directly to licensed dispensaries. The platform stays intentionally narrow in scope to remain simple, compliant, and effective.
+                SavrLeaf<sup class="text-xs align-super">®</sup> is designed to reduce noise in cannabis shopping by displaying only discounted products and sending shoppers directly to licensed dispensaries. The platform stays intentionally narrow in scope to remain simple, compliant, and effective.
               </p>
             </section>
 
