@@ -103,9 +103,9 @@ export default function Footer() {
         {/* Footer Bottom Bar */}
         <div className="border-t border-green-800 pt-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-6 text-sm text-gray-400">
           <div>
-            <p>© 2025 SavrLeaf<sup className="text-[9px] relative -top-[0.25em]">®</sup>. All rights reserved.</p>
+            <p>© 2025 SavrLeaf<sup className="text-[10px] relative -top-[0.5em]">®</sup>. All rights reserved.</p>
             <p className="text-xs mt-1">
-              SavrLeaf<sup className="text-xs align-super">®</sup> is a registered trademark of LumoraSolutionsLLC. Product names and logos are property of their respective owners.
+              SavrLeaf<sup className="text-[9px] relative -top-[0.5em]">®</sup> is a registered trademark of LumoraSolutionsLLC. Product names and logos are property of their respective owners.
             </p>
           </div>
           <div className="text-xs text-gray-500 max-w-md text-left md:text-right">
