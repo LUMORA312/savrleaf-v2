@@ -77,7 +77,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
             className="px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer bg-orange-600 text-white shadow-md"
             onClick={() => {
               if (dispensary.type) {
-                window.open(dispensary.websiteUrl, '_blank');
+                window.open(dispensary.websiteUrl);
               } else {
                 window.open(`https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`, '_blank');
               }
