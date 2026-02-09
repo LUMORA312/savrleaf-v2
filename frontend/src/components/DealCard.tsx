@@ -187,8 +187,17 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                     <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
                     <span className="text-green-600 font-semibold text-lg">${deal.salePrice?.toFixed(2)}</span>
                   </div>
-                  {/* Redirect to dispensary website */}
-                  {typeof deal.dispensary === 'object' && deal.dispensary?.websiteUrl ? (
+                  {/* Redirect to deal purchase link or dispensary website */}
+                  {deal.deal_purchase_link ? (
+                    <a
+                      href={deal.deal_purchase_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
+                    >
+                      Get this deal — Visit {dispensaryName}
+                    </a>
+                  ) : typeof deal.dispensary === 'object' && deal.dispensary?.websiteUrl ? (
                     <a
                       href={deal.dispensary.websiteUrl}
                       target="_blank"

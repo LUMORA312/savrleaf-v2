@@ -158,15 +158,18 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
       <div
         key={deal._id}
         className={`bg-white shadow-lg rounded-2xl p-4 flex flex-col justify-between hover:shadow-xl hover:-translate-y-1 transition-transform duration-200 border border-[#e0e0e0] ${isActive ? 'border-green-500' : 'border-red-500'}`}
-      // Make the entire card clickable to open deal.dispensary.websiteUrl in a new tab
+      // Make the entire card clickable to open deal purchase link or dispensary website in a new tab
       onClick={() => {
-        // Ensure dispensary is an object and websiteUrl is present and non-empty
-        const dispensary = typeof deal?.dispensary === 'object' ? deal.dispensary : null;
-        if (dispensary?.websiteUrl) {
-          window.open(dispensary.websiteUrl, '_blank', 'noopener,noreferrer');
+        if (deal?.deal_purchase_link) {
+          window.open(deal.deal_purchase_link, '_blank', 'noopener,noreferrer');
+        } else {
+          const dispensary = typeof deal?.dispensary === 'object' ? deal.dispensary : null;
+          if (dispensary?.websiteUrl) {
+            window.open(dispensary.websiteUrl, '_blank', 'noopener,noreferrer');
+          }
         }
       }}
-      style={{ cursor: (typeof deal?.dispensary === 'object' && deal.dispensary?.websiteUrl) ? 'pointer' : 'default' }}
+      style={{ cursor: (deal?.deal_purchase_link || (typeof deal?.dispensary === 'object' && deal.dispensary?.websiteUrl)) ? 'pointer' : 'default' }}
       >
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
           <Image
