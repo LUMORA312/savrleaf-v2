@@ -51,7 +51,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         dispensary: typeof initialData.dispensary === 'string'
           ? initialData.dispensary
           : initialData.dispensary?._id || '',
-        deal_purchase_link: initialData.deal_purchase_link || '',
+        deal_purchase_link: initialData?.deal_purchase_link || '',
         startDate: initialData.startDate ? initialData.startDate.slice(0, 10) : '',
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
