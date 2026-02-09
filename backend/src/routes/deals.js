@@ -187,7 +187,8 @@ router.post('/', async (req, res) => {
       strain,
       thcContent,
       subcategory,
-      descriptiveKeywords
+      descriptiveKeywords,
+      deal_purchase_link
     } = req.body;
 
     // const user = await User.findById(userId)
@@ -247,6 +248,7 @@ router.post('/', async (req, res) => {
       strain,
       thcContent,
       descriptiveKeywords: descriptiveKeywords || [],
+      deal_purchase_link,
       isActive: true
     });
 
