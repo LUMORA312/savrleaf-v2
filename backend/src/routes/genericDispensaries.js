@@ -163,6 +163,22 @@ router.post('/upload', authMiddleware, adminMiddleware, upload.single('file'), a
   }
 });
 
+router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, address, licenseNumber, websiteUrl, phoneNumber, email } = req.body;
+    const updated = await GenericDispensary.findByIdAndUpdate(
+      req.params.id,
+      { name, address, licenseNumber, websiteUrl, phoneNumber, email },
+      { new: true, runValidators: true }
+    );
+    if (!updated) return res.status(404).json({ success: false, message: 'Generic dispensary not found' });
+    res.json({ success: true, genericDispensary: updated });
+  } catch (err) {
+    console.error('Error updating generic dispensary:', err);
+    res.status(500).json({ success: false, message: 'Update failed' });
+  }
+});
+
 router.delete('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const d = await GenericDispensary.findByIdAndDelete(req.params.id);

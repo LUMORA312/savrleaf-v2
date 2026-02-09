@@ -66,6 +66,8 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
   const [genericDispensariesLoading, setGenericDispensariesLoading] = useState(false);
   const [genericUploading, setGenericUploading] = useState(false);
   const [genericUploadResult, setGenericUploadResult] = useState<{ imported: number; skipped: number; errors?: string[] } | null>(null);
+  const [editingGenericId, setEditingGenericId] = useState<string | null>(null);
+  const [editingGenericData, setEditingGenericData] = useState<Partial<GenericDispensary>>({});
 
   // Filter deals based on search and filters - MUST be before any early returns
   const filteredDeals = useMemo(() => {
@@ -230,6 +232,39 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
     } finally {
       setGenericUploading(false);
       e.target.value = '';
+    }
+  };
+
+  const handleEditGeneric = (d: GenericDispensary) => {
+    setEditingGenericId(d._id);
+    setEditingGenericData({
+      name: d.name,
+      address: { ...d.address },
+      licenseNumber: d.licenseNumber || '',
+      websiteUrl: d.websiteUrl || '',
+      phoneNumber: d.phoneNumber || '',
+      email: d.email || '',
+    });
+  };
+
+  const handleSaveGeneric = async (id: string) => {
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.put(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries/${id}`,
+        editingGenericData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.data.success) {
+        setGenericDispensaries((prev: GenericDispensary[]) =>
+          prev.map((d: GenericDispensary) => (d._id === id ? res.data.genericDispensary : d))
+        );
+        setEditingGenericId(null);
+        setEditingGenericData({});
+      }
+    } catch (err) {
+      console.error('Failed to update generic dispensary:', err);
+      alert('Failed to save changes.');
     }
   };
 
@@ -1283,20 +1318,120 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             <AdminTable
               data={genericDispensaries}
               columns={[
-                { key: 'name', label: 'Name' },
+                {
+                  key: 'name',
+                  label: 'Name',
+                  render: (d: GenericDispensary) =>
+                    editingGenericId === d._id ? (
+                      <input
+                        type="text"
+                        value={editingGenericData.name || ''}
+                        onChange={(e) => setEditingGenericData((prev) => ({ ...prev, name: e.target.value }))}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      d.name
+                    ),
+                },
                 {
                   key: 'address',
                   label: 'Address',
                   render: (d: GenericDispensary) =>
-                    [d.address?.street1, d.address?.city, d.address?.state, d.address?.zipCode].filter(Boolean).join(', '),
+                    editingGenericId === d._id ? (
+                      <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          placeholder="Street"
+                          value={editingGenericData.address?.street1 || ''}
+                          onChange={(e) => setEditingGenericData((prev) => ({ ...prev, address: { ...prev.address!, street1: e.target.value } }))}
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                        />
+                        <div className="flex gap-1">
+                          <input
+                            type="text"
+                            placeholder="City"
+                            value={editingGenericData.address?.city || ''}
+                            onChange={(e) => setEditingGenericData((prev) => ({ ...prev, address: { ...prev.address!, city: e.target.value } }))}
+                            className="w-1/2 border border-gray-300 rounded px-2 py-1 text-sm"
+                          />
+                          <input
+                            type="text"
+                            placeholder="State"
+                            value={editingGenericData.address?.state || ''}
+                            onChange={(e) => setEditingGenericData((prev) => ({ ...prev, address: { ...prev.address!, state: e.target.value } }))}
+                            className="w-1/4 border border-gray-300 rounded px-2 py-1 text-sm"
+                          />
+                          <input
+                            type="text"
+                            placeholder="Zip"
+                            value={editingGenericData.address?.zipCode || ''}
+                            onChange={(e) => setEditingGenericData((prev) => ({ ...prev, address: { ...prev.address!, zipCode: e.target.value } }))}
+                            className="w-1/4 border border-gray-300 rounded px-2 py-1 text-sm"
+                          />
+                        </div>
+                      </div>
+                    ) : (
+                      [d.address?.street1, d.address?.city, d.address?.state, d.address?.zipCode].filter(Boolean).join(', ')
+                    ),
                 },
                 {
                   key: 'contact',
                   label: 'Contact',
-                  render: (d: GenericDispensary) => d.phoneNumber || d.email || '—',
+                  render: (d: GenericDispensary) =>
+                    editingGenericId === d._id ? (
+                      <div className="flex flex-col gap-1" onClick={(e) => e.stopPropagation()}>
+                        <input
+                          type="text"
+                          placeholder="Phone"
+                          value={editingGenericData.phoneNumber || ''}
+                          onChange={(e) => setEditingGenericData((prev) => ({ ...prev, phoneNumber: e.target.value }))}
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                        />
+                        <input
+                          type="email"
+                          placeholder="Email"
+                          value={editingGenericData.email || ''}
+                          onChange={(e) => setEditingGenericData((prev) => ({ ...prev, email: e.target.value }))}
+                          className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                        />
+                      </div>
+                    ) : (
+                      d.phoneNumber || d.email || '—'
+                    ),
                 },
-                { key: 'licenseNumber', label: 'License', render: (d: GenericDispensary) => d.licenseNumber || '—' },
-                { key: 'websiteUrl', label: 'Website', render: (d: GenericDispensary) => d.websiteUrl ? 'Yes' : '—' },
+                {
+                  key: 'licenseNumber',
+                  label: 'License',
+                  render: (d: GenericDispensary) =>
+                    editingGenericId === d._id ? (
+                      <input
+                        type="text"
+                        value={editingGenericData.licenseNumber || ''}
+                        onChange={(e) => setEditingGenericData((prev) => ({ ...prev, licenseNumber: e.target.value }))}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      d.licenseNumber || '—'
+                    ),
+                },
+                {
+                  key: 'websiteUrl',
+                  label: 'Website',
+                  render: (d: GenericDispensary) =>
+                    editingGenericId === d._id ? (
+                      <input
+                        type="text"
+                        value={editingGenericData.websiteUrl || ''}
+                        onChange={(e) => setEditingGenericData((prev) => ({ ...prev, websiteUrl: e.target.value }))}
+                        onClick={(e) => e.stopPropagation()}
+                        className="w-full border border-gray-300 rounded px-2 py-1 text-sm"
+                      />
+                    ) : (
+                      d.websiteUrl ? 'Yes' : '—'
+                    ),
+                },
                 {
                   key: 'createdAt',
                   label: 'Added',
@@ -1304,17 +1439,50 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                     d.createdAt ? new Date(d.createdAt).toLocaleDateString() : '—',
                 },
               ]}
-              actions={(d) => (
-                <button
-                  className="px-3 py-1 rounded cursor-pointer bg-red-600 text-white text-sm"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    handleDeleteGeneric(d._id);
-                  }}
-                >
-                  Delete
-                </button>
-              )}
+              actions={(d) =>
+                editingGenericId === d._id ? (
+                  <div className="flex gap-2">
+                    <button
+                      className="px-3 py-1 rounded cursor-pointer bg-green-600 hover:bg-green-700 text-white text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleSaveGeneric(d._id);
+                      }}
+                    >
+                      Save
+                    </button>
+                    <button
+                      className="px-3 py-1 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteGeneric(d._id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                    <button
+                      className="px-3 py-1 rounded cursor-pointer bg-gray-400 hover:bg-gray-500 text-white text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setEditingGenericId(null);
+                        setEditingGenericData({});
+                      }}
+                    >
+                      Cancel
+                    </button>
+                  </div>
+                ) : (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleEditGeneric(d);
+                    }}
+                  >
+                    Edit
+                  </button>
+                )
+              }
             />
           )}
         </>
