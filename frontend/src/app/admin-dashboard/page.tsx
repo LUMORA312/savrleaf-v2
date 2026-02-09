@@ -1441,9 +1441,9 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
               ]}
               actions={(d) =>
                 editingGenericId === d._id ? (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-start">
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                      className="px-3 h-8 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSaveGeneric(d._id);
@@ -1452,7 +1452,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                       Save
                     </button>
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                      className="px-3 h-8 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setEditingGenericId(null);
@@ -1463,9 +1463,9 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                     </button>
                   </div>
                 ) : (
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 items-start">
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                      className="px-3 h-8 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleEditGeneric(d);
@@ -1474,7 +1474,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                       Edit
                     </button>
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"
+                      className="px-3 h-8 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleDeleteGeneric(d._id);
