@@ -22,6 +22,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     tags: '',
     images: '', // comma-separated URLs
     dispensary: '',
+    deal_purchase_link: '',
     startDate: '',
     endDate: '',
     manuallyActivated: false,
@@ -50,6 +51,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         dispensary: typeof initialData.dispensary === 'string'
           ? initialData.dispensary
           : initialData.dispensary?._id || '',
+        deal_purchase_link: initialData.deal_purchase_link || '',
         startDate: initialData.startDate ? initialData.startDate.slice(0, 10) : '',
         endDate: initialData.endDate ? initialData.endDate.slice(0, 10) : '',
         manuallyActivated: initialData.manuallyActivated || false,
@@ -76,6 +78,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       tags: '',
       images: '',
       dispensary: '',
+      deal_purchase_link: '',
       startDate: '',
       endDate: '',
       manuallyActivated: false,
@@ -448,6 +451,18 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
             </option>
           ))}
         </select>
+      </div>
+
+      {/* Deal Purchase Link */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Deal Purchase Link</label>
+        <input
+          name="deal_purchase_link"
+          value={form.deal_purchase_link}
+          onChange={handleChange}
+          placeholder="Savrleaf.com"
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"          
+        />
       </div>
 
       {/* Dates */}
