@@ -1443,7 +1443,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                 editingGenericId === d._id ? (
                   <div className="flex gap-2">
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-green-600 hover:bg-green-700 text-white text-sm"
+                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         handleSaveGeneric(d._id);
@@ -1452,16 +1452,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                       Save
                     </button>
                     <button
-                      className="px-3 py-1 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        handleDeleteGeneric(d._id);
-                      }}
-                    >
-                      Delete
-                    </button>
-                    <button
-                      className="px-3 py-1 rounded cursor-pointer bg-gray-400 hover:bg-gray-500 text-white text-sm"
+                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
                       onClick={(e) => {
                         e.stopPropagation();
                         setEditingGenericId(null);
@@ -1472,15 +1463,26 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                     </button>
                   </div>
                 ) : (
-                  <button
-                    className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handleEditGeneric(d);
-                    }}
-                  >
-                    Edit
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      className="px-3 py-1 rounded cursor-pointer bg-orange-500 hover:bg-orange-600 text-white text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleEditGeneric(d);
+                      }}
+                    >
+                      Edit
+                    </button>
+                    <button
+                      className="px-3 py-1 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        handleDeleteGeneric(d._id);
+                      }}
+                    >
+                      Delete
+                    </button>
+                  </div>
                 )
               }
             />
