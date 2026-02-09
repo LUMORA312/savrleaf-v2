@@ -15,6 +15,7 @@ const dealSchema = new mongoose.Schema(
     },
     images: [{ type: String }],
     dispensary: { type: mongoose.Schema.Types.ObjectId, ref: 'Dispensary', required: true },
+    deal_purchase_link: { type: String},
     category: {
       type: String,
       required: true,
