@@ -195,7 +195,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       rel="noopener noreferrer"
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
                     >
-                      Get this deal — Visit {dispensaryName}
+                      Get Deal — Visit {dispensaryName}
                     </a>
                   ) : typeof deal.dispensary === 'object' && deal.dispensary?.websiteUrl ? (
                     <a
@@ -204,14 +204,14 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       rel="noopener noreferrer"
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
                     >
-                      Get this deal — Visit {dispensaryName}
+                      Get Deal — Visit {dispensaryName}
                     </a>
                   ) : typeof deal.dispensary === 'object' && deal.dispensary?._id ? (
                     <a
                       href={`/dispensary/${deal.dispensary._id}`}
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
                     >
-                      View dispensary
+                      Get Deal
                     </a>
                   ) : null}
                 </div>
