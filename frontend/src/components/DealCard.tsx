@@ -206,14 +206,13 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                     >
                       Get Deal — Visit {dispensaryName}
                     </a>
-                  ) : typeof deal.dispensary === 'object' && deal.dispensary?._id ? (
-                    <a
-                      href={`#`}
-                      className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
+                  ) : (
+                    <span
+                      className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white cursor-default"
                     >
                       Get Deal
-                    </a>
-                  ) : null}
+                    </span>
+                  )}
                 </div>
               </div>
             </div>
