@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import axios from 'axios';
 import Image from 'next/image';
 import Link from 'next/link';
@@ -14,7 +14,9 @@ import defaultDispensaryImg from '@/assets/dispensary.jpg';
 export default function DispensaryDetailPage() {
   const params = useParams();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const id = params?.id as string;
+  const showDeals = searchParams.get('showDeals') === 'true';
   const [dispensary, setDispensary] = useState<Dispensary | null>(null);
   const [deals, setDeals] = useState<Deal[]>([]);
   const [loading, setLoading] = useState(true);
@@ -211,48 +213,44 @@ export default function DispensaryDetailPage() {
             </div>
           </div>
 
-          {/* Deals Section */}
-          <div>
-            <h2 className="text-2xl font-bold text-gray-900 mb-6">
-              Deals ({deals.length})
-            </h2>
+          {/* Deals Section - only shown when showDeals=true */}
+          {showDeals && (
+            <div>
+              <h2 className="text-2xl font-bold text-gray-900 mb-6">
+                Deals ({deals.length})
+              </h2>
 
-            {deals.length > 0 ? (
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                {deals.map((deal) => (
-                  <DealCard key={deal._id} deal={deal} />
-                ))}
-              </div>
-            ) : (
-              <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
-                <p className="text-gray-600 text-lg">
-                  {isGeneric ? 'Generic dispensaries do not list deals here.' : 'No deals available at this dispensary at the moment.'}
-                </p>
-                {isGeneric && dispensary.websiteUrl ? (
-                  <a
-                    href={
-                          dispensary.type
-                            ? dispensary.websiteUrl
-                            : `https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`
-                        }
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                  >
-                    Visit Website
-                  </a>
-                ) : (
-                  <div></div>
-                  // <Link
-                  //   href="/"
-                  //   className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
-                  // >
-                  //   Browse All Deals
-                  // </Link>
-                )}
-              </div>
-            )}
-          </div>
+              {deals.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                  {deals.map((deal) => (
+                    <DealCard key={deal._id} deal={deal} />
+                  ))}
+                </div>
+              ) : (
+                <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
+                  <p className="text-gray-600 text-lg">
+                    {isGeneric ? 'Generic dispensaries do not list deals here.' : 'No deals available at this dispensary at the moment.'}
+                  </p>
+                  {isGeneric && dispensary.websiteUrl ? (
+                    <a
+                      href={
+                            dispensary.type
+                              ? dispensary.websiteUrl
+                              : `https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`
+                          }
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                    >
+                      Visit Website
+                    </a>
+                  ) : (
+                    <div></div>
+                  )}
+                </div>
+              )}
+            </div>
+          )}
         </div>
       </main>
       <Footer />
