@@ -42,7 +42,8 @@ export default function DispensaryInfo({ dispensaries, onDispensaryUpdate }: Dis
 
   if (dispensaries.length === 1) {
     const dispensary = dispensaries[0];
-    const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+    // const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+    const imageSrc = defaultDispensaryImg.src;
 
     return (
       <>

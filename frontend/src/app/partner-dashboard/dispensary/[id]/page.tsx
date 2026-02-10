@@ -153,7 +153,8 @@ function DispensaryDetailsContent() {
     );
   }
 
-  const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  // const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  const imageSrc = defaultDispensaryImg.src;
 
   return (
     <DashboardLayout activeTab="dispensary" onTabChange={() => {}}>
