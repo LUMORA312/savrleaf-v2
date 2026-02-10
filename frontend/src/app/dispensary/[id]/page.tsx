@@ -208,6 +208,22 @@ export default function DispensaryDetailPage() {
                       <strong>Amenities:</strong> {dispensary.amenities.join(', ')}
                     </p>
                   )}
+
+                  {(() => {
+                    const destination = dispensary.address.street1
+                      ? `${dispensary.address.street1}, ${dispensary.address.city}, ${dispensary.address.state} ${dispensary.address.zipCode || ''}`
+                      : `${dispensary.address.city}, ${dispensary.address.state}`;
+                    return (
+                      <a
+                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-block mt-4 px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition"
+                      >
+                        Get Directions
+                      </a>
+                    );
+                  })()}
                 </div>
               </div>
             </div>

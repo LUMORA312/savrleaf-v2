@@ -82,7 +82,10 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
               if (dispensary.type) {
                 handleViewDeals();
               } else {
-                window.open(`https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`, '_blank');
+                const destination = dispensary.address.street1
+                  ? `${dispensary.address.street1}, ${dispensary.address.city}, ${dispensary.address.state} ${dispensary.address.zipCode || ''}`
+                  : `${dispensary.address.city}, ${dispensary.address.state}`;
+                window.open(`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(destination)}`, '_blank');
               }
             }}
           >
