@@ -82,7 +82,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
                 window.open(`https://www.google.com/maps/@${Number(dispensary.coordinates.coordinates[1])},${Number(dispensary.coordinates.coordinates[0])},15z`, '_blank');
               }
             }}
-          >
+          > 
             {dispensary.type ? 'View Deals' : 'Get Directions'}
           </button>
         </div>
