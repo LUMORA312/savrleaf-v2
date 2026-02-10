@@ -98,7 +98,8 @@ export default function DispensaryDetailPage() {
     );
   }
 
-  const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  // const imageSrc = dispensary.images?.[0] || defaultDispensaryImg.src;
+  const imageSrc = defaultDispensaryImg.src;
   const isGeneric = (dispensary as { isGeneric?: boolean }).isGeneric;
 
   return (
