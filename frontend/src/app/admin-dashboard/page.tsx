@@ -68,6 +68,16 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
   const [genericUploadResult, setGenericUploadResult] = useState<{ imported: number; skipped: number; errors?: string[] } | null>(null);
   const [editingGenericId, setEditingGenericId] = useState<string | null>(null);
   const [editingGenericData, setEditingGenericData] = useState<Partial<GenericDispensary>>({});
+  const [showAddGenericModal, setShowAddGenericModal] = useState(false);
+  const [newGenericData, setNewGenericData] = useState<Partial<GenericDispensary>>({
+    name: '',
+    address: { street1: '', street2: '', city: '', state: '', zipCode: '' },
+    licenseNumber: '',
+    websiteUrl: '',
+    phoneNumber: '',
+    email: '',
+  });
+  const [addingGeneric, setAddingGeneric] = useState(false);
 
   // Filter deals based on search and filters - MUST be before any early returns
   const filteredDeals = useMemo(() => {
@@ -279,6 +289,39 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
     } catch (err) {
       console.error('Delete generic dispensary failed:', err);
       alert('Failed to delete.');
+    }
+  };
+
+  const handleAddGeneric = async () => {
+    if (!newGenericData.name || !newGenericData.address?.city || !newGenericData.address?.state || !newGenericData.address?.zipCode) {
+      alert('Name, city, state, and zip code are required.');
+      return;
+    }
+    setAddingGeneric(true);
+    try {
+      const token = localStorage.getItem('token');
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/admin/generic-dispensaries`,
+        newGenericData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
+      if (res.data.success) {
+        setGenericDispensaries((prev) => [res.data.genericDispensary, ...prev]);
+        setShowAddGenericModal(false);
+        setNewGenericData({
+          name: '',
+          address: { street1: '', street2: '', city: '', state: '', zipCode: '' },
+          licenseNumber: '',
+          websiteUrl: '',
+          phoneNumber: '',
+          email: '',
+        });
+      }
+    } catch (err: unknown) {
+      const ax = err as { response?: { data?: { message?: string } } };
+      alert(ax.response?.data?.message || 'Failed to add generic dispensary.');
+    } finally {
+      setAddingGeneric(false);
     }
   };
 
@@ -1284,17 +1327,145 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
         <>
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-6">
             <h2 className="text-3xl font-extrabold text-orange-700">Generic Dispensaries</h2>
-            <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 cursor-pointer transition">
-              <input
-                type="file"
-                accept=".csv,.xlsx,.xls"
-                className="hidden"
-                onChange={handleGenericUpload}
-                disabled={genericUploading}
-              />
-              {genericUploading ? 'Uploading…' : 'Upload CSV or Excel'}
-            </label>
+            <div className="flex items-center gap-3">
+              <button
+                onClick={() => setShowAddGenericModal(true)}
+                className="px-4 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 cursor-pointer transition"
+              >
+                + Add Row
+              </button>
+              <label className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 cursor-pointer transition">
+                <input
+                  type="file"
+                  accept=".csv,.xlsx,.xls"
+                  className="hidden"
+                  onChange={handleGenericUpload}
+                  disabled={genericUploading}
+                />
+                {genericUploading ? 'Uploading…' : 'Upload CSV or Excel'}
+              </label>
+            </div>
           </div>
+
+          {/* Add Generic Dispensary Modal */}
+          {showAddGenericModal && (
+            <Modal isOpen={showAddGenericModal} onClose={() => setShowAddGenericModal(false)}>
+              <div className="p-2 space-y-4">
+                <h2 className="text-2xl font-extrabold text-orange-700 mb-4">Add Generic Dispensary</h2>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <input
+                    type="text"
+                    placeholder="Dispensary name"
+                    value={newGenericData.name || ''}
+                    onChange={(e) => setNewGenericData((prev) => ({ ...prev, name: e.target.value }))}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+                  <input
+                    type="text"
+                    placeholder="Street address"
+                    value={newGenericData.address?.street1 || ''}
+                    onChange={(e) => setNewGenericData((prev) => ({ ...prev, address: { ...prev.address!, street1: e.target.value } }))}
+                    className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                  />
+                </div>
+                <div className="grid grid-cols-3 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">City *</label>
+                    <input
+                      type="text"
+                      placeholder="City"
+                      value={newGenericData.address?.city || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, address: { ...prev.address!, city: e.target.value } }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">State *</label>
+                    <input
+                      type="text"
+                      placeholder="State"
+                      value={newGenericData.address?.state || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, address: { ...prev.address!, state: e.target.value } }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Zip Code *</label>
+                    <input
+                      type="text"
+                      placeholder="Zip code"
+                      value={newGenericData.address?.zipCode || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, address: { ...prev.address!, zipCode: e.target.value } }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                    <input
+                      type="text"
+                      placeholder="Phone number"
+                      value={newGenericData.phoneNumber || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, phoneNumber: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+                    <input
+                      type="email"
+                      placeholder="Email"
+                      value={newGenericData.email || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, email: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">License Number</label>
+                    <input
+                      type="text"
+                      placeholder="License number"
+                      value={newGenericData.licenseNumber || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, licenseNumber: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Website URL</label>
+                    <input
+                      type="text"
+                      placeholder="Website URL"
+                      value={newGenericData.websiteUrl || ''}
+                      onChange={(e) => setNewGenericData((prev) => ({ ...prev, websiteUrl: e.target.value }))}
+                      className="w-full border border-gray-300 rounded-lg p-2 focus:border-orange-500 focus:ring focus:ring-orange-200"
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end gap-3 pt-4">
+                  <button
+                    onClick={() => setShowAddGenericModal(false)}
+                    className="px-4 py-2 rounded-lg border border-gray-300 text-gray-600 hover:bg-gray-100 transition cursor-pointer"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    onClick={handleAddGeneric}
+                    disabled={addingGeneric}
+                    className="px-4 py-2 rounded-lg bg-green-600 text-white font-semibold hover:bg-green-700 transition cursor-pointer disabled:bg-gray-400 disabled:cursor-not-allowed"
+                  >
+                    {addingGeneric ? 'Adding…' : 'Add Dispensary'}
+                  </button>
+                </div>
+              </div>
+            </Modal>
+          )}
           {genericUploadResult && (
             <div className="mb-4 p-4 rounded-lg bg-gray-100 border border-gray-200">
               <p className="text-sm text-gray-700">

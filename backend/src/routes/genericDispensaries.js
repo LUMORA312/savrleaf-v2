@@ -163,6 +163,32 @@ router.post('/upload', authMiddleware, adminMiddleware, upload.single('file'), a
   }
 });
 
+router.post('/', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { name, address, licenseNumber, websiteUrl, phoneNumber, email, description } = req.body;
+
+    if (!name || !address?.city || !address?.state || !address?.zipCode) {
+      return res.status(400).json({ success: false, message: 'Name, city, state, and zip code are required' });
+    }
+
+    const created = await GenericDispensary.create({
+      name,
+      address,
+      licenseNumber: licenseNumber || undefined,
+      websiteUrl: websiteUrl || undefined,
+      phoneNumber: phoneNumber || undefined,
+      email: email || undefined,
+      description: description || undefined,
+      amenities: [],
+    });
+
+    res.status(201).json({ success: true, genericDispensary: created });
+  } catch (err) {
+    console.error('Error creating generic dispensary:', err);
+    res.status(500).json({ success: false, message: err.message || 'Failed to create generic dispensary' });
+  }
+});
+
 router.put('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   try {
     const { name, address, licenseNumber, websiteUrl, phoneNumber, email } = req.body;
