@@ -62,7 +62,7 @@ export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpe
           <Link href="/" className="flex items-center" onClick={onClose}>
             <Image src={logo} alt="SavrLeaf Logo" className="h-8 w-auto" priority />
             <span className="ml-3 text-xl font-extrabold text-orange-700 tracking-wide select-none">
-              SavrLeaf<sup className="text-xs align-super">™</sup>
+              SavrLeaf<sup className="text-xs align-super">®</sup>
             </span>
           </Link>
           {/* Close button for mobile */}
