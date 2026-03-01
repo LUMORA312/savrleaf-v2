@@ -91,7 +91,7 @@ export default function HeroSection({
           </p>
 
           <p className="mt-4 text-base sm:text-lg font-medium text-gray-700">
-            Location-based • Only discounted items • No clutter • No sign-up <br />21+.
+            Location-based • Only discounted items • No clutter • No sign-up 21+.
           </p>
         </div>
 
