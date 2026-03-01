@@ -51,7 +51,7 @@ export default function HeroSection({
           sizes="100vw"
         />
       </div> */}
-      
+
       {/* Background gradient overlay for color tint */}
       <div className="absolute inset-0 bg-gradient-to-br from-orange-200/70 via-orange-100/70 to-orange-200/70 z-0" />
 
@@ -79,11 +79,21 @@ export default function HeroSection({
         <div className="flex justify-center mb-4">
           <Image src={logo} alt="SavrLeaf Logo" width={120} height={120} className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
         </div>
-        
+
         {/* Headline — LOCKED: exact copy only */}
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-12 leading-tight text-gray-900 max-w-4xl mx-auto" style={{ lineHeight: "50px" }}>
-          SavrLeafDeals<br/> Find the best cannabis deals near you — instantly.<br />Location-based • Only discounted items • No clutter • No sign-up<br />21+.
-        </h1>
+        <div className="max-w-4xl mb-12 text-left">
+          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 leading-tight">
+            SavrLeafDeals
+          </h1>
+
+          <p className="mt-4 text-xl sm:text-2xl font-semibold text-gray-900">
+            Find the best cannabis deals near you — instantly.
+          </p>
+
+          <p className="mt-4 text-base sm:text-lg font-medium text-gray-700">
+            Location-based • Only discounted items • No clutter • No sign-up <br />21+.
+          </p>
+        </div>
 
         {/* Large location pin icon */}
         <div className="flex justify-center mb-8">
