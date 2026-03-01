@@ -81,8 +81,8 @@ export default function HeroSection({
         </div>
         
         {/* Headline — LOCKED: exact copy only */}
-        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold tracking-tight mb-12 leading-tight text-gray-900 max-w-4xl mx-auto" style={{ lineHeight: "50px" }}>
-          SavrLeafDeals.com<br/> Discounted cannabis deals only.<br />No sign-ups. No logins.<br />21+ only.
+        <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold tracking-tight mb-12 leading-tight text-gray-900 max-w-4xl mx-auto" style={{ lineHeight: "50px" }}>
+          SavrLeafDeals<br/> Find the best cannabis deals near you — instantly.<br />Location-based • Only discounted items • No clutter • No sign-up<br />21+.
         </h1>
 
         {/* Large location pin icon */}
