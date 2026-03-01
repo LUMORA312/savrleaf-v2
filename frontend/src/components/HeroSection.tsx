@@ -85,6 +85,7 @@ export default function HeroSection({
             SavrLeafDeals
           </h1>
 
+
           <p className="mt-4 text-xl sm:text-2xl font-semibold text-gray-900">
             Find the best cannabis deals near you — instantly.
           </p>
