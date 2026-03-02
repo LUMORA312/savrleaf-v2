@@ -152,7 +152,35 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
       ? format(new Date(deal.endDate), 'MMM dd, yyyy')
       : 'N/A';
 
-    const isActive = new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date() && deal.isActive;
+    const isActive =
+      !!deal.isActive &&
+      !!deal.startDate &&
+      !!deal.endDate &&
+      new Date(deal.startDate) <= new Date() &&
+      new Date(deal.endDate) >= new Date();
+
+    const effectiveOriginalPrice =
+      typeof deal.estimatedOriginalPrice === 'number'
+        ? deal.estimatedOriginalPrice
+        : typeof deal.originalPrice === 'number'
+          ? deal.originalPrice
+          : undefined;
+
+    const savingsAmount =
+      typeof deal.estimatedSavings === 'number'
+        ? deal.estimatedSavings
+        : effectiveOriginalPrice && deal.salePrice
+          ? Math.max(0, effectiveOriginalPrice - deal.salePrice)
+          : undefined;
+
+    const savingsPercent =
+      typeof deal.discountTier === 'number'
+        ? deal.discountTier
+        : typeof deal.discountPercent === 'number'
+          ? Math.round(deal.discountPercent)
+          : effectiveOriginalPrice && deal.salePrice && effectiveOriginalPrice > 0
+            ? Math.round((1 - deal.salePrice / effectiveOriginalPrice) * 100)
+            : undefined;
 
     return (
       <div
@@ -197,17 +225,29 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
           </div>
         </div>
 
-        <div className="mt-3 flex justify-between items-center text-sm">
-          <div>
-            {deal.originalPrice && (
-              <span className="line-through text-gray-400 mr-1">
-                ${Number(deal.originalPrice).toFixed(2)}
+        <div className="mt-3 flex justify-between items-end text-sm">
+          <div className="flex flex-col">
+            {typeof effectiveOriginalPrice === 'number' && effectiveOriginalPrice > deal.salePrice && (
+              <span className="text-xs text-gray-400 line-through">
+                Est. price ${effectiveOriginalPrice.toFixed(2)}
               </span>
             )}
             <span className="text-green-600 font-semibold">
               ${Number(deal.salePrice).toFixed(2)}
             </span>
           </div>
+          {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
+            <div className="flex flex-col items-end text-xs text-gray-700">
+              {typeof savingsPercent === 'number' && (
+                <span className="font-semibold text-green-700">
+                  {savingsPercent}% off
+                </span>
+              )}
+              {typeof savingsAmount === 'number' && savingsAmount > 0 && (
+                <span>Save ${savingsAmount.toFixed(2)}</span>
+              )}
+            </div>
+          )}
           
           {/* <div className="mt-2 flex flex-wrap gap-2">
             {accessTypes.map((type: string) => (

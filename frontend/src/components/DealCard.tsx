@@ -33,6 +33,25 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
     distance = calculateDistanceInMiles(userLocation.lat, userLocation.lng, lat, lng);
   }
 
+  const effectiveOriginalPrice =
+    deal.estimatedOriginalPrice ??
+    (typeof deal.originalPrice === 'number' ? deal.originalPrice : undefined);
+
+  const savingsAmount =
+    deal.estimatedSavings ??
+    (effectiveOriginalPrice && deal.salePrice
+      ? Math.max(0, effectiveOriginalPrice - deal.salePrice)
+      : undefined);
+
+  const savingsPercent =
+    typeof deal.discountTier === 'number'
+      ? deal.discountTier
+      : typeof deal.discountPercent === 'number'
+        ? Math.round(deal.discountPercent)
+        : effectiveOriginalPrice && deal.salePrice && effectiveOriginalPrice > 0
+          ? Math.round((1 - deal.salePrice / effectiveOriginalPrice) * 100)
+          : undefined;
+
   // Track deal click event for analytics (ADMIN ONLY - not partner facing)
   const trackDealClick = async () => {
     try {
@@ -82,7 +101,23 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           </div>
 
           {/* Product Name */}
-          <h3 className="text-lg font-bold mb-2 line-clamp-1">{deal.title}</h3>
+          <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title}</h3>
+
+          {/* Value Pill */}
+          {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
+            <div className="flex items-center gap-2 mb-2 flex-wrap">
+              {typeof savingsPercent === 'number' && (
+                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                  {savingsPercent}% off
+                </span>
+              )}
+              {typeof savingsAmount === 'number' && savingsAmount > 0 && (
+                <span className="text-xs font-medium text-green-700">
+                  Save ${savingsAmount.toFixed(2)}
+                </span>
+              )}
+            </div>
+          )}
           
           {/* Strain and THC Level */}
           <div className="flex items-center gap-3 mb-2 flex-wrap justify-between">
@@ -104,10 +139,16 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           )}
 
           {/* Price and Distance */}
-          <div className="mt-auto flex justify-between items-center text-sm">
-            <div>
-              <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
-              <span className="text-green-600 font-semibold">${deal.salePrice?.toFixed(2)}</span>
+          <div className="mt-auto flex justify-between items-end text-sm">
+            <div className="flex flex-col">
+              {typeof effectiveOriginalPrice === 'number' && effectiveOriginalPrice > deal.salePrice && (
+                <span className="text-xs text-gray-400 line-through">
+                  Est. price ${effectiveOriginalPrice.toFixed(2)}
+                </span>
+              )}
+              <span className="text-green-600 font-semibold text-sm">
+                ${deal.salePrice?.toFixed(2)}
+              </span>
             </div>
             {distance !== null && (
               <div className="text-xs text-gray-500 font-medium">
@@ -181,11 +222,31 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                   <p className="text-gray-600"><strong>Distance:</strong> {distance.toFixed(1)} miles</p>
                 )}
                 
-                {/* Price and Access Type */}
+                {/* Price and Value */}
                 <div className="mt-auto flex flex-col gap-3 pt-4 border-t">
-                  <div className="flex justify-between items-center text-sm">
-                    <span className="line-through text-gray-400">${deal.originalPrice?.toFixed(2)}</span>{' '}
-                    <span className="text-green-600 font-semibold text-lg">${deal.salePrice?.toFixed(2)}</span>
+                  <div className="flex items-baseline justify-between gap-3">
+                    <div className="flex flex-col">
+                      {typeof effectiveOriginalPrice === 'number' && effectiveOriginalPrice > deal.salePrice && (
+                        <span className="text-xs text-gray-400 line-through">
+                          Est. price ${effectiveOriginalPrice.toFixed(2)}
+                        </span>
+                      )}
+                      <span className="text-green-600 font-semibold text-lg">
+                        ${deal.salePrice?.toFixed(2)}
+                      </span>
+                    </div>
+                    {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
+                      <div className="flex flex-col items-end text-xs text-gray-700">
+                        {typeof savingsPercent === 'number' && (
+                          <span className="font-semibold text-green-700">
+                            {savingsPercent}% off
+                          </span>
+                        )}
+                        {typeof savingsAmount === 'number' && savingsAmount > 0 && (
+                          <span>Save ${savingsAmount.toFixed(2)}</span>
+                        )}
+                      </div>
+                    )}
                   </div>
                   {/* Redirect to deal purchase link or dispensary website */}
                   {deal.deal_purchase_link ? (

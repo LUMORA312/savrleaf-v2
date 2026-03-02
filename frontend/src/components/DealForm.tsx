@@ -31,6 +31,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     thcContent: 0,
     subcategory: '',
     descriptiveKeywords: [] as string[],
+    discountTier: '' as '' | '10' | '20' | '30' | '40' | '50',
   });
 
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -60,6 +61,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         thcContent: initialData?.thcContent || 0,
         subcategory: initialData?.subcategory || '',
         descriptiveKeywords: initialData?.descriptiveKeywords || [],
+        discountTier: (initialData.discountTier ? String(initialData.discountTier) : '') as '' | '10' | '20' | '30' | '40' | '50',
       });
       setUploadedImages(imageUrls);
       setImagePreviews(imageUrls);
@@ -87,6 +89,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       thcContent: 0,
       subcategory: '',
       descriptiveKeywords: [],
+      discountTier: '',
     });
   };
 
@@ -164,11 +167,22 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     e.preventDefault();
     setFormError('');
 
-    if (Number(form.salePrice) > Number(form.originalPrice)) {
+    if (!form.salePrice) {
+      setFormError('Deal price is required.');
+      return;
+    }
+
+    if (!form.discountTier) {
+      setFormError('Discount tier is required.');
+      return;
+    }
+
+    if (form.originalPrice && Number(form.salePrice) > Number(form.originalPrice)) {
       setFormError('Sale price must be less than or equal to original price.');
       return;
     }
-    if (new Date(form.startDate) > new Date(form.endDate)) {
+
+    if (form.startDate && form.endDate && new Date(form.startDate) > new Date(form.endDate)) {
       setFormError('Start date must be before end date.');
       return;
     }
@@ -177,10 +191,16 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     const manualUrls = form.images.split(',').map((i) => i.trim()).filter(Boolean);
     const allImages = [...uploadedImages, ...manualUrls.filter(url => !uploadedImages.includes(url))];
 
+    if (allImages.length === 0) {
+      setFormError('Please upload at least one deal image or provide an image URL.');
+      return;
+    }
+
     const payload = {
       ...form,
       salePrice: Number(form.salePrice),
-      originalPrice: Number(form.originalPrice),
+      originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
+      discountTier: form.discountTier ? Number(form.discountTier) : undefined,
       tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
       images: allImages,
       manuallyActivated: form.manuallyActivated,
@@ -242,13 +262,12 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
 
       {/* Title */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Title</label>
         <input
           name="title"
           value={form.title}
           onChange={handleChange}
-          placeholder="Deal title"
-          required
+          placeholder="Deal title (optional)"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
       </div>
@@ -268,13 +287,12 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       {/* Category */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">
-          Category *
+          Category
         </label>
         <select
           name="category"
           value={form.category}
           onChange={handleChange}
-          required
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         >
           <option value="" disabled>Select a category</option>
@@ -371,7 +389,9 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Original Price *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">
+            Original Price (optional)
+          </label>
           <input
             name="originalPrice"
             type="number"
@@ -379,10 +399,37 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
             value={form.originalPrice}
             onChange={handleChange}
             placeholder="0.00"
-            required
             className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           />
         </div>
+      </div>
+
+      {/* Discount Tier */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Discount Tier *
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {['10', '20', '30', '40', '50'].map((tier) => (
+            <button
+              key={tier}
+              type="button"
+              onClick={() =>
+                setForm((prev) => ({ ...prev, discountTier: tier as typeof prev.discountTier }))
+              }
+              className={`px-3 py-1 rounded-full text-sm font-semibold border cursor-pointer ${
+                form.discountTier === tier
+                  ? 'bg-green-600 text-white border-green-600'
+                  : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+              }`}
+            >
+              {tier}% off
+            </button>
+          ))}
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Select the closest discount tier for this deal. We’ll estimate the original price from the deal price and discount.
+        </p>
       </div>
 
       {/* Access Type */}
@@ -468,25 +515,23 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       {/* Dates */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Start Date</label>
           <input
             name="startDate"
             type="date"
             value={form.startDate}
             onChange={handleChange}
-            required
             min={new Date().toISOString().split('T')[0]}
             className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">End Date *</label>
+          <label className="block text-sm font-medium text-gray-700 mb-1">End Date</label>
           <input
             name="endDate"
             type="date"
             value={form.endDate}
             onChange={handleChange}
-            required
             min={form.startDate || new Date().toISOString().split('T')[0]}
             className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           />
