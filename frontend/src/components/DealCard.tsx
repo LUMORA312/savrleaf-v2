@@ -16,7 +16,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
   const [isOpen, setIsOpen] = useState(false);
   
   // Use deal images if available, otherwise use category fallback, finally default image
-  const categoryImage = getCategoryImage(deal.category, deal.images);
+  const categoryImage = getCategoryImage(deal.category || 'other', deal.images);
   const imageSrc = categoryImage.startsWith('/') 
     ? categoryImage 
     : (categoryImage || defaultDealImg.src);
@@ -88,7 +88,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           <div className="h-40 w-full rounded-xl overflow-hidden mb-3">
             <Image
               src={imageSrc}
-              alt={deal.title}
+              alt={deal.title || 'Deal'}
               width={400}
               height={160}
               className="h-full w-full object-cover"
@@ -101,7 +101,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           </div>
 
           {/* Product Name */}
-          <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title}</h3>
+          <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title || 'Deal'}</h3>
 
           {/* Value Pill */}
           {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
@@ -174,7 +174,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
               <div className="flex-shrink-0 w-full md:w-1/2 h-64 md:h-auto rounded-xl overflow-hidden">
                 <Image
                   src={imageSrc}
-                  alt={deal.title}
+                  alt={deal.title || 'Deal'}
                   width={600}
                   height={400}
                   className="w-full h-full object-cover"
@@ -187,7 +187,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                 </div>
                 
                 {/* Product Name */}
-                <h2 className="text-2xl font-bold">{deal.title}</h2>
+                <h2 className="text-2xl font-bold">{deal.title || 'Deal'}</h2>
                 
                 {/* Brand */}
                 {deal.brand && <p className="text-gray-600"><strong>Brand:</strong> {deal.brand}</p>}
@@ -196,9 +196,11 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                 {deal.description && <p className="text-gray-600">{deal.description}</p>}
                 
                 {/* Category */}
-                <p className="text-gray-600">
-                  <strong>Category:</strong> {deal.category} {deal.subcategory && `/ ${deal.subcategory}`}
-                </p>
+                {(deal.category || deal.subcategory) && (
+                  <p className="text-gray-600">
+                    <strong>Category:</strong> {deal.category || '—'} {deal.subcategory && `/ ${deal.subcategory}`}
+                  </p>
+                )}
                 
                 {/* Strain */}
                 {deal.strain && (

@@ -7,6 +7,34 @@ import { ensureDealHasImage } from '../utils/defaultCategoryImages.js';
 
 const router = express.Router();
 
+// Spec: deal_price D, discount_pct P = discount_tier/100
+// original_price_est = D/(1-P), savings_amount_est = original_price_est - D, savings_percent = discount_tier
+function attachDealValueFields(deal) {
+  const D = deal.salePrice;
+  const discountTier = deal.discountTier;
+  let original_price_est = deal.originalPrice;
+  if (!original_price_est && typeof discountTier === 'number' && D != null) {
+    const P = discountTier / 100;
+    if (P < 1) original_price_est = Math.round((D / (1 - P)) * 100) / 100;
+  }
+  let savings_amount_est = null;
+  if (original_price_est != null && D != null && original_price_est >= D) {
+    savings_amount_est = Math.round((original_price_est - D) * 100) / 100;
+  }
+  let savings_percent = null;
+  if (typeof discountTier === 'number') {
+    savings_percent = discountTier;
+  } else if (original_price_est && D != null && original_price_est > 0) {
+    savings_percent = Math.round((1 - D / original_price_est) * 100);
+  }
+  return {
+    ...deal,
+    discountPercent: savings_percent,
+    estimatedOriginalPrice: original_price_est ?? null,
+    estimatedSavings: savings_amount_est,
+  };
+}
+
 router.get('/', async (req, res) => {
   try {
     const {
@@ -188,16 +216,19 @@ router.get('/', async (req, res) => {
 
     const now = new Date();
     sortedDeals = sortedDeals
-      .map(deal => deal.toObject())  // plain object
-      .map(deal => ({
-        ...deal,
-        active:
-          deal.manuallyActivated ||
-          (deal.startDate &&
-           deal.endDate &&
-           new Date(deal.startDate) <= now &&
-           new Date(deal.endDate) >= now),
-      }));
+      .map(deal => deal.toObject())
+      .map(deal => {
+        const withActive = {
+          ...deal,
+          active:
+            deal.manuallyActivated ||
+            (deal.startDate &&
+             deal.endDate &&
+             new Date(deal.startDate) <= now &&
+             new Date(deal.endDate) >= now),
+        };
+        return attachDealValueFields(withActive);
+      });
 
 
     res.json({
@@ -344,49 +375,50 @@ router.get('/savings-ticker', async (req, res) => {
       return deal.startDate <= now && deal.endDate >= now;
     });
 
+    // Spec: total_savings = SUM(savings_amount_est), avg_discount = AVERAGE(discount_tier), active_deals = COUNT(active with pricing + tier)
     let totalSavings = 0;
     let totalDiscountPct = 0;
     let discountCount = 0;
+    let activeDealsWithPricingAndTier = 0;
 
     activeDeals.forEach(deal => {
-      let original = deal.originalPrice;
-      if (!original && typeof deal.discountTier === 'number' && deal.salePrice) {
-        const fraction = 1 - deal.discountTier / 100;
-        if (fraction > 0) {
-          original = Math.round((deal.salePrice / fraction) * 100) / 100;
-        }
+      const D = deal.salePrice;
+      const discountTier = deal.discountTier;
+      let original_price_est = deal.originalPrice;
+      if (!original_price_est && typeof discountTier === 'number' && D != null) {
+        const P = discountTier / 100;
+        if (P < 1) original_price_est = Math.round((D / (1 - P)) * 100) / 100;
       }
 
-      if (original && deal.salePrice) {
-        const savings = original - deal.salePrice;
-        if (savings > 0) {
-          totalSavings += savings;
-        }
-      }
+      const savings_amount_est =
+        original_price_est != null && D != null && original_price_est >= D
+          ? Math.round((original_price_est - D) * 100) / 100
+          : 0;
+      if (savings_amount_est > 0) totalSavings += savings_amount_est;
 
       let pct = null;
-      if (typeof deal.discountTier === 'number') {
-        pct = deal.discountTier;
-      } else if (original && deal.salePrice && original > 0) {
-        pct = (1 - deal.salePrice / original) * 100;
+      if (typeof discountTier === 'number') {
+        pct = discountTier;
+      } else if (original_price_est && D != null && original_price_est > 0) {
+        pct = (1 - D / original_price_est) * 100;
       }
 
-      if (pct !== null) {
+      const hasPricingAndTier = D != null && (typeof discountTier === 'number' || (deal.originalPrice != null && deal.originalPrice > 0));
+      if (hasPricingAndTier) activeDealsWithPricingAndTier += 1;
+      if (pct != null) {
         totalDiscountPct += pct;
         discountCount += 1;
       }
     });
 
     const roundedTotalSavings = Math.round(totalSavings * 100) / 100;
-    const avgDiscount = discountCount > 0
-      ? Math.round((totalDiscountPct / discountCount) * 10) / 10
-      : 0;
+    const avgDiscount = discountCount > 0 ? Math.round((totalDiscountPct / discountCount) * 10) / 10 : 0;
 
     res.json({
       success: true,
       totalSavings: roundedTotalSavings,
       avgDiscount,
-      activeDeals: activeDeals.length,
+      activeDeals: activeDealsWithPricingAndTier,
     });
   } catch (err) {
     console.error('Error computing savings ticker:', err);

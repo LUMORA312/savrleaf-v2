@@ -424,7 +424,7 @@ export default function PublicHomepage() {
                     : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Under $10
+                Under $10 <span className="opacity-90 font-normal">(Budget Picks)</span>
               </button>
               <button
                 type="button"
