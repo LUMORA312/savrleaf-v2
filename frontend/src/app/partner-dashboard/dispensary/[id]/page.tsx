@@ -497,7 +497,12 @@ function DispensaryDetailsContent() {
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
               {deals.map((deal) => {
                 const dealImageSrc = deal.images?.[0] || defaultDealImg.src;
-                const isActive = new Date(deal.startDate) <= new Date() && new Date(deal.endDate) >= new Date() && !deal.manuallyActivated;
+                const isActive =
+                  !!deal.startDate &&
+                  !!deal.endDate &&
+                  new Date(deal.startDate) <= new Date() &&
+                  new Date(deal.endDate) >= new Date() &&
+                  !deal.manuallyActivated;
 
                 return (
                   <div
@@ -508,7 +513,7 @@ function DispensaryDetailsContent() {
                     <div className="relative h-48 w-full">
                       <Image
                         src={dealImageSrc}
-                        alt={deal.title}
+                        alt={deal.title || 'Deal'}
                         fill
                         className="object-cover"
                       />
@@ -520,7 +525,7 @@ function DispensaryDetailsContent() {
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
-                        {deal.title}
+                        {deal.title || 'Deal'}
                       </h3>
                       {deal.brand && (
                         <p className="text-sm text-gray-600 mb-2">Brand: {deal.brand}</p>
@@ -536,15 +541,19 @@ function DispensaryDetailsContent() {
                         </span>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-semibold capitalize">
-                          {deal.category}
-                        </span>
+                        {deal.category && (
+                          <span className="px-2 py-1 bg-orange-100 text-orange-700 rounded text-xs font-semibold capitalize">
+                            {deal.category}
+                          </span>
+                        )}
                       </div>
                       <div className="text-xs text-gray-500 mt-2">
-                        <p>
-                          {format(new Date(deal.startDate), 'MMM d, yyyy')} -{' '}
-                          {format(new Date(deal.endDate), 'MMM d, yyyy')}
-                        </p>
+                        {deal.startDate && deal.endDate && (
+                          <p>
+                            {format(new Date(deal.startDate), 'MMM d, yyyy')} -{' '}
+                            {format(new Date(deal.endDate), 'MMM d, yyyy')}
+                          </p>
+                        )}
                       </div>
                     </div>
                   </div>
