@@ -202,7 +202,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
           <Image
             src={deal.images?.[0] || defaultDealImg.src}
-            alt={deal.title}
+            alt={deal.title || 'Deal'}
             width={400}
             height={160}
             className="h-full w-full object-cover"
@@ -211,7 +211,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
 
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold mb-1">{deal.title}</h3>
+            <h3 className="text-lg font-bold mb-1">{deal.title || 'Deal'}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{deal.description}</p>
           </div>
           <div>
