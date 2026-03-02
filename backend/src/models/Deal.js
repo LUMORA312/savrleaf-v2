@@ -4,11 +4,11 @@ import { ensureDealHasImage } from '../utils/defaultCategoryImages.js';
 
 const dealSchema = new mongoose.Schema(
   {
-    title: { type: String, required: true },
+    title: { type: String },
     brand: { type: String },
     tags: [String],
     description: { type: String },
-    originalPrice: { type: Number, required: true },
+    originalPrice: { type: Number },
     salePrice: {
       type: Number,
       required: true,
@@ -18,7 +18,6 @@ const dealSchema = new mongoose.Schema(
     deal_purchase_link: { type: String},
     category: {
       type: String,
-      required: true,
       enum: ['flower', 'edibles', 'concentrates', 'vapes', 'topicals', 'other', 'pre-roll', 'tincture', 'beverage', 'capsule/pill'],
       lowercase: true
     },
@@ -34,7 +33,6 @@ const dealSchema = new mongoose.Schema(
     },
     strain: {
       type: String,
-      required: true,
       enum: ["indica", "indica-dominant hybrid", "hybrid", "sativa-dominant hybrid", "sativa"],
       lowercase: true
     },
@@ -50,10 +48,9 @@ const dealSchema = new mongoose.Schema(
     },
     startDate: {
       type: Date,
-      required: true,
       validate: {
         validator: function (value) {
-          if (!value) return false;
+          if (!value) return true;
 
           const inputDate = new Date(value);
           const today = new Date();
@@ -70,11 +67,23 @@ const dealSchema = new mongoose.Schema(
         message: 'Start date must be today or in the future',
       },
     },
-    endDate: { type: Date, required: true },
+    endDate: { type: Date },
     slug: { type: String },
     manuallyActivated: { type: Boolean, default: false },
     isActive: { type: Boolean, default: false },
     isPurchased: { type: Boolean, default: false },
+    discountTier: {
+      type: Number,
+      min: 10,
+      max: 50,
+      validate: {
+        validator: function (value) {
+          if (value === undefined || value === null) return true;
+          return value % 10 === 0;
+        },
+        message: 'Discount tier must be in 10% increments between 10 and 50',
+      },
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
@@ -84,14 +93,46 @@ dealSchema.virtual('savings').get(function () {
   return this.originalPrice - this.salePrice;
 });
 
+dealSchema.virtual('discountPercent').get(function () {
+  if (typeof this.discountTier === 'number') {
+    return this.discountTier;
+  }
+  if (this.originalPrice && this.salePrice && this.originalPrice > 0) {
+    const pct = (1 - this.salePrice / this.originalPrice) * 100;
+    return Math.round(pct);
+  }
+  return null;
+});
+
+dealSchema.virtual('estimatedOriginalPrice').get(function () {
+  if (this.originalPrice) return this.originalPrice;
+  if (this.salePrice && typeof this.discountTier === 'number') {
+    const fraction = 1 - this.discountTier / 100;
+    if (fraction <= 0) return null;
+    const est = this.salePrice / fraction;
+    return Math.round(est * 100) / 100;
+  }
+  return null;
+});
+
+dealSchema.virtual('estimatedSavings').get(function () {
+  const original = this.estimatedOriginalPrice ?? this.originalPrice;
+  if (original && this.salePrice) {
+    const savings = original - this.salePrice;
+    return Math.round(savings * 100) / 100;
+  }
+  return null;
+});
+
 dealSchema.virtual('isExpired').get(function () {
+  if (!this.endDate) return false;
   return new Date() > this.endDate;
 });
 
 dealSchema.virtual('isCurrentlyActive').get(function () {
   const now = new Date();
   return (
-    (this.manuallyActivated || (now >= this.startDate && now <= this.endDate)) &&
+    (this.manuallyActivated || (this.startDate && this.endDate && now >= this.startDate && now <= this.endDate)) &&
     !this.isExpired
   );
 });
@@ -141,7 +182,7 @@ dealSchema.pre('save', function (next) {
 
 // Custom validation: startDate must be before endDate
 dealSchema.pre('validate', function (next) {
-  if (this.startDate >= this.endDate) {
+  if (this.startDate && this.endDate && this.startDate >= this.endDate) {
     this.invalidate('startDate', 'Start date must be before end date');
   }
   next();
@@ -149,7 +190,7 @@ dealSchema.pre('validate', function (next) {
 
 // Custom validation: salePrice must be <= originalPrice
 dealSchema.pre('validate', function (next) {
-  if (this.salePrice > this.originalPrice) {
+  if (this.salePrice && this.originalPrice && this.salePrice > this.originalPrice) {
     this.invalidate('salePrice', 'Sale price must be less than or equal to original price');
   }
   next();

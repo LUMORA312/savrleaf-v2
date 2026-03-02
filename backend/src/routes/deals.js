@@ -25,7 +25,8 @@ router.get('/', async (req, res) => {
       accessType,
       thcMin,
       thcMax,
-      strain
+      strain,
+      maxSalePrice,
     } = req.query;
 
     const filters = {};
@@ -96,6 +97,13 @@ router.get('/', async (req, res) => {
       }
     }
 
+    if (maxSalePrice) {
+      const max = Number(maxSalePrice);
+      if (!Number.isNaN(max)) {
+        filters.salePrice = { ...(filters.salePrice || {}), $lte: max };
+      }
+    }
+
     if (search) {
       filters.$or = [
         { title: { $regex: search, $options: 'i' } },
@@ -139,18 +147,57 @@ router.get('/', async (req, res) => {
       });
     }
 
+    // Value-based sorts applied after fetching
+    if (sortBy === 'best_value') {
+      sortedDeals = sortedDeals.slice().sort((a, b) => {
+        const aPct = typeof a.discountTier === 'number'
+          ? a.discountTier
+          : (a.originalPrice && a.salePrice && a.originalPrice > 0
+            ? (1 - a.salePrice / a.originalPrice) * 100
+            : 0);
+        const bPct = typeof b.discountTier === 'number'
+          ? b.discountTier
+          : (b.originalPrice && b.salePrice && b.originalPrice > 0
+            ? (1 - b.salePrice / b.originalPrice) * 100
+            : 0);
+        return (bPct || 0) - (aPct || 0);
+      });
+    } else if (sortBy === 'biggest_savings') {
+      sortedDeals = sortedDeals.slice().sort((a, b) => {
+        const aOrig = a.originalPrice || (typeof a.discountTier === 'number'
+          ? a.salePrice / (1 - a.discountTier / 100)
+          : 0);
+        const bOrig = b.originalPrice || (typeof b.discountTier === 'number'
+          ? b.salePrice / (1 - b.discountTier / 100)
+          : 0);
+        const aSavings = aOrig && a.salePrice ? aOrig - a.salePrice : 0;
+        const bSavings = bOrig && b.salePrice ? bOrig - b.salePrice : 0;
+        return bSavings - aSavings;
+      });
+    } else if (sortBy === 'trending') {
+      // Trending currently falls back to newest; engagement-based ordering is handled elsewhere.
+      sortedDeals = sortedDeals.slice().sort((a, b) => {
+        const aCreated = a.createdAt ? new Date(a.createdAt).getTime() : 0;
+        const bCreated = b.createdAt ? new Date(b.createdAt).getTime() : 0;
+        return bCreated - aCreated;
+      });
+    }
+
     const countFilters = { ...filters };
     const totalCount = await Deal.countDocuments(countFilters);
 
+    const now = new Date();
     sortedDeals = sortedDeals
-    .map(deal => deal.toObject())  // plain object
-    .map(deal => ({
-      ...deal,
-      active:
-        deal.manuallyActivated ||
-        (new Date(deal.startDate) <= new Date() &&
-         new Date(deal.endDate) >= new Date())
-    }));
+      .map(deal => deal.toObject())  // plain object
+      .map(deal => ({
+        ...deal,
+        active:
+          deal.manuallyActivated ||
+          (deal.startDate &&
+           deal.endDate &&
+           new Date(deal.startDate) <= now &&
+           new Date(deal.endDate) >= now),
+      }));
 
 
     res.json({
@@ -188,7 +235,8 @@ router.post('/', async (req, res) => {
       thcContent,
       subcategory,
       descriptiveKeywords,
-      deal_purchase_link
+      deal_purchase_link,
+      discountTier,
     } = req.body;
 
     // const user = await User.findById(userId)
@@ -232,10 +280,20 @@ router.post('/', async (req, res) => {
     // Ensure deal has at least one image (use default category image if none provided)
     const dealImages = ensureDealHasImage(images, category);
 
+    // Compute original price from sale price and discount tier when needed
+    let effectiveOriginalPrice = originalPrice;
+    if (!effectiveOriginalPrice && typeof discountTier === 'number' && salePrice) {
+      const fraction = 1 - discountTier / 100;
+      if (fraction > 0) {
+        const est = salePrice / fraction;
+        effectiveOriginalPrice = Math.round(est * 100) / 100;
+      }
+    }
+
     const newDeal = new Deal({
       title,
       description,
-      originalPrice,
+      originalPrice: effectiveOriginalPrice,
       salePrice,
       category,
       subcategory,
@@ -249,7 +307,8 @@ router.post('/', async (req, res) => {
       thcContent,
       descriptiveKeywords: descriptiveKeywords || [],
       deal_purchase_link,
-      isActive: true
+      isActive: true,
+      discountTier,
     });
 
     const savedDeal = await newDeal.save();
@@ -260,6 +319,77 @@ router.post('/', async (req, res) => {
 
   } catch (err) {
     console.error('Error creating deal:', err);
+    res.status(500).json({ success: false, message: 'Internal server error' });
+  }
+});
+
+// Savings ticker: aggregate savings and discount from active deals
+router.get('/savings-ticker', async (req, res) => {
+  try {
+    const now = new Date();
+
+    const deals = await Deal.find({
+      $or: [
+        { manuallyActivated: true },
+        {
+          startDate: { $lte: now },
+          endDate: { $gte: now },
+        },
+      ],
+    }).select('salePrice originalPrice discountTier manuallyActivated startDate endDate');
+
+    const activeDeals = deals.filter(deal => {
+      if (deal.manuallyActivated) return true;
+      if (!deal.startDate || !deal.endDate) return false;
+      return deal.startDate <= now && deal.endDate >= now;
+    });
+
+    let totalSavings = 0;
+    let totalDiscountPct = 0;
+    let discountCount = 0;
+
+    activeDeals.forEach(deal => {
+      let original = deal.originalPrice;
+      if (!original && typeof deal.discountTier === 'number' && deal.salePrice) {
+        const fraction = 1 - deal.discountTier / 100;
+        if (fraction > 0) {
+          original = Math.round((deal.salePrice / fraction) * 100) / 100;
+        }
+      }
+
+      if (original && deal.salePrice) {
+        const savings = original - deal.salePrice;
+        if (savings > 0) {
+          totalSavings += savings;
+        }
+      }
+
+      let pct = null;
+      if (typeof deal.discountTier === 'number') {
+        pct = deal.discountTier;
+      } else if (original && deal.salePrice && original > 0) {
+        pct = (1 - deal.salePrice / original) * 100;
+      }
+
+      if (pct !== null) {
+        totalDiscountPct += pct;
+        discountCount += 1;
+      }
+    });
+
+    const roundedTotalSavings = Math.round(totalSavings * 100) / 100;
+    const avgDiscount = discountCount > 0
+      ? Math.round((totalDiscountPct / discountCount) * 10) / 10
+      : 0;
+
+    res.json({
+      success: true,
+      totalSavings: roundedTotalSavings,
+      avgDiscount,
+      activeDeals: activeDeals.length,
+    });
+  } catch (err) {
+    console.error('Error computing savings ticker:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });
   }
 });

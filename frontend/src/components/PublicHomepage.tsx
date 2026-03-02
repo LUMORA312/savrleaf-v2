@@ -38,6 +38,8 @@ export default function PublicHomepage() {
   const [userLocation, setUserLocation] = useState<GeolocationCoordinates | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [zipCoordinates, setZipCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
+  const [valueSort, setValueSort] = useState<'bestValue' | 'biggestSavings' | 'under10' | 'trending' | ''>('');
+  const [ticker, setTicker] = useState<{ totalSavings: number; avgDiscount: number; activeDeals: number } | null>(null);
 
   // Geolocation
   useEffect(() => {
@@ -108,18 +110,32 @@ export default function PublicHomepage() {
           }
         }
 
-        // Add sorting
-        if (filters.sortBy === 'priceAsc') {
-          params.sortBy = 'price_asc';
-        } else if (filters.sortBy === 'priceDesc') {
-          params.sortBy = 'price_desc';
-        } else if (filters.sortBy === 'newest') {
-          params.sortBy = 'newest';
-        } else if (currentLocation && filters.radius && Number(filters.radius) > 0) {
-          params.sortBy = 'distance';
+        // Add value-based filters/sorts
+        if (valueSort === 'bestValue') {
+          params.sortBy = 'best_value';
+        } else if (valueSort === 'biggestSavings') {
+          params.sortBy = 'biggest_savings';
+        } else if (valueSort === 'trending') {
+          params.sortBy = 'trending';
+        } else {
+          // Standard sorting
+          if (filters.sortBy === 'priceAsc') {
+            params.sortBy = 'price_asc';
+          } else if (filters.sortBy === 'priceDesc') {
+            params.sortBy = 'price_desc';
+          } else if (filters.sortBy === 'newest') {
+            params.sortBy = 'newest';
+          } else if (currentLocation && filters.radius && Number(filters.radius) > 0) {
+            params.sortBy = 'distance';
+          }
         }
 
-        if(!Object.keys(params).length) return;
+        // Under $10 / Budget Picks
+        if (valueSort === 'under10') {
+          params.maxSalePrice = 10;
+        }
+
+        if (!Object.keys(params).length) return;
 
         const dealsRes = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals`, { params });
         console.log(">>>>", params);
@@ -133,7 +149,7 @@ export default function PublicHomepage() {
     };
 
     fetchDeals();
-  }, [filters, currentLocation]);
+  }, [filters, currentLocation, valueSort]);
 
   // Reset dispensary page to 1 when search, radius, or location changes
   const prevDispensaryFilterRef = useRef('');
@@ -243,6 +259,30 @@ export default function PublicHomepage() {
     }));
   };
 
+  // Savings ticker
+  useEffect(() => {
+    const fetchTicker = async () => {
+      try {
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals/savings-ticker`);
+        if (res.data?.success) {
+          setTicker({
+            totalSavings: res.data.totalSavings ?? 0,
+            avgDiscount: res.data.avgDiscount ?? 0,
+            activeDeals: res.data.activeDeals ?? 0,
+          });
+        }
+      } catch (err) {
+        console.error('Failed to fetch savings ticker:', err);
+        setTicker(null);
+      }
+    };
+
+    fetchTicker();
+
+    const interval = setInterval(fetchTicker, 15 * 60 * 1000);
+    return () => clearInterval(interval);
+  }, []);
+
   return (
     <div>
       <HeroSection
@@ -254,6 +294,32 @@ export default function PublicHomepage() {
         handleZipCodeChange={(e) => setZipCode(e.target.value)}
         handleSearch={handleSearch}
       />
+
+      {/* Savings Ticker */}
+      <section className="bg-white border-y border-orange-100">
+        <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
+          <div className="flex flex-wrap gap-3">
+            <span className="font-semibold text-gray-900">
+              Total Savings Available Today:{' '}
+              <span className="text-green-700">
+                ${ticker ? ticker.totalSavings.toFixed(2) : '0.00'}
+              </span>
+            </span>
+            <span className="font-semibold text-gray-900">
+              Avg Discount:{' '}
+              <span className="text-orange-700">
+                {ticker ? `${ticker.avgDiscount.toFixed(1)}%` : '0.0%'}
+              </span>
+            </span>
+          </div>
+          <div className="text-gray-700">
+            Active Deals:{' '}
+            <span className="font-semibold text-gray-900">
+              {ticker ? ticker.activeDeals : 0}
+            </span>
+          </div>
+        </div>
+      </section>
 
       {/* How It Works Section */}
       <section id="how-it-works" className="bg-white py-16 px-6">
@@ -296,30 +362,80 @@ export default function PublicHomepage() {
       {/* View Toggle - Only show for deals tab */}
       {activeTab === 'deal' && (
         <div className="max-w-7xl mx-auto px-6 mb-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-gray-800">
-              {loading ? 'Loading...' : `${deals.length} ${deals.length === 1 ? 'Deal' : 'Deals'} Found`}
-            </h2>
-            <div className="flex space-x-2 bg-gray-100 rounded-lg p-1">
+          <div className="flex flex-col gap-3">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+              <h2 className="text-xl font-semibold text-gray-800">
+                {loading ? 'Loading...' : `${deals.length} ${deals.length === 1 ? 'Deal' : 'Deals'} Found`}
+              </h2>
+              <div className="flex space-x-2 bg-gray-100 rounded-lg p-1">
+                <button
+                  onClick={() => setViewMode('list')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                    viewMode === 'list'
+                      ? 'bg-white text-orange-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  List View
+                </button>
+                <button
+                  onClick={() => setViewMode('map')}
+                  className={`px-4 py-2 rounded-md text-sm font-medium transition ${
+                    viewMode === 'map'
+                      ? 'bg-white text-orange-600 shadow-sm'
+                      : 'text-gray-600 hover:text-gray-800'
+                  }`}
+                >
+                  Map View 
+                </button>
+              </div>
+            </div>
+
+            {/* Value Buttons */}
+            <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => setViewMode('list')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                  viewMode === 'list'
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                type="button"
+                onClick={() => setValueSort(valueSort === 'bestValue' ? '' : 'bestValue')}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
+                  valueSort === 'bestValue'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                List View
+                Best Value
               </button>
               <button
-                onClick={() => setViewMode('map')}
-                className={`px-4 py-2 rounded-md text-sm font-medium transition ${
-                  viewMode === 'map'
-                    ? 'bg-white text-orange-600 shadow-sm'
-                    : 'text-gray-600 hover:text-gray-800'
+                type="button"
+                onClick={() => setValueSort(valueSort === 'biggestSavings' ? '' : 'biggestSavings')}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
+                  valueSort === 'biggestSavings'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Map View 
+                Biggest Savings
+              </button>
+              <button
+                type="button"
+                onClick={() => setValueSort(valueSort === 'under10' ? '' : 'under10')}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
+                  valueSort === 'under10'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Under $10
+              </button>
+              <button
+                type="button"
+                onClick={() => setValueSort(valueSort === 'trending' ? '' : 'trending')}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
+                  valueSort === 'trending'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Trending Deals
               </button>
             </div>
           </div>

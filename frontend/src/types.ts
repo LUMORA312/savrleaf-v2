@@ -86,6 +86,11 @@ export interface Deal {
   cbdContent?: number;
   deal_purchase_link?: string;
   isActive: boolean;
+  discountTier?: number;
+  discountPercent?: number | null;
+  estimatedOriginalPrice?: number | null;
+  estimatedSavings?: number | null;
+  active?: boolean;
   createdAt?: string;
   updatedAt?: string;
 }
