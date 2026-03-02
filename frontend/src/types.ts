@@ -66,19 +66,19 @@ export interface Dispensary {
 
 export interface Deal {
   _id: string;
-  title: string;
+  title?: string;
   brand?: string;
   tags: string[];
   description?: string;
-  originalPrice: number;
+  originalPrice?: number;
   salePrice: number;
   images: string[];
   dispensary: Dispensary | string;
-  startDate: string;
-  endDate: string;
+  startDate?: string;
+  endDate?: string;
   slug?: string;
   manuallyActivated: boolean;
-  category: 'flower' | 'edibles' | 'concentrates' | 'vapes' | 'topicals' | 'pre-roll' | 'tincture' | 'beverage' | 'capsule/pill' | 'other';
+  category?: 'flower' | 'edibles' | 'concentrates' | 'vapes' | 'topicals' | 'pre-roll' | 'tincture' | 'beverage' | 'capsule/pill' | 'other';
   subcategory?: string; // For Flower: 'ground-flower', 'baby-buds-popcorn', or custom
   descriptiveKeywords?: string[]; // e.g., 'relaxing', 'focused', 'uplifting', 'calming', etc.
   strain?: "indica" | "indica-dominant hybrid" | "hybrid" | "sativa-dominant hybrid" | "sativa";

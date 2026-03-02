@@ -252,10 +252,13 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </h4>
         <div className="text-sm text-blue-800 space-y-2">
           <div>
-            <strong>Discount-Only Rule:</strong> Sale price must be less than original price. Only discounted deals are accepted.
+            <strong>Required:</strong> Only <strong>Photo</strong>, <strong>Deal Price</strong>, and <strong>Discount Tier</strong> are required. All other fields are optional.
           </div>
           <div>
-            <strong>Image Upload Tips:</strong> Upload high-quality product images. You can upload multiple images or enter image URLs manually. Images help customers find your deals faster.
+            <strong>Discount:</strong> We’ll show “X% off” and “Save $X” from your deal price and chosen tier. Do not label any derived original as “regular price”; we display it as “Est. price” when shown.
+          </div>
+          <div>
+            <strong>Image:</strong> Upload at least one deal image or paste an image URL. You can add more images or fill optional details (title, category, dates, etc.) if you like.
           </div>
         </div>
       </div>
