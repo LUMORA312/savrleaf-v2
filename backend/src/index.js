@@ -20,6 +20,7 @@ import createExtraPlanSessionRouter from '../src/routes/create-extra-plan-sessio
 import stripeWebhookRouter from '../src/routes/stripe-webhook.js';
 import uploadRouter from '../src/routes/upload.js';
 import analyticsRouter from '../src/routes/analytics.js';
+import cryptoRouter from '../src/routes/crypto.js';
 import maintenanceModeRouter from '../src/routes/maintenanceMode.js';
 import maintenanceModeMiddleware from '../src/middleware/maintenanceModeMiddleware.js';
 import './models/Application.js';
@@ -110,6 +111,7 @@ app.use('/api/create-subscription-session', createSubscriptionSessionRouter);
 app.use('/api/create-extra-plan-session', createExtraPlanSessionRouter);
 app.use('/api/upload', uploadRouter);
 app.use('/api/analytics', analyticsRouter);
+app.use('/api/crypto', cryptoRouter);
 
 app.get('/', (req, res) => res.send('Backend is running'));
 
