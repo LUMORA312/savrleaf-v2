@@ -48,6 +48,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     sizeOrStrength: '',
   });
 
+  const [sizeManualEntry, setSizeManualEntry] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
@@ -80,6 +81,11 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       });
       setUploadedImages(imageUrls);
       setImagePreviews(imageUrls);
+      // Check if existing sizeOrStrength matches a preset option
+      const cat = initialData?.category || '';
+      const presets = SIZE_OPTIONS[cat] || [];
+      const val = initialData?.sizeOrStrength || '';
+      setSizeManualEntry(val !== '' && presets.length > 0 && !presets.includes(val));
     }
   }, [initialData]);
 
@@ -107,6 +113,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       discountTier: '',
       sizeOrStrength: '',
     });
+    setSizeManualEntry(false);
   };
 
   const handleChange = (
@@ -115,6 +122,13 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     const { name, value, type } = e.target;
 
     const fieldValue = type === 'checkbox' ? (e.target as HTMLInputElement).checked : value;
+
+    // Reset size selection when category changes
+    if (name === 'category') {
+      setSizeManualEntry(false);
+      setForm((prev: typeof form) => ({ ...prev, category: value, sizeOrStrength: '' }));
+      return;
+    }
 
     setForm((prev) => ({
       ...prev,
@@ -462,19 +476,20 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         <label className="block text-sm font-medium text-gray-700 mb-1">Size / Strength *</label>
         {(() => {
           const options = SIZE_OPTIONS[form.category] || [];
-          const isOther = form.sizeOrStrength !== '' && !options.includes(form.sizeOrStrength);
-          const showManualInput = options.length === 0 || isOther;
+          const hasPresets = options.length > 0;
 
           return (
             <>
-              {options.length > 0 && (
+              {hasPresets && (
                 <select
-                  value={isOther ? '__other__' : form.sizeOrStrength}
+                  value={sizeManualEntry ? '__other__' : (options.includes(form.sizeOrStrength) ? form.sizeOrStrength : '')}
                   onChange={(e) => {
                     const val = e.target.value;
                     if (val === '__other__') {
+                      setSizeManualEntry(true);
                       setForm((prev) => ({ ...prev, sizeOrStrength: '' }));
                     } else {
+                      setSizeManualEntry(false);
                       setForm((prev) => ({ ...prev, sizeOrStrength: val }));
                     }
                   }}
@@ -487,13 +502,13 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
                   <option value="__other__">Other (manual entry)</option>
                 </select>
               )}
-              {showManualInput && (
+              {(!hasPresets || sizeManualEntry) && (
                 <input
                   name="sizeOrStrength"
-                  value={isOther || options.length === 0 ? form.sizeOrStrength : ''}
+                  value={form.sizeOrStrength}
                   onChange={handleChange}
                   placeholder="e.g. 3.5g, 100mg, 0.5g x 10 pack, 30ml"
-                  className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg mt-2"
+                  className={`border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg ${hasPresets ? 'mt-2' : ''}`}
                 />
               )}
             </>
