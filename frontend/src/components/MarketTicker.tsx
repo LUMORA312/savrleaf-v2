@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState, useMemo } from 'react';
+import { useEffect, useState, useMemo, useRef, useCallback } from 'react';
 import { TickerData } from '@/types';
 
 interface CryptoPrices {
@@ -21,7 +21,8 @@ interface TickerItem {
 
 export default function MarketTicker({ ticker }: MarketTickerProps) {
   const [cryptoPrices, setCryptoPrices] = useState<CryptoPrices | null>(null);
-  const [mobileIndex, setMobileIndex] = useState(0);
+  const mobileScrollRef = useRef<HTMLDivElement>(null);
+  const autoScrollPaused = useRef(false);
 
   // Fetch crypto prices from CoinAPI.io
   useEffect(() => {
@@ -126,13 +127,43 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     return list;
   }, [ticker, cryptoPrices]);
 
-  // Mobile: auto-rotate every 4s
+  // Mobile: auto-scroll swipe cards every 5s, pauses while user is touching
+  const resumeTimeout = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  const handleTouchStart = useCallback(() => {
+    autoScrollPaused.current = true;
+    if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+  }, []);
+
+  const handleTouchEnd = useCallback(() => {
+    resumeTimeout.current = setTimeout(() => {
+      autoScrollPaused.current = false;
+    }, 3000);
+  }, []);
+
   useEffect(() => {
     if (items.length <= 1) return;
     const timer = setInterval(() => {
-      setMobileIndex((prev) => (prev + 1) % items.length);
-    }, 4000);
-    return () => clearInterval(timer);
+      if (autoScrollPaused.current) return;
+      const container = mobileScrollRef.current;
+      if (!container) return;
+
+      const maxScroll = container.scrollWidth - container.clientWidth;
+      if (maxScroll <= 0) return;
+
+      if (container.scrollLeft >= maxScroll - 4) {
+        container.scrollTo({ left: 0, behavior: 'smooth' });
+      } else {
+        const card = container.firstElementChild as HTMLElement | null;
+        const cardWidth = card?.offsetWidth || 150;
+        container.scrollBy({ left: cardWidth + 12, behavior: 'smooth' });
+      }
+    }, 5000);
+
+    return () => {
+      clearInterval(timer);
+      if (resumeTimeout.current) clearTimeout(resumeTimeout.current);
+    };
   }, [items.length]);
 
   if (items.length === 0) return null;
@@ -158,21 +189,28 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
         </div>
       </div>
 
-      {/* Mobile: fade rotation */}
-      <div className="flex md:hidden items-center justify-center h-full px-4">
-        {items.map((item, i) => (
-          <span
-            key={item.key}
-            className={`absolute flex items-center gap-1.5 text-xs font-medium transition-opacity duration-500 ${
-              i === mobileIndex ? 'opacity-100' : 'opacity-0'
-            }`}
-          >
-            <span className="text-gray-400">{item.label}</span>
-            {item.value && (
-              <span className={`font-bold ${item.valueColor || 'text-white'}`}>{item.value}</span>
-            )}
-          </span>
-        ))}
+      {/* Mobile: horizontal swipe cards */}
+      <div className="flex md:hidden items-center h-full">
+        <div
+          ref={mobileScrollRef}
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
+          className="flex gap-3 overflow-x-auto no-scrollbar snap-x snap-mandatory px-4 h-full items-center w-full"
+        >
+          {items.map((item) => (
+            <div
+              key={item.key}
+              className="snap-start shrink-0 flex items-center gap-1.5 bg-gray-800/60 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium border border-gray-700/40"
+            >
+              <span className="text-gray-400 whitespace-nowrap">{item.label}</span>
+              {item.value && (
+                <span className={`font-bold whitespace-nowrap ${item.valueColor || 'text-white'}`}>
+                  {item.value}
+                </span>
+              )}
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
