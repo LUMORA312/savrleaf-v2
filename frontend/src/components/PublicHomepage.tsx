@@ -293,33 +293,8 @@ export default function PublicHomepage() {
         zipCode={zipCode}
         handleZipCodeChange={(e) => setZipCode(e.target.value)}
         handleSearch={handleSearch}
+        ticker={ticker}
       />
-
-      {/* Savings Ticker */}
-      <section className="bg-white border-y border-orange-100">
-        <div className="max-w-7xl mx-auto px-6 py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-sm">
-          <div className="flex flex-wrap gap-3">
-            <span className="font-semibold text-gray-900">
-              Total Savings Available Today:{' '}
-              <span className="text-green-700">
-                ${ticker ? ticker.totalSavings.toFixed(2) : '0.00'}
-              </span>
-            </span>
-            <span className="font-semibold text-gray-900">
-              Avg Discount:{' '}
-              <span className="text-orange-700">
-                {ticker ? `${ticker.avgDiscount.toFixed(1)}%` : '0.0%'}
-              </span>
-            </span>
-          </div>
-          <div className="text-gray-700">
-            Active Deals:{' '}
-            <span className="font-semibold text-gray-900">
-              {ticker ? ticker.activeDeals : 0}
-            </span>
-          </div>
-        </div>
-      </section>
 
       {/* How It Works Section */}
       <section id="how-it-works" className="bg-white py-16 px-6">

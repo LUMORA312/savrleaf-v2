@@ -15,6 +15,7 @@ interface HeroSectionProps {
   zipCode: string;
   handleZipCodeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSearch: () => void;
+  ticker?: { totalSavings: number; avgDiscount: number; activeDeals: number } | null;
 }
 
 export default function HeroSection({
@@ -25,6 +26,7 @@ export default function HeroSection({
   zipCode,
   handleZipCodeChange,
   handleSearch,
+  ticker,
 }: HeroSectionProps) {
   const handleUseCurrentLocation = () => {
     if (navigator.geolocation) {
@@ -174,8 +176,28 @@ export default function HeroSection({
           </div>
         </div>
 
+        {/* Savings Ticker - below search, above Browse deals */}
+        <div className="max-w-4xl mx-auto mt-6">
+          <div className="bg-white/80 backdrop-blur-sm border border-orange-200 rounded-2xl px-6 py-4 shadow-md">
+            <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-8 text-lg sm:text-xl">
+              <span className="font-semibold text-gray-900">
+                Total Savings Available Today:{' '}
+                <span className="text-green-700 font-bold">
+                  ${ticker ? ticker.totalSavings.toFixed(2) : '0.00'}
+                </span>
+              </span>
+              <span className="font-semibold text-gray-900">
+                Avg Discount:{' '}
+                <span className="text-orange-700 font-bold">
+                  {ticker ? `${ticker.avgDiscount.toFixed(1)}%` : '0.0%'}
+                </span>
+              </span>
+            </div>
+          </div>
+        </div>
+
         {/* Browse deals arrow */}
-        <div className="flex justify-center mt-10 max-w-4xl mx-auto">
+        <div className="flex justify-center mt-8 max-w-4xl mx-auto">
           <button
             onClick={() => {
               document.getElementById('how-it-works')?.scrollIntoView({ behavior: 'smooth' });
