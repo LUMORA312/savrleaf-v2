@@ -74,19 +74,11 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
 
       ticker.topDeals?.slice(0, 3).forEach((deal, i) => {
         const where = deal.dispensaryName ? ` at ${deal.dispensaryName}` : '';
-        const badge = deal.discountTier >= 40 ? '🟢 Steal'
-          : deal.discountTier >= 20 ? '🟡 Solid Deal'
-          : '⚪ Light Deal';
-        const badgeColor = deal.discountTier >= 40 ? 'text-green-400'
-          : deal.discountTier >= 20 ? 'text-yellow-400'
-          : 'text-gray-400';
         list.push({
           key: `top-${i}`,
           label: `🏷️ ${deal.title}${where}:`,
           value: `${deal.discountTier}% off — $${deal.salePrice.toFixed(2)}`,
           valueColor: 'text-orange-300',
-          suffix: badge,
-          suffixColor: badgeColor,
         });
       });
     }

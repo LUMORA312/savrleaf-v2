@@ -13,12 +13,12 @@ function getValueBadge(discountPercent: number | undefined | null): {
 } | null {
   if (discountPercent == null) return null;
   if (discountPercent >= 40) {
-    return { label: 'Steal', className: 'bg-green-100 text-green-700 border border-green-300' };
+    return { label: '🟢 Steal', className: 'bg-green-100 text-green-700 border border-green-300' };
   }
   if (discountPercent >= 20) {
-    return { label: 'Solid Deal', className: 'bg-yellow-100 text-yellow-700 border border-yellow-300' };
+    return { label: '🟡 Solid Deal', className: 'bg-yellow-100 text-yellow-700 border border-yellow-300' };
   }
-  return { label: 'Light Deal', className: 'bg-gray-100 text-gray-500 border border-gray-200' };
+  return { label: '⚪ Light Deal', className: 'bg-gray-100 text-gray-500 border border-gray-200' };
 }
 
 interface DealCardProps {
