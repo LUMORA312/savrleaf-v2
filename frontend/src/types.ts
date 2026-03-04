@@ -96,11 +96,19 @@ export interface Deal {
   updatedAt?: string;
 }
 
+export interface TickerTopDeal {
+  title: string;
+  discountTier: number;
+  salePrice: number;
+  dispensaryName: string | null;
+}
+
 export interface TickerData {
   totalSavings: number;
   avgDiscount: number;
   activeDeals: number;
   maxDiscount: number;
+  topDeals: TickerTopDeal[];
 }
 
 export type SubscriptionTier = {
