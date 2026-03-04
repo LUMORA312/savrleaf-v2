@@ -4,6 +4,19 @@ import { Deal } from '@/types';
 import { useState, useEffect } from 'react';
 import { dealKeywords } from '@/constants/dealKeywords';
 
+const SIZE_OPTIONS: Record<string, string[]> = {
+  flower: ['1g', '3.5g (Eighth)', '7g (Quarter)', '14g (Half)', '28g (Ounce)'],
+  concentrates: ['1g', '3.5g (Eighth)', '7g (Quarter)', '14g (Half)', '28g (Ounce)'],
+  'pre-roll': ['0.5g', '1g', '0.5g x 5 pack', '0.5g x 10 pack', '1g x 3 pack'],
+  vapes: ['500mg (0.5g)', '1000mg (1g)', '2000mg (2g)'],
+  edibles: ['50mg', '100mg', '200mg', '300mg', '500mg'],
+  tincture: ['15ml', '30ml', '60ml'],
+  beverage: ['50mg', '100mg', '200mg'],
+  'capsule/pill': ['50mg', '100mg', '200mg', '300mg', '500mg'],
+  topicals: ['50mg', '100mg', '200mg', '500mg'],
+  other: [],
+};
+
 interface DealFormProps {
   initialData?: Deal | null;
   dispensaryOptions: { _id: string; name: string; isActive: boolean; isPurchased: boolean }[];
@@ -447,16 +460,47 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       {/* Size / Strength */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-1">Size / Strength *</label>
-        <input
-          name="sizeOrStrength"
-          value={form.sizeOrStrength}
-          onChange={handleChange}
-          placeholder="e.g. 3.5g, 100mg, 0.5g x 10 pack, 30ml"
-          required
-          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
-        />
+        {(() => {
+          const options = SIZE_OPTIONS[form.category] || [];
+          const isOther = form.sizeOrStrength !== '' && !options.includes(form.sizeOrStrength);
+          const showManualInput = options.length === 0 || isOther;
+
+          return (
+            <>
+              {options.length > 0 && (
+                <select
+                  value={isOther ? '__other__' : form.sizeOrStrength}
+                  onChange={(e) => {
+                    const val = e.target.value;
+                    if (val === '__other__') {
+                      setForm((prev) => ({ ...prev, sizeOrStrength: '' }));
+                    } else {
+                      setForm((prev) => ({ ...prev, sizeOrStrength: val }));
+                    }
+                  }}
+                  className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+                >
+                  <option value="" disabled>Select size / strength</option>
+                  {options.map((opt) => (
+                    <option key={opt} value={opt}>{opt}</option>
+                  ))}
+                  <option value="__other__">Other (manual entry)</option>
+                </select>
+              )}
+              {showManualInput && (
+                <input
+                  name="sizeOrStrength"
+                  value={isOther || options.length === 0 ? form.sizeOrStrength : ''}
+                  onChange={handleChange}
+                  placeholder="e.g. 3.5g, 100mg, 0.5g x 10 pack, 30ml"
+                  className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg mt-2"
+                />
+              )}
+            </>
+          );
+        })()}
         <p className="mt-1 text-xs text-gray-500">
-          Product size or strength (e.g. 1g, 3.5g, 100mg, 0.5g x 5 pack, 30ml). Shown to users under the price on each deal card.
+          {form.category ? 'Choose a common size or select "Other" for manual entry.' : 'Select a category first to see common sizes, or type manually.'}
         </p>
       </div>
 
