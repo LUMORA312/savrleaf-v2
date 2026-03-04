@@ -2,7 +2,7 @@
 
 import { useEffect, useState, useMemo, useRef } from 'react';
 import axios from 'axios';
-import { Deal, Dispensary } from '@/types';
+import { Deal, Dispensary, TickerData } from '@/types';
 import HeroSection from './HeroSection';
 import DealsDispensariesTabs from './DealsDispensariesTabs';
 import Filters, { FilterValues } from '@/components/Filters';
@@ -12,7 +12,11 @@ import { amenitiesOptions } from '@/constants/amenities';
 
 const DISPENSARY_PER_PAGE = 12;
 
-export default function PublicHomepage() {
+interface PublicHomepageProps {
+  ticker: TickerData | null;
+}
+
+export default function PublicHomepage({ ticker }: PublicHomepageProps) {
   const [deals, setDeals] = useState<Deal[]>([]);
   const [dispensaries, setDispensaries] = useState<Dispensary[]>([]);
   const [dispensariesLoading, setDispensariesLoading] = useState(false);
@@ -39,7 +43,6 @@ export default function PublicHomepage() {
   const [locationError, setLocationError] = useState<string | null>(null);
   const [zipCoordinates, setZipCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
   const [valueSort, setValueSort] = useState<'bestValue' | 'biggestSavings' | 'under25' | ''>('');
-  const [ticker, setTicker] = useState<{ totalSavings: number; avgDiscount: number; activeDeals: number } | null>(null);
 
   // Geolocation
   useEffect(() => {
@@ -256,30 +259,6 @@ export default function PublicHomepage() {
       zipCode: zipCode.trim(),
     }));
   };
-
-  // Savings ticker
-  useEffect(() => {
-    const fetchTicker = async () => {
-      try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals/savings-ticker`);
-        if (res.data?.success) {
-          setTicker({
-            totalSavings: res.data.totalSavings ?? 0,
-            avgDiscount: res.data.avgDiscount ?? 0,
-            activeDeals: res.data.activeDeals ?? 0,
-          });
-        }
-      } catch (err) {
-        console.error('Failed to fetch savings ticker:', err);
-        setTicker(null);
-      }
-    };
-
-    fetchTicker();
-
-    const interval = setInterval(fetchTicker, 15 * 60 * 1000);
-    return () => clearInterval(interval);
-  }, []);
 
   return (
     <div>

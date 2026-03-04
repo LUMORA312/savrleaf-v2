@@ -4,8 +4,8 @@ import React from 'react';
 import Image from 'next/image';
 import { Search, Check, Star, ChevronDown } from 'lucide-react';
 import logo from '../assets/logo.png';
-import backgroundImage from '../assets/background.png';
 import MapPinIcon from './MapPinIcon';
+import { TickerData } from '@/types';
 
 interface HeroSectionProps {
   userLocation: GeolocationPosition | GeolocationCoordinates | null;
@@ -15,7 +15,7 @@ interface HeroSectionProps {
   zipCode: string;
   handleZipCodeChange: (e: React.ChangeEvent<HTMLInputElement>) => void;
   handleSearch: () => void;
-  ticker?: { totalSavings: number; avgDiscount: number; activeDeals: number } | null;
+  ticker?: TickerData | null;
 }
 
 export default function HeroSection({

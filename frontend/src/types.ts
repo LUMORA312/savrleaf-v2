@@ -96,6 +96,13 @@ export interface Deal {
   updatedAt?: string;
 }
 
+export interface TickerData {
+  totalSavings: number;
+  avgDiscount: number;
+  activeDeals: number;
+  maxDiscount: number;
+}
+
 export type SubscriptionTier = {
   _id: string;
   name: string;
