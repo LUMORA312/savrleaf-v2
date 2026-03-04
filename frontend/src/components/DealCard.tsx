@@ -149,6 +149,11 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
               <span className="text-green-600 font-semibold text-sm">
                 ${deal.salePrice?.toFixed(2)}
               </span>
+              {deal.sizeOrStrength && (
+                <span className="text-xs text-gray-600 font-medium mt-0.5">
+                  {deal.sizeOrStrength}
+                </span>
+              )}
             </div>
             {distance !== null && (
               <div className="text-xs text-gray-500 font-medium">
@@ -236,6 +241,11 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       <span className="text-green-600 font-semibold text-lg">
                         ${deal.salePrice?.toFixed(2)}
                       </span>
+                      {deal.sizeOrStrength && (
+                        <span className="text-sm text-gray-600 font-medium mt-0.5">
+                          {deal.sizeOrStrength}
+                        </span>
+                      )}
                     </div>
                     {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
                       <div className="flex flex-col items-end text-xs text-gray-700">

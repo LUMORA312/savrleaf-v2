@@ -84,6 +84,11 @@ const dealSchema = new mongoose.Schema(
         message: 'Discount tier must be in 10% increments between 10 and 50',
       },
     },
+    sizeOrStrength: {
+      type: String,
+      trim: true,
+      // Product size or strength, e.g. 3.5g, 100mg, 0.5g x 10 pack, 30ml
+    },
   },
   { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );

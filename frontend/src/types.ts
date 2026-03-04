@@ -85,6 +85,7 @@ export interface Deal {
   thcContent?: number;
   cbdContent?: number;
   deal_purchase_link?: string;
+  sizeOrStrength?: string;
   isActive: boolean;
   discountTier?: number;
   discountPercent?: number | null;
