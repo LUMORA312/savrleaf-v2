@@ -70,22 +70,33 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     const list: TickerItem[] = [];
 
     if (ticker) {
+      // Top deals first — most engaging content
+      ticker.topDeals?.forEach((deal, i) => {
+        const atStore = deal.dispensaryName ? ` at ${deal.dispensaryName}` : '';
+        list.push({
+          key: `topdeal-${i}`,
+          label: `🔥 ${deal.title}${atStore}:`,
+          value: `${deal.discountTier}% off — $${deal.salePrice}`,
+          valueColor: 'text-orange-300',
+        });
+      });
+
       list.push({
         key: 'deals',
-        label: '🌿 Deals Live:',
+        label: '🔥 New Deals Added:',
         value: `${ticker.activeDeals}`,
         valueColor: 'text-orange-300',
       });
       list.push({
         key: 'avg',
-        label: 'Avg Savings Today:',
+        label: '🍃 SavrLeaf Avg Savings Today:',
         value: `${ticker.avgDiscount.toFixed(1)}%`,
         valueColor: 'text-green-400',
       });
       if (ticker.maxDiscount > 0) {
         list.push({
           key: 'max',
-          label: 'Biggest Drop:',
+          label: '📉 Biggest Drop Today:',
           value: `${ticker.maxDiscount}% off`,
           valueColor: 'text-yellow-400',
         });

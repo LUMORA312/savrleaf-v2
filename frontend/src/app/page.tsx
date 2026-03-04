@@ -22,17 +22,34 @@ export default function Home() {
 
   // Ticker data — fetched here and passed to both MarketTicker and PublicHomepage
   const [ticker, setTicker] = useState<TickerData | null>(null);
+  const [userLocation, setUserLocation] = useState<{ lat: number; lng: number } | null>(null);
+
+  // Detect user geolocation once on mount
+  useEffect(() => {
+    if (typeof navigator !== 'undefined' && navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition(
+        (pos) => setUserLocation({ lat: pos.coords.latitude, lng: pos.coords.longitude }),
+        () => { /* permission denied or unavailable — use global stats */ }
+      );
+    }
+  }, []);
 
   useEffect(() => {
     const fetchTicker = async () => {
       try {
-        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals/savings-ticker`);
+        const params: Record<string, string | number> = {};
+        if (userLocation) {
+          params.lat = userLocation.lat;
+          params.lng = userLocation.lng;
+        }
+        const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/deals/savings-ticker`, { params });
         if (res.data?.success) {
           setTicker({
             totalSavings: res.data.totalSavings ?? 0,
             avgDiscount: res.data.avgDiscount ?? 0,
             activeDeals: res.data.activeDeals ?? 0,
             maxDiscount: res.data.maxDiscount ?? 0,
+            topDeals: res.data.topDeals ?? [],
           });
         }
       } catch (err) {
@@ -44,7 +61,7 @@ export default function Home() {
     fetchTicker();
     const interval = setInterval(fetchTicker, 15 * 60 * 1000);
     return () => clearInterval(interval);
-  }, []);
+  }, [userLocation]);
 
   // Check if user is on admin route
   const isAdminRoute = pathname?.startsWith('/admin');

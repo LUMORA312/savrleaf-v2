@@ -360,16 +360,35 @@ router.post('/', async (req, res) => {
 router.get('/savings-ticker', async (req, res) => {
   try {
     const now = new Date();
+    const { lat, lng, distance = 25 } = req.query;
 
-    const deals = await Deal.find({
+    // Build active deal query
+    const activeQuery = {
       $or: [
         { manuallyActivated: true },
-        {
-          startDate: { $lte: now },
-          endDate: { $gte: now },
-        },
+        { startDate: { $lte: now }, endDate: { $gte: now } },
       ],
-    }).select('salePrice originalPrice discountTier manuallyActivated startDate endDate');
+    };
+
+    // If location provided, restrict to nearby dispensaries
+    if (lat && lng) {
+      const distanceMeters = Number(distance) * 1609.34;
+      const nearbyDispensaries = await Dispensary.find({
+        coordinates: {
+          $nearSphere: {
+            $geometry: { type: 'Point', coordinates: [Number(lng), Number(lat)] },
+            $maxDistance: distanceMeters,
+          },
+        },
+      }).select('_id');
+      const nearbyIds = nearbyDispensaries.map(d => d._id);
+      if (nearbyIds.length > 0) {
+        activeQuery.dispensary = { $in: nearbyIds };
+      }
+    }
+
+    const deals = await Deal.find(activeQuery)
+      .select('salePrice originalPrice discountTier manuallyActivated startDate endDate');
 
     const activeDeals = deals.filter(deal => {
       if (deal.manuallyActivated) return true;
@@ -418,12 +437,27 @@ router.get('/savings-ticker', async (req, res) => {
     const roundedTotalSavings = Math.round(totalSavings * 100) / 100;
     const avgDiscount = discountCount > 0 ? Math.round((totalDiscountPct / discountCount) * 10) / 10 : 0;
 
+    // Fetch top 3 deals by discountTier (highest first), same location filter
+    const topDealsRaw = await Deal.find({ ...activeQuery, discountTier: { $exists: true, $ne: null } })
+      .sort({ discountTier: -1 })
+      .limit(3)
+      .select('title discountTier salePrice category dispensary')
+      .populate('dispensary', 'name');
+
+    const topDeals = topDealsRaw.map(d => ({
+      title: d.title || d.category || 'Deal',
+      discountTier: d.discountTier,
+      salePrice: d.salePrice,
+      dispensaryName: typeof d.dispensary === 'object' ? d.dispensary?.name : null,
+    }));
+
     res.json({
       success: true,
       totalSavings: roundedTotalSavings,
       avgDiscount,
       activeDeals: activeDealsWithPricingAndTier,
       maxDiscount: Math.round(maxDiscount),
+      topDeals,
     });
   } catch (err) {
     console.error('Error computing savings ticker:', err);
