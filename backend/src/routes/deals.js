@@ -382,6 +382,7 @@ router.get('/savings-ticker', async (req, res) => {
     let totalDiscountPct = 0;
     let discountCount = 0;
     let activeDealsWithPricingAndTier = 0;
+    let maxDiscount = 0;
 
     activeDeals.forEach(deal => {
       const D = deal.salePrice;
@@ -410,6 +411,7 @@ router.get('/savings-ticker', async (req, res) => {
       if (pct != null) {
         totalDiscountPct += pct;
         discountCount += 1;
+        if (pct > maxDiscount) maxDiscount = pct;
       }
     });
 
@@ -421,6 +423,7 @@ router.get('/savings-ticker', async (req, res) => {
       totalSavings: roundedTotalSavings,
       avgDiscount,
       activeDeals: activeDealsWithPricingAndTier,
+      maxDiscount: Math.round(maxDiscount),
     });
   } catch (err) {
     console.error('Error computing savings ticker:', err);

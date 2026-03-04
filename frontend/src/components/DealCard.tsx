@@ -7,6 +7,20 @@ import defaultDealImg from '../assets/deal.jpg';
 import { calculateDistanceInMiles } from '@/utils/distance';
 import { getCategoryImage } from '@/utils/categoryImages';
 
+function getValueBadge(discountPercent: number | undefined | null): {
+  label: string;
+  className: string;
+} | null {
+  if (discountPercent == null) return null;
+  if (discountPercent >= 40) {
+    return { label: 'Steal', className: 'bg-red-100 text-red-700 border border-red-300' };
+  }
+  if (discountPercent >= 20) {
+    return { label: 'Solid Deal', className: 'bg-amber-100 text-amber-700 border border-amber-300' };
+  }
+  return { label: 'Light Deal', className: 'bg-gray-100 text-gray-600 border border-gray-300' };
+}
+
 interface DealCardProps {
   deal: Deal;
   userLocation?: { lat: number; lng: number };
@@ -51,6 +65,8 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
         : effectiveOriginalPrice && deal.salePrice && effectiveOriginalPrice > 0
           ? Math.round((1 - deal.salePrice / effectiveOriginalPrice) * 100)
           : undefined;
+
+  const valueBadge = getValueBadge(savingsPercent);
 
   // Track deal click event for analytics (ADMIN ONLY - not partner facing)
   const trackDealClick = async () => {
@@ -103,11 +119,16 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           {/* Product Name */}
           <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title || 'Deal'}</h3>
 
-          {/* Value Pill */}
+          {/* Value Badge + Savings */}
           {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
             <div className="flex items-center gap-2 mb-2 flex-wrap">
+              {valueBadge && (
+                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${valueBadge.className}`}>
+                  {valueBadge.label}
+                </span>
+              )}
               {typeof savingsPercent === 'number' && (
-                <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-semibold bg-green-100 text-green-800">
+                <span className="text-xs font-semibold text-gray-600">
                   {savingsPercent}% off
                 </span>
               )}
@@ -248,9 +269,14 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       )}
                     </div>
                     {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
-                      <div className="flex flex-col items-end text-xs text-gray-700">
+                      <div className="flex flex-col items-end gap-1 text-xs text-gray-700">
+                        {valueBadge && (
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-bold ${valueBadge.className}`}>
+                            {valueBadge.label}
+                          </span>
+                        )}
                         {typeof savingsPercent === 'number' && (
-                          <span className="font-semibold text-green-700">
+                          <span className="font-semibold text-gray-600">
                             {savingsPercent}% off
                           </span>
                         )}
