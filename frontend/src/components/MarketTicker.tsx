@@ -17,6 +17,8 @@ interface TickerItem {
   label: string;
   value?: string;
   valueColor?: string;
+  suffix?: string;
+  suffixColor?: string;
 }
 
 export default function MarketTicker({ ticker }: MarketTickerProps) {
@@ -82,22 +84,26 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     }
 
     if (cryptoPrices) {
-      const btcSign = cryptoPrices.btc.change >= 0 ? '▲' : '▼';
-      const ethSign = cryptoPrices.eth.change >= 0 ? '▲' : '▼';
+      const btcSign = cryptoPrices.btc.change >= 0 ? '+' : '-';
+      const ethSign = cryptoPrices.eth.change >= 0 ? '+' : '-';
       const btcColor = cryptoPrices.btc.change >= 0 ? 'text-green-400' : 'text-red-400';
       const ethColor = cryptoPrices.eth.change >= 0 ? 'text-green-400' : 'text-red-400';
 
       list.push({
         key: 'btc',
         label: '₿ BTC:',
-        value: `$${Math.round(cryptoPrices.btc.price).toLocaleString()} ${btcSign}${Math.abs(cryptoPrices.btc.change).toFixed(1)}%`,
-        valueColor: btcColor,
+        value: `$${Math.round(cryptoPrices.btc.price).toLocaleString()}`,
+        valueColor: 'text-white',
+        suffix: `${btcSign}${Math.abs(cryptoPrices.btc.change).toFixed(1)}%`,
+        suffixColor: btcColor,
       });
       list.push({
         key: 'eth',
         label: 'Ξ ETH:',
-        value: `$${Math.round(cryptoPrices.eth.price).toLocaleString()} ${ethSign}${Math.abs(cryptoPrices.eth.change).toFixed(1)}%`,
-        valueColor: ethColor,
+        value: `$${Math.round(cryptoPrices.eth.price).toLocaleString()}`,
+        valueColor: 'text-white',
+        suffix: `${ethSign}${Math.abs(cryptoPrices.eth.change).toFixed(1)}%`,
+        suffixColor: ethColor,
       });
     }
 
@@ -160,6 +166,9 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
               {item.value && (
                 <span className={`font-bold ${item.valueColor || 'text-white'}`}>{item.value}</span>
               )}
+              {item.suffix && (
+                <span className={`font-bold ${item.suffixColor || 'text-white'}`}>{item.suffix}</span>
+              )}
               <span className="text-green-800 mx-2">|</span>
             </span>
           ))}
@@ -183,6 +192,11 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
               {item.value && (
                 <span className={`font-bold whitespace-nowrap ${item.valueColor || 'text-white'}`}>
                   {item.value}
+                </span>
+              )}
+              {item.suffix && (
+                <span className={`font-bold whitespace-nowrap ${item.suffixColor || 'text-white'}`}>
+                  {item.suffix}
                 </span>
               )}
             </div>
