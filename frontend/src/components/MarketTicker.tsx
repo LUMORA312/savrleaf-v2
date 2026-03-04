@@ -24,38 +24,18 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
   const mobileScrollRef = useRef<HTMLDivElement>(null);
   const autoScrollPaused = useRef(false);
 
-  // Fetch crypto prices from CoinAPI.io
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_COINAPI_KEY;
-    if (!apiKey) return;
-
     const fetchCrypto = async () => {
       try {
-        const headers = { 'X-CoinAPI-Key': apiKey };
-        const now = new Date();
-        const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000).toISOString();
-
-        const [btcRes, ethRes, btcYestRes, ethYestRes] = await Promise.all([
-          fetch('https://rest.coinapi.io/v1/exchangerate/BTC/USD', { headers }),
-          fetch('https://rest.coinapi.io/v1/exchangerate/ETH/USD', { headers }),
-          fetch(`https://rest.coinapi.io/v1/exchangerate/BTC/USD?time=${yesterday}`, { headers }),
-          fetch(`https://rest.coinapi.io/v1/exchangerate/ETH/USD?time=${yesterday}`, { headers }),
-        ]);
-
-        const [btc, eth, btcYest, ethYest] = await Promise.all([
-          btcRes.json(), ethRes.json(), btcYestRes.json(), ethYestRes.json(),
-        ]);
-
-        if (typeof btc.rate !== 'number' || typeof eth.rate !== 'number') return;
-
-        const btcChange = typeof btcYest.rate === 'number' && btcYest.rate > 0
-          ? ((btc.rate - btcYest.rate) / btcYest.rate) * 100 : 0;
-        const ethChange = typeof ethYest.rate === 'number' && ethYest.rate > 0
-          ? ((eth.rate - ethYest.rate) / ethYest.rate) * 100 : 0;
+        const res = await fetch(
+          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true'
+        );
+        const data = await res.json();
+        if (!data.bitcoin?.usd || !data.ethereum?.usd) return;
 
         setCryptoPrices({
-          btc: { price: btc.rate, change: btcChange },
-          eth: { price: eth.rate, change: ethChange },
+          btc: { price: data.bitcoin.usd, change: data.bitcoin.usd_24h_change ?? 0 },
+          eth: { price: data.ethereum.usd, change: data.ethereum.usd_24h_change ?? 0 },
         });
       } catch (err) {
         console.error('Crypto price fetch failed:', err);
@@ -71,17 +51,6 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     const list: TickerItem[] = [];
 
     if (ticker) {
-      // Top deals first — most engaging content
-      ticker.topDeals?.forEach((deal, i) => {
-        const atStore = deal.dispensaryName ? ` at ${deal.dispensaryName}` : '';
-        list.push({
-          key: `topdeal-${i}`,
-          label: `🔥 ${deal.title}${atStore}:`,
-          value: `${deal.discountTier}% off — $${deal.salePrice}`,
-          valueColor: 'text-orange-300',
-        });
-      });
-
       list.push({
         key: 'deals',
         label: '🔥 New Deals Added:',
