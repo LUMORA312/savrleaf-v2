@@ -149,18 +149,18 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
   const marqueeItems = [...items, ...items];
 
   return (
-    <div className="bg-gray-950 border-b border-gray-800 text-white w-full overflow-hidden" style={{ height: '36px' }}>
+    <div className="bg-green-950 border-b border-green-800 text-white w-full overflow-hidden" style={{ height: '36px' }}>
 
       {/* Desktop: continuous marquee scroll */}
       <div className="hidden md:flex items-center h-full">
         <div className="flex animate-ticker whitespace-nowrap">
           {marqueeItems.map((item, i) => (
             <span key={`${item.key}-${i}`} className="inline-flex items-center gap-1.5 mx-8 text-xs font-medium">
-              <span className="text-gray-400">{item.label}</span>
+              <span className="text-green-300/70">{item.label}</span>
               {item.value && (
                 <span className={`font-bold ${item.valueColor || 'text-white'}`}>{item.value}</span>
               )}
-              <span className="text-gray-700 mx-2">|</span>
+              <span className="text-green-800 mx-2">|</span>
             </span>
           ))}
         </div>
@@ -177,9 +177,9 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
           {items.map((item) => (
             <div
               key={item.key}
-              className="snap-start shrink-0 flex items-center gap-1.5 bg-gray-800/60 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium border border-gray-700/40"
+              className="snap-start shrink-0 flex items-center gap-1.5 bg-green-800/40 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium border border-green-700/30"
             >
-              <span className="text-gray-400 whitespace-nowrap">{item.label}</span>
+              <span className="text-green-300/70 whitespace-nowrap">{item.label}</span>
               {item.value && (
                 <span className={`font-bold whitespace-nowrap ${item.valueColor || 'text-white'}`}>
                   {item.value}
