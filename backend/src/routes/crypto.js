@@ -4,19 +4,39 @@ const router = Router();
 
 let cache = { data: null, ts: 0 };
 const CACHE_TTL = 60_000;
+const STALE_TTL = 10 * 60_000;
 
 router.get('/prices', async (_req, res) => {
+  if (cache.data && Date.now() - cache.ts < CACHE_TTL) {
+    return res.json(cache.data);
+  }
+
   try {
-    if (cache.data && Date.now() - cache.ts < CACHE_TTL) {
-      return res.json(cache.data);
+    const response = await fetch(
+      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true',
+      {
+        headers: {
+          'Accept': 'application/json',
+          'User-Agent': 'SavrLeaf/1.0',
+        },
+      }
+    );
+
+    if (!response.ok) {
+      console.error(`CoinGecko returned ${response.status}: ${response.statusText}`);
+      if (cache.data && Date.now() - cache.ts < STALE_TTL) {
+        return res.json(cache.data);
+      }
+      return res.status(502).json({ success: false, message: 'Upstream rate-limited or unavailable' });
     }
 
-    const response = await fetch(
-      'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true'
-    );
     const raw = await response.json();
 
     if (!raw.bitcoin?.usd || !raw.ethereum?.usd) {
+      console.error('CoinGecko unexpected body:', JSON.stringify(raw).slice(0, 300));
+      if (cache.data && Date.now() - cache.ts < STALE_TTL) {
+        return res.json(cache.data);
+      }
       return res.status(502).json({ success: false, message: 'Upstream data unavailable' });
     }
 
@@ -30,6 +50,9 @@ router.get('/prices', async (_req, res) => {
     res.json(payload);
   } catch (err) {
     console.error('Crypto proxy fetch failed:', err);
+    if (cache.data && Date.now() - cache.ts < STALE_TTL) {
+      return res.json(cache.data);
+    }
     res.status(502).json({ success: false, message: 'Failed to fetch crypto prices' });
   }
 });
