@@ -531,14 +531,21 @@ function DispensaryDetailsContent() {
                         <p className="text-sm text-gray-600 mb-2">Brand: {deal.brand}</p>
                       )}
                       <div className="flex items-center justify-between mb-2">
-                        {deal.originalPrice && (
-                          <span className="text-sm text-gray-400 line-through">
-                            ${Number(deal.originalPrice).toFixed(2)}
+                        <div>
+                          {deal.originalPrice && (
+                            <span className="text-sm text-gray-400 line-through block">
+                              ${Number(deal.originalPrice).toFixed(2)}
+                            </span>
+                          )}
+                          <span className="text-xl font-bold text-green-600">
+                            ${Number(deal.salePrice).toFixed(2)}
                           </span>
-                        )}
-                        <span className="text-xl font-bold text-green-600">
-                          ${Number(deal.salePrice).toFixed(2)}
-                        </span>
+                          {deal.sizeOrStrength && (
+                            <span className="text-sm text-gray-600 font-medium block mt-0.5">
+                              {deal.sizeOrStrength}
+                            </span>
+                          )}
+                        </div>
                       </div>
                       <div className="flex items-center gap-2 mb-2">
                         {deal.category && (

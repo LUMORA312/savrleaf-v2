@@ -38,7 +38,7 @@ export default function PublicHomepage() {
   const [userLocation, setUserLocation] = useState<GeolocationCoordinates | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [zipCoordinates, setZipCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [valueSort, setValueSort] = useState<'bestValue' | 'biggestSavings' | 'under10' | 'trending' | ''>('');
+  const [valueSort, setValueSort] = useState<'bestValue' | 'biggestSavings' | 'under25' | ''>('');
   const [ticker, setTicker] = useState<{ totalSavings: number; avgDiscount: number; activeDeals: number } | null>(null);
 
   // Geolocation
@@ -115,8 +115,6 @@ export default function PublicHomepage() {
           params.sortBy = 'best_value';
         } else if (valueSort === 'biggestSavings') {
           params.sortBy = 'biggest_savings';
-        } else if (valueSort === 'trending') {
-          params.sortBy = 'trending';
         } else {
           // Standard sorting
           if (filters.sortBy === 'priceAsc') {
@@ -130,9 +128,9 @@ export default function PublicHomepage() {
           }
         }
 
-        // Under $10 / Budget Picks
-        if (valueSort === 'under10') {
-          params.maxSalePrice = 10;
+        // Under $25
+        if (valueSort === 'under25') {
+          params.maxSalePrice = 25;
         }
 
         if (!Object.keys(params).length) return;
@@ -392,25 +390,14 @@ export default function PublicHomepage() {
               </button>
               <button
                 type="button"
-                onClick={() => setValueSort(valueSort === 'under10' ? '' : 'under10')}
+                onClick={() => setValueSort(valueSort === 'under25' ? '' : 'under25')}
                 className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
-                  valueSort === 'under10'
+                  valueSort === 'under25'
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Under $10 <span className="opacity-90 font-normal">(Budget Picks)</span>
-              </button>
-              <button
-                type="button"
-                onClick={() => setValueSort(valueSort === 'trending' ? '' : 'trending')}
-                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
-                  valueSort === 'trending'
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                Trending Deals
+                Under $25
               </button>
             </div>
           </div>

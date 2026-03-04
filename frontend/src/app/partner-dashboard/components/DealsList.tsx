@@ -235,6 +235,11 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
             <span className="text-green-600 font-semibold">
               ${Number(deal.salePrice).toFixed(2)}
             </span>
+            {deal.sizeOrStrength && (
+              <span className="text-xs text-gray-600 font-medium mt-0.5">
+                {deal.sizeOrStrength}
+              </span>
+            )}
           </div>
           {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
             <div className="flex flex-col items-end text-xs text-gray-700">

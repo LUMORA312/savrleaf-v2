@@ -231,6 +231,7 @@ export default function DealsMapView({ deals, userLocation, radius }: DealsMapVi
                 <span class="line-through">$${deal.originalPrice?.toFixed(2)}</span>
                 <span class="text-green-600 font-semibold ml-1">$${deal.salePrice?.toFixed(2)}</span>
               </div>
+              ${deal.sizeOrStrength ? `<div class="text-xs text-gray-600 font-medium mt-0.5">${deal.sizeOrStrength}</div>` : ''}
               ${deal.category ? `<div class="text-xs text-gray-500 mt-1">${deal.category}</div>` : ''}
             </div>
           `).join('')}

@@ -268,6 +268,7 @@ router.post('/', async (req, res) => {
       descriptiveKeywords,
       deal_purchase_link,
       discountTier,
+      sizeOrStrength,
     } = req.body;
 
     // const user = await User.findById(userId)
@@ -340,6 +341,7 @@ router.post('/', async (req, res) => {
       deal_purchase_link,
       isActive: true,
       discountTier,
+      sizeOrStrength: sizeOrStrength?.trim() || undefined,
     });
 
     const savedDeal = await newDeal.save();

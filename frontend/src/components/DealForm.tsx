@@ -32,6 +32,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     subcategory: '',
     descriptiveKeywords: [] as string[],
     discountTier: '' as '' | '10' | '20' | '30' | '40' | '50',
+    sizeOrStrength: '',
   });
 
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
@@ -62,6 +63,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         subcategory: initialData?.subcategory || '',
         descriptiveKeywords: initialData?.descriptiveKeywords || [],
         discountTier: (initialData.discountTier ? String(initialData.discountTier) : '') as '' | '10' | '20' | '30' | '40' | '50',
+        sizeOrStrength: initialData?.sizeOrStrength || '',
       });
       setUploadedImages(imageUrls);
       setImagePreviews(imageUrls);
@@ -90,6 +92,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       subcategory: '',
       descriptiveKeywords: [],
       discountTier: '',
+      sizeOrStrength: '',
     });
   };
 
@@ -177,6 +180,11 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       return;
     }
 
+    if (!form.sizeOrStrength?.trim()) {
+      setFormError('Size / Strength is required.');
+      return;
+    }
+
     if (form.originalPrice && Number(form.salePrice) > Number(form.originalPrice)) {
       setFormError('Sale price must be less than or equal to original price.');
       return;
@@ -207,6 +215,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       userId: userId,
       subcategory: form.subcategory || undefined,
       descriptiveKeywords: form.descriptiveKeywords,
+      sizeOrStrength: form.sizeOrStrength.trim(),
     };
 
     const method = initialData?._id ? 'PUT' : 'POST';
@@ -252,7 +261,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </h4>
         <div className="text-sm text-blue-800 space-y-2">
           <div>
-            <strong>Required:</strong> Only <strong>Photo</strong>, <strong>Deal Price</strong>, and <strong>Discount Tier</strong> are required. All other fields are optional.
+            <strong>Required:</strong> <strong>Photo</strong>, <strong>Deal Price</strong>, <strong>Discount Tier</strong>, and <strong>Size / Strength</strong> are required. All other fields are optional.
           </div>
           <div>
             <strong>Discount:</strong> We’ll show “X% off” and “Save $X” from your deal price and chosen tier. Do not label any derived original as “regular price”; we display it as “Est. price” when shown.
@@ -432,6 +441,22 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </div>
         <p className="mt-1 text-xs text-gray-500">
           Select the closest discount tier for this deal. We’ll estimate the original price from the deal price and discount.
+        </p>
+      </div>
+
+      {/* Size / Strength */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Size / Strength *</label>
+        <input
+          name="sizeOrStrength"
+          value={form.sizeOrStrength}
+          onChange={handleChange}
+          placeholder="e.g. 3.5g, 100mg, 0.5g x 10 pack, 30ml"
+          required
+          className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
+        />
+        <p className="mt-1 text-xs text-gray-500">
+          Product size or strength (e.g. 1g, 3.5g, 100mg, 0.5g x 5 pack, 30ml). Shown to users under the price on each deal card.
         </p>
       </div>
 
