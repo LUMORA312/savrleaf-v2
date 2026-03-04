@@ -74,11 +74,19 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
 
       ticker.topDeals?.slice(0, 3).forEach((deal, i) => {
         const where = deal.dispensaryName ? ` at ${deal.dispensaryName}` : '';
+        const badge = deal.discountTier >= 40 ? '🟢 Steal'
+          : deal.discountTier >= 20 ? '🟡 Solid Deal'
+          : '⚪ Light Deal';
+        const badgeColor = deal.discountTier >= 40 ? 'text-green-400'
+          : deal.discountTier >= 20 ? 'text-yellow-400'
+          : 'text-gray-400';
         list.push({
           key: `top-${i}`,
           label: `🏷️ ${deal.title}${where}:`,
           value: `${deal.discountTier}% off — $${deal.salePrice.toFixed(2)}`,
           valueColor: 'text-orange-300',
+          suffix: badge,
+          suffixColor: badgeColor,
         });
       });
     }
@@ -162,7 +170,7 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
         <div className="flex animate-ticker whitespace-nowrap">
           {marqueeItems.map((item, i) => (
             <span key={`${item.key}-${i}`} className="inline-flex items-center gap-1.5 mx-8 text-xs font-medium">
-              <span className="text-green-300/70">{item.label}</span>
+              <span className="text-white font-semibold">{item.label}</span>
               {item.value && (
                 <span className={`font-bold ${item.valueColor || 'text-white'}`}>{item.value}</span>
               )}
@@ -188,7 +196,7 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
               key={item.key}
               className="snap-start shrink-0 flex items-center gap-1.5 bg-green-800/40 backdrop-blur-sm rounded-full px-3 py-1 text-xs font-medium border border-green-700/30"
             >
-              <span className="text-green-300/70 whitespace-nowrap">{item.label}</span>
+              <span className="text-white font-semibold whitespace-nowrap">{item.label}</span>
               {item.value && (
                 <span className={`font-bold whitespace-nowrap ${item.valueColor || 'text-white'}`}>
                   {item.value}
