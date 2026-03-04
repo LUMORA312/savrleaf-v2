@@ -39,8 +39,13 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
           btcRes.json(), ethRes.json(), btcYestRes.json(), ethYestRes.json(),
         ]);
 
-        const btcChange = btcYest.rate > 0 ? ((btc.rate - btcYest.rate) / btcYest.rate) * 100 : 0;
-        const ethChange = ethYest.rate > 0 ? ((eth.rate - ethYest.rate) / ethYest.rate) * 100 : 0;
+        // Validate response has expected rate fields
+        if (typeof btc.rate !== 'number' || typeof eth.rate !== 'number') return;
+
+        const btcChange = typeof btcYest.rate === 'number' && btcYest.rate > 0
+          ? ((btc.rate - btcYest.rate) / btcYest.rate) * 100 : 0;
+        const ethChange = typeof ethYest.rate === 'number' && ethYest.rate > 0
+          ? ((eth.rate - ethYest.rate) / ethYest.rate) * 100 : 0;
 
         setCryptoPrices({
           btc: { price: btc.rate, change: btcChange },
