@@ -27,15 +27,13 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
   useEffect(() => {
     const fetchCrypto = async () => {
       try {
-        const res = await fetch(
-          'https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum&vs_currencies=usd&include_24hr_change=true'
-        );
+        const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/crypto/prices`);
         const data = await res.json();
-        if (!data.bitcoin?.usd || !data.ethereum?.usd) return;
+        if (!data.success) return;
 
         setCryptoPrices({
-          btc: { price: data.bitcoin.usd, change: data.bitcoin.usd_24h_change ?? 0 },
-          eth: { price: data.ethereum.usd, change: data.ethereum.usd_24h_change ?? 0 },
+          btc: { price: data.btc.price, change: data.btc.change },
+          eth: { price: data.eth.price, change: data.eth.change },
         });
       } catch (err) {
         console.error('Crypto price fetch failed:', err);
@@ -71,6 +69,16 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
           valueColor: 'text-yellow-400',
         });
       }
+
+      ticker.topDeals?.slice(0, 3).forEach((deal, i) => {
+        const where = deal.dispensaryName ? ` at ${deal.dispensaryName}` : '';
+        list.push({
+          key: `top-${i}`,
+          label: `🏷️ ${deal.title}${where}:`,
+          value: `${deal.discountTier}% off — $${deal.salePrice.toFixed(2)}`,
+          valueColor: 'text-orange-300',
+        });
+      });
     }
 
     if (cryptoPrices) {
