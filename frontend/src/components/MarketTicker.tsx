@@ -18,7 +18,7 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
 
   // Fetch crypto prices from CoinAPI.io
   useEffect(() => {
-    const apiKey = process.env.NEXT_PUBLIC_COINAPI_KEY;
+    const apiKey = process.env.ENV_NEXT_PUBLIC_COINAPI_KEY;
     if (!apiKey) return;
 
     const fetchCrypto = async () => {
