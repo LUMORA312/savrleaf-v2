@@ -44,4 +44,30 @@ router.patch('/:id', authMiddleware, adminMiddleware, async (req, res) => {
   }
 });
 
+// Admin: update subscription status
+router.patch('/:id/status', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const { status } = req.body;
+    const validStatuses = ['inactive', 'active', 'trialing', 'past_due', 'unpaid', 'canceled', 'pending'];
+
+    if (!status || !validStatuses.includes(status)) {
+      return res.status(400).json({ message: `Invalid status. Must be one of: ${validStatuses.join(', ')}` });
+    }
+
+    const subscription = await Subscription.findById(req.params.id);
+    if (!subscription) {
+      return res.status(404).json({ message: 'Subscription not found' });
+    }
+
+    subscription.status = status;
+    await subscription.save();
+
+    const populated = await Subscription.findById(subscription._id).populate('tier').lean();
+    res.json({ message: `Subscription status updated to ${status}`, subscription: populated });
+  } catch (err) {
+    console.error('Failed to update subscription status:', err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
 export default router;

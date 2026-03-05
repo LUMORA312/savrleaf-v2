@@ -61,8 +61,20 @@ router.post('/', async (req, res) => {
         isActiveByLink: false,
         firstLogin: true,
       });
-    }else{
-      return res.status(400).json({ error: `User already exists.` });
+    } else {
+      // Allow re-application if previous application was rejected
+      const existingApp = await Application.findOne({ user: user._id }).sort({ createdAt: -1 });
+      if (existingApp && existingApp.status === 'rejected') {
+        // Reuse existing user, update their info
+        user.firstName = firstName;
+        user.lastName = lastName;
+        user.isActive = false;
+        user.activationToken = activationToken;
+        user.expirationTime = Date.now() + 1000 * 60 * 60 * 24;
+        await user.save();
+      } else {
+        return res.status(400).json({ error: `User already exists.` });
+      }
     }
     
     const application = new Application({
@@ -293,11 +305,61 @@ router.post('/:id/reject', authMiddleware, adminMiddleware, async (req, res) => 
     if (user) {
       user.isActive = false;
       await user.save();
+
+      // Cancel associated subscription
+      const subscription = await Subscription.findOne({ user: user._id });
+      if (subscription && subscription.status !== 'canceled') {
+        subscription.status = 'canceled';
+        await subscription.save();
+      }
     }
 
-    res.json({ message: 'Application, user, and dispensary rejected', application: app });
+    res.json({ message: 'Application, user, dispensary, and subscription rejected', application: app });
   } catch (err) {
     console.error(err);
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Reset rejected application back to pending (admin only)
+router.post('/:id/reset', authMiddleware, adminMiddleware, async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+    if (!application) {
+      return res.status(404).json({ message: 'Application not found' });
+    }
+    if (application.status !== 'rejected') {
+      return res.status(400).json({ message: 'Only rejected applications can be reset' });
+    }
+
+    // Reset application status
+    application.status = 'pending';
+    await application.save();
+
+    // Reactivate user
+    const user = await User.findOne({ email: application.email });
+    if (user) {
+      user.isActive = false; // keep inactive until re-approved
+      await user.save();
+
+      // Reactivate subscription so approval check passes
+      const subscription = await Subscription.findOne({ user: user._id });
+      if (subscription && subscription.status === 'canceled') {
+        subscription.status = 'active';
+        await subscription.save();
+      }
+    }
+
+    // Reset dispensary status
+    const dispensary = await Dispensary.findOne({ application: application._id });
+    if (dispensary) {
+      dispensary.status = 'pending';
+      await dispensary.save();
+    }
+
+    res.json({ message: 'Application reset to pending. Ready for re-approval.', application });
+  } catch (err) {
+    console.error('Error resetting application:', err);
     res.status(500).json({ message: 'Server error' });
   }
 });

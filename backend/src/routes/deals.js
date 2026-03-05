@@ -4,6 +4,7 @@ import Deal from '../models/Deal.js';
 import Dispensary from '../models/Dispensary.js';
 import { getDistanceFromCoords } from '../utils/geocode.js';
 import { ensureDealHasImage } from '../utils/defaultCategoryImages.js';
+import authMiddleware from '../middleware/authMiddleware.js';
 
 const router = express.Router();
 
@@ -491,7 +492,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', authMiddleware, async (req, res) => {
   try {
     const deletedDeal = await Deal.findByIdAndDelete(req.params.id);
 
