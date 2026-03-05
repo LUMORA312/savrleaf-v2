@@ -57,6 +57,9 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
   const [dealStatusFilter, setDealStatusFilter] = useState<string>('all');
   const [dealDispensaryFilter, setDealDispensaryFilter] = useState<string>('all');
 
+  // Application filter state
+  const [appStatusFilter, setAppStatusFilter] = useState<string>('all');
+
   const [showAddPartnerModal, setShowAddPartnerModal] = useState(false);
   const [firstName, setFirstName] = useState('');
   const [lastName, setLastName] = useState('');
@@ -167,6 +170,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
         const token = localStorage.getItem('token');
         const res = await axios.get(`${process.env.NEXT_PUBLIC_API_URL}/admin/dashboard`, {
           headers: { Authorization: `Bearer ${token}` },
+          params: { includeArchived: 'true' },
         });
 
         setOverview(res.data.overview);
@@ -481,6 +485,24 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
     } catch (err) {
       console.error('Error unarchiving application:', err);
       alert('Failed to unarchive application');
+    }
+  };
+
+  const handleResetApplication = async (id: string) => {
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/applications/${id}/reset`,
+        null,
+        { headers: { Authorization: `Bearer ${localStorage.getItem('token')}` } }
+      );
+      const updatedApp = res.data.application;
+      setApplications((prev) =>
+        prev.map((a) => (a._id === id ? { ...a, ...updatedApp, status: 'pending' } : a))
+      );
+      alert('Application reset to pending');
+    } catch (err: any) {
+      console.error('Error resetting application:', err);
+      alert(err?.response?.data?.message || 'Failed to reset application');
     }
   };
 
@@ -1242,8 +1264,27 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
       {activeTab === 'applications' && (
         <>
           <h2 className="text-3xl font-extrabold text-orange-700 mb-6">Applications</h2>
+          <div className="flex gap-2 mb-4 flex-wrap">
+            {['all', 'pending', 'approved', 'rejected', 'archived'].map((status) => (
+              <button
+                key={status}
+                className={`px-3 py-1 rounded-full text-sm font-semibold cursor-pointer ${
+                  appStatusFilter === status
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+                onClick={() => setAppStatusFilter(status)}
+              >
+                {status.charAt(0).toUpperCase() + status.slice(1)}
+              </button>
+            ))}
+          </div>
           <AdminTable
-            data={applications}
+            data={applications.filter((app) => {
+              if (appStatusFilter === 'all') return true;
+              if (appStatusFilter === 'archived') return app.isArchived;
+              return app.status === appStatusFilter && !app.isArchived;
+            })}
             columns={[
               {
                 key: 'fullName',
@@ -1295,6 +1336,17 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                 >
                   {app.status === 'approved' ? 'Reject' : 'Approve'}
                 </button>
+                {app.status === 'rejected' && (
+                  <button
+                    className="px-3 py-1 rounded cursor-pointer bg-orange-500 text-white"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleResetApplication(app._id);
+                    }}
+                  >
+                    Reset
+                  </button>
+                )}
                 {app.isArchived ? (
                   <button
                     className="px-3 py-1 rounded cursor-pointer bg-blue-600 text-white"
