@@ -411,21 +411,26 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
       );
 
       const updatedApp = res.data.application;
-      const updatedDisp = res.data.dispensary;
+      const createdDispensaries = res.data.dispensaries;
 
       // Update applications
       setApplications((prev) =>
         prev.map((a) => (a._id === id ? updatedApp : a))
       );
 
-      // Update dispensaries if there’s an associated dispensary
-      if (updatedDisp) {
-        setDispensaries((prev) =>
-          prev.map((d) => (d._id === updatedDisp._id ? updatedDisp : d))
-        );
+      // Add newly created dispensaries to the list
+      if (createdDispensaries?.length) {
+        setDispensaries((prev) => {
+          const existingIds = new Set(prev.map((d: Dispensary) => d._id));
+          const newDisps = createdDispensaries.filter((d: Dispensary) => !existingIds.has(d._id));
+          return [...prev, ...newDisps];
+        });
       }
-    } catch (err) {
+
+      alert(res.data.message || 'Application approved');
+    } catch (err: any) {
       console.error(err);
+      alert(err?.response?.data?.message || 'Failed to approve application');
     }
   };
 
