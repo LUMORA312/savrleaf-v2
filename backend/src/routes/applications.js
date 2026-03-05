@@ -344,7 +344,7 @@ router.post('/:id/reset', authMiddleware, adminMiddleware, async (req, res) => {
 
       // Reactivate subscription so approval check passes
       const subscription = await Subscription.findOne({ user: user._id });
-      if (subscription && subscription.status === 'canceled') {
+      if (subscription && subscription.status !== 'active') {
         subscription.status = 'active';
         await subscription.save();
       }
