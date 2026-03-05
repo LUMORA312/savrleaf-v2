@@ -149,13 +149,29 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     };
   }, [items.length]);
 
+  const [visible, setVisible] = useState(false);
+
+  useEffect(() => {
+    if (items.length > 0) {
+      // Small delay so the browser paints the initial state first
+      const t = setTimeout(() => setVisible(true), 50);
+      return () => clearTimeout(t);
+    }
+  }, [items.length > 0]);
+
   if (items.length === 0) return null;
 
   // Build the marquee string for desktop (items repeated for seamless loop)
   const marqueeItems = [...items, ...items];
 
   return (
-    <div className="bg-green-950 border-b border-green-800 text-white w-full overflow-hidden" style={{ height: '36px' }}>
+    <div
+      className="bg-green-950 border-b border-green-800 text-white w-full overflow-hidden transition-all duration-500 ease-out"
+      style={{
+        height: visible ? '36px' : '0px',
+        opacity: visible ? 1 : 0,
+      }}
+    >
 
       {/* Desktop: continuous marquee scroll */}
       <div className="hidden md:flex items-center h-full">
