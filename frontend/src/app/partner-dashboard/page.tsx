@@ -240,7 +240,7 @@ function PartnerDashboardContent() {
       {activeTab === 'overview' && (
         <>
           <h2 className="mb-6 text-3xl font-extrabold text-orange-700 tracking-tight">
-            My Deals
+            My Discounts
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {/* Total Deals */}
@@ -282,7 +282,7 @@ function PartnerDashboardContent() {
         <>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-extrabold text-orange-700 tracking-tight">
-              My Deals
+              My Discounts
             </h2>
 
             <button

@@ -30,7 +30,7 @@ router.post('/track', async (req, res) => {
     if (!deal) {
       return res.status(404).json({
         success: false,
-        message: 'Deal not found',
+        message: 'Discount not found',
       });
     }
 

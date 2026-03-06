@@ -309,7 +309,7 @@ router.post('/', async (req, res) => {
       return res.status(404).json({ success: false, message: 'Dispensary not found' });
     }
     if (dispensaryObject.usedSkus >= dispensaryObject.skuLimit + dispensaryObject.additionalSkuLimit) {
-      return res.status(400).json({ success: false, message: 'Deal limit reached' });
+      return res.status(400).json({ success: false, message: 'Discount limit reached' });
     }
 
     // if (dealCount >= maxLimit) {
@@ -455,7 +455,7 @@ router.get('/savings-ticker', async (req, res) => {
       .populate('dispensary', 'name');
 
     const topDeals = topDealsRaw.map(d => ({
-      title: d.title || d.category || 'Deal',
+      title: d.title || d.category || 'Discount',
       discountTier: d.discountTier,
       salePrice: d.salePrice,
       dispensaryName: typeof d.dispensary === 'object' ? d.dispensary?.name : null,
@@ -480,7 +480,7 @@ router.put('/:id', async (req, res) => {
     // Get existing deal to check category if images are being updated
     const existingDeal = await Deal.findById(req.params.id);
     if (!existingDeal) {
-      return res.status(404).json({ success: false, message: 'Deal not found' });
+      return res.status(404).json({ success: false, message: 'Discount not found' });
     }
 
     // If images are being updated, ensure at least one image exists
@@ -506,7 +506,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
     const deletedDeal = await Deal.findByIdAndDelete(req.params.id);
 
     if (!deletedDeal) {
-      return res.status(404).json({ success: false, message: 'Deal not found' });
+      return res.status(404).json({ success: false, message: 'Discount not found' });
     }
     const dispensary = await Dispensary.findById(deletedDeal.dispensary);
     if (dispensary) {
@@ -514,7 +514,7 @@ router.delete('/:id', authMiddleware, async (req, res) => {
       await dispensary.save();
     }
 
-    res.json({ success: true, message: 'Deal deleted successfully' });
+    res.json({ success: true, message: 'Discount deleted successfully' });
   } catch (err) {
     console.error('Error deleting deal:', err);
     res.status(500).json({ success: false, message: 'Internal server error' });

@@ -509,7 +509,7 @@ export default function DispensaryForm({ initialData, onSave, onCancel, userIdOv
       {/* Accessories & Merch */}
       <div>
         <label className="block text-sm font-medium text-gray-700 mb-2">Accessories & Merch (optional)</label>
-        <p className="text-xs text-gray-500 mb-2">Highlight discounted non-cannabis items like rolling papers, apparel, glassware, etc. This does not count toward your deal/SKU limit.</p>
+        <p className="text-xs text-gray-500 mb-2">Highlight discounted non-cannabis items like rolling papers, apparel, glassware, etc. This does not count toward your discount/SKU limit.</p>
         <textarea
           name="accessoriesMerch"
           value={form.accessoriesMerch}

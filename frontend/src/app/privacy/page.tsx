@@ -85,7 +85,7 @@ const PrivacyPage = () => {
                       </p>
                       <ul>
                         <li>
-                          Partner dispensaries (when you interact with their deals)
+                          Partner dispensaries (when you interact with their discounts)
                         </li>
                         <li>Legal authorities (when required by law)</li>
                         <li>
