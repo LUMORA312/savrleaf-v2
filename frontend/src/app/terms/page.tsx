@@ -313,6 +313,154 @@ const TermsPage = () => {
                 </div>
               </div>
             </section>
+
+            {/* Partner Listing Terms */}
+            <section className="mt-12 pt-8 border-t border-gray-200">
+              <h2 className="text-2xl font-bold mb-2 text-gray-900">
+                Partner Listing Terms (SavrLeaf)
+              </h2>
+              <p className="text-sm text-gray-600 mb-6">
+                These terms reflect our &quot;discounted sale items only&quot; vision and clarify concierge uploads.
+              </p>
+
+              <div className="space-y-8">
+                {/* 1 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    1) Discount-Only Requirement
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      SavrLeaf is for discounted cannabis sale items only. Partners may only list items that are actively discounted from normal pricing.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 2 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    2) Accuracy + Honoring Listed Discounts
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      Partner is responsible for ensuring all listings are accurate (price, product details, availability, timing, and destination link). If a discount is posted on SavrLeaf, Partner agrees to make a good-faith effort to honor it as displayed during the active period (subject to inventory availability and applicable laws).
+                    </p>
+                  </div>
+                </section>
+
+                {/* 3 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    3) Expiration Required + Auto-Hide
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      Every listing must include an expiration date/time (or end date). Expired listings will be automatically removed/hidden.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 4 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    4) Self-Serve Updates (Anytime)
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      Partners may update listings at any time through their Partner Dashboard. Partner is responsible for keeping listings current.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 5 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    5) Concierge Uploads (Optional Posting by SavrLeaf)
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      If Partner requests SavrLeaf to post or update listings on Partner&apos;s behalf (&quot;concierge uploads&quot;):
+                    </p>
+
+                    <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
+                      a) Batch Window / Timeframe
+                    </h4>
+                    <p>
+                      Concierge uploads are processed within the agreed update window/timeframe (e.g., a weekly batch). Updates submitted outside that window may be scheduled for the next batch.
+                    </p>
+
+                    <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
+                      b) Submission Format
+                    </h4>
+                    <p>
+                      Partner must submit all required listing details in SavrLeaf&apos;s requested format. At minimum, each listing must include: product name, product type, discount price, expiration date/time, destination link, and an image (or image URL). SavrLeaf may delay or decline posting incomplete submissions until required fields are provided.
+                    </p>
+
+                    <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
+                      c) Off-Cycle / Urgent Requests
+                    </h4>
+                    <p>
+                      Off-cycle updates outside the normal window are not guaranteed and may be declined or handled as a separate paid add-on (if offered).
+                    </p>
+
+                    <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
+                      d) Error Corrections
+                    </h4>
+                    <p>
+                      If Partner reports a true posting error (wrong price/link caused by SavrLeaf), SavrLeaf will make reasonable efforts to correct it promptly.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 6 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    6) No Transactions Handled by SavrLeaf
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      SavrLeaf does not process payments or transactions. Listings redirect users to Partner&apos;s website/menu/order destination.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 7 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    7) Compliance + 21+
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      Partner is responsible for compliance with all applicable cannabis laws and regulations. SavrLeaf is a 21+ platform.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 8 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    8) Moderation / Admin Override
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      SavrLeaf may edit, pause, or remove any listing or partner page at its discretion (including for inaccurate discounts, expired listings, or policy violations) to protect users and platform quality.
+                    </p>
+                  </div>
+                </section>
+
+                {/* 9 */}
+                <section>
+                  <h3 className="text-xl font-semibold mb-3 text-gray-900">
+                    9) Brand Assets Permission
+                  </h3>
+                  <div className="text-gray-700 leading-relaxed">
+                    <p>
+                      Partner grants SavrLeaf permission to display Partner name, logo, and submitted images solely for promoting Partner&apos;s discounted listings on SavrLeaf.
+                    </p>
+                  </div>
+                </section>
+              </div>
+            </section>
           </article>
 
           {/* Back Button */}
