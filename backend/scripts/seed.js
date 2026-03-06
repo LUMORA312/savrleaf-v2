@@ -79,10 +79,10 @@ async function seed() {
       name: 'starter',
       displayName: 'Starter',
       tier: 1,
-      monthlyPrice: 89,
-      annualPrice: 1068,
+      monthlyPrice: 89.99,
+      annualPrice: 1079.88,
       baseSKULimit: 13,
-      features: ['Up to 13 active deals'],
+      features: ['Up to 13 active discounts'],
     },
     {
       name: 'growth',
@@ -91,7 +91,7 @@ async function seed() {
       monthlyPrice: 129,
       annualPrice: 1548,
       baseSKULimit: 25,
-      features: ['Up to 25 active deals'],
+      features: ['Up to 25 active discounts'],
     },
     {
       name: 'pro',
@@ -100,7 +100,7 @@ async function seed() {
       monthlyPrice: 189,
       annualPrice: 2268,
       baseSKULimit: 40,
-      features: ['Up to 40 active deals'],
+      features: ['Up to 40 active discounts'],
     },
   ]);
 

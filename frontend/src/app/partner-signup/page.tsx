@@ -57,9 +57,9 @@ export default function PartnerSignupPage() {
               <div className="bg-orange-600 text-white rounded-full w-16 h-16 flex items-center justify-center font-bold text-2xl mx-auto mb-4">
                 3
               </div>
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Deals</h3>
+              <h3 className="text-lg font-semibold text-gray-900 mb-2">Upload Discounts</h3>
               <p className="text-gray-600 text-sm">
-                Start uploading your discounted deals today and reach more customers.
+                Start uploading your discounted items today and reach more customers.
               </p>
             </div>
           </div>
@@ -69,10 +69,7 @@ export default function PartnerSignupPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Pricing</h3>
             <div className="text-center space-y-2 text-gray-700">
               <p className="text-base">
-                <strong>$159/month</strong> for the first location
-              </p>
-              <p className="text-base">
-                <strong>$99/month</strong> for each additional location (approval required)
+                <strong>$89.99/month</strong> per location
               </p>
               <p className="text-sm text-gray-600 mt-3">
                 Term options available: 3 months (save 5%), 6 months (save 10%), 12 months (save 15%)

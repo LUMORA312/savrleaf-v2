@@ -53,7 +53,7 @@ export default function MarketTicker({ ticker }: MarketTickerProps) {
     if (ticker) {
       list.push({
         key: 'deals',
-        label: '🔥 New Deals Added:',
+        label: '🔥 New Discounts Added:',
         value: `${ticker.activeDeals}`,
         valueColor: 'text-orange-300',
       });

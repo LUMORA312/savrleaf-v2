@@ -245,13 +245,13 @@ function PartnerDashboardContent() {
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
             {/* Total Deals */}
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center border border-orange-200">
-              <h3 className="text-lg font-semibold text-orange-700">Total Deals</h3>
+              <h3 className="text-lg font-semibold text-orange-700">Total Discounts</h3>
               <p className="text-5xl font-extrabold mt-2 text-gray-900">{overview?.totalDeals}</p>
             </div>
 
             {/* Active Deals */}
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center border border-green-200">
-              <h3 className="text-lg font-semibold text-green-700">Active Deals</h3>
+              <h3 className="text-lg font-semibold text-green-700">Active Discounts</h3>
               <p className="text-5xl font-extrabold mt-2 text-gray-900">{overview?.activeDeals}</p>
             </div>
 
@@ -317,7 +317,7 @@ function PartnerDashboardContent() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
-              Add Deal
+              Add Discount
             </button>
           </div>
           <DealsList deals={deals} setDeals={setDeals} onEdit={handleEditDeal} dispensaries={dispensaries} />

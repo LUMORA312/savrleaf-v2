@@ -394,11 +394,11 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
           d._id === deal._id ? { ...d, manuallyActivated: !d.manuallyActivated } : d
         ));
       } else {
-        alert(res.data.message || 'Failed to update deal activation status.');
+        alert(res.data.message || 'Failed to update discount activation status.');
       }
     } catch (err) {
       console.error('Error toggling deal activation:', err);
-      alert('Error updating deal activation status.');
+      alert('Error updating discount activation status.');
     }
   };
 
@@ -692,7 +692,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             </div>
 
             <div className="bg-white p-6 rounded-xl shadow flex flex-col items-center border border-orange-200">
-              <h3 className="text-lg font-semibold text-orange-700">Total Deals</h3>
+              <h3 className="text-lg font-semibold text-orange-700">Total Discounts</h3>
               <p className="text-5xl font-extrabold mt-2 text-gray-900">{overview?.totalDeals}</p>
             </div>
 
@@ -965,7 +965,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             {/* Search Input */}
             <div>
               <label htmlFor="deal-search" className="block text-sm font-medium text-gray-700 mb-2">
-                Search Deals
+                Search Discounts
               </label>
               <div className="relative">
                 <input
@@ -1224,7 +1224,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                       ? 'bg-red-600 hover:bg-red-700'
                       : 'bg-green-600 hover:bg-green-700'
                   }`}
-                  title={deal.manuallyActivated ? 'Deactivate deal' : 'Activate deal'}
+                  title={deal.manuallyActivated ? 'Deactivate discount' : 'Activate discount'}
                 >
                   {deal.manuallyActivated ? 'Inactive' : 'Active'}
                 </button> */}
@@ -1240,7 +1240,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                 <button
                   onClick={async (e) => {
                     e.stopPropagation();
-                    if (!confirm('Are you sure you want to delete this deal?')) return;
+                    if (!confirm('Are you sure you want to delete this discount?')) return;
                     try {
                       const res = await axios.delete(
                         `${process.env.NEXT_PUBLIC_API_URL}/deals/${deal._id}`,
@@ -1249,11 +1249,11 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
                       if (res.data.success) {
                         setDeals(deals.filter((d) => d._id !== deal._id));
                       } else {
-                        alert(res.data.message || 'Failed to delete deal.');
+                        alert(res.data.message || 'Failed to delete discount.');
                       }
                     } catch (err) {
-                      console.error('Error deleting deal:', err);
-                      alert('Error deleting deal.');
+                      console.error('Error deleting discount:', err);
+                      alert('Error deleting discount.');
                     }
                   }}
                   className="px-3 py-1 rounded cursor-pointer bg-red-600 hover:bg-red-700 text-white text-sm"

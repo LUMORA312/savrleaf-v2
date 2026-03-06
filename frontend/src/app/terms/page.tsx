@@ -38,10 +38,10 @@ const TermsPage = () => {
                   1) Platform Purpose
                 </h3>
                 <div className="text-gray-700 leading-relaxed">
-                  <p>SavrLeaf is a cannabis deal discovery platform that:</p>
+                  <p>SavrLeaf is a cannabis discount discovery platform that:</p>
                   <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li>Displays discounted cannabis deals only</li>
-                    <li>Helps shoppers find deals by location</li>
+                    <li>Displays discounted cannabis items only</li>
+                    <li>Helps shoppers find discounts by location</li>
                     <li>Routes outbound clicks to a Partner's website for viewing, reservation, or purchase</li>
                   </ul>
                   <p className="mt-2">
@@ -76,11 +76,10 @@ const TermsPage = () => {
                 <div className="text-gray-700 leading-relaxed">
                   <p>Partner subscription pricing:</p>
                   <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li><strong>$159/month</strong> for the first location</li>
-                    <li><strong>$99/month</strong> for each additional location (subject to approval; see Section 4)</li>
+                    <li><strong>$89.99/month</strong> per location</li>
                   </ul>
                   <p className="mt-2">
-                    Each location is treated independently for listing access, deal visibility, and dashboard management.
+                    Each location is treated independently for listing access, discount visibility, and dashboard management.
                   </p>
                 </div>
               </section>
@@ -182,7 +181,7 @@ const TermsPage = () => {
               {/* Section 9 */}
               <section>
                 <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                  9) Discounted Deals Only (Content Rule)
+                  9) Discounted Items Only (Content Rule)
                 </h3>
                 <div className="text-gray-700 leading-relaxed">
                   <p><strong>SavrLeaf is strictly for discounted items.</strong></p>
@@ -205,7 +204,7 @@ const TermsPage = () => {
                   10) Outbound Clicks & Transactions
                 </h3>
                 <div className="text-gray-700 leading-relaxed">
-                  <p>Clicking a deal sends the user to the Partner's website.</p>
+                  <p>Clicking a discount sends the user to the Partner's website.</p>
                   <p className="mt-2">
                     The Partner is fully responsible for checkout, reservation, inventory, pricing accuracy, fulfillment, and customer service.
                   </p>
@@ -238,10 +237,10 @@ const TermsPage = () => {
                 <div className="text-gray-700 leading-relaxed">
                   <p>SavrLeaf reserves the right to:</p>
                   <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li>remove deals or dispensary content at any time</li>
+                    <li>remove discounts or dispensary content at any time</li>
                     <li>suspend, limit, or terminate Partner access</li>
                     <li>refuse service to any Partner at its discretion</li>
-                    <li>adjust deal visibility, account status, and listings to protect platform integrity</li>
+                    <li>adjust discount visibility, account status, and listings to protect platform integrity</li>
                   </ul>
                 </div>
               </section>
@@ -300,7 +299,7 @@ const TermsPage = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <div className="space-y-3 text-gray-700">
                   <div>
-                    <strong>Pricing:</strong> $159/month first location + $99/month each additional location (approval required).
+                    <strong>Pricing:</strong> $89.99/month per location (approval required for additional locations).
                   </div>
                   <div>
                     <strong>Partner Term Options:</strong> 3 months save 5% • 6 months save 10% • 12 months save 15%*
@@ -309,7 +308,7 @@ const TermsPage = () => {
                     <strong>Cancellations:</strong> Monthly plans require 7-day notice before renewal. Term plans are commitments; cancellation stops renewal at term end. No refunds for unused time.*
                   </div>
                   <div>
-                    <strong>Deals Policy:</strong> Discounted items only. SavrLeafDeals does not sell cannabis and does not process transactions. 21+ only.
+                    <strong>Discounts Policy:</strong> Discounted items only. SavrLeaf does not sell cannabis and does not process transactions. 21+ only.
                   </div>
                 </div>
               </div>

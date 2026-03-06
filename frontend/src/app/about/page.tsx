@@ -21,10 +21,10 @@ const AboutPage = () => {
             {/* Intro Paragraph */}
             <section className="mb-10">
               <p className="text-gray-700 leading-relaxed text-lg mb-4">
-                SavrLeaf<sup className="text-xs align-super">®</sup> is a cannabis deal-discovery platform built exclusively for discounted and sale-priced products from licensed dispensaries. The platform is intentionally simple — helping shoppers 21+ find real deals by location or ingestion type, without accounts, logins, or clutter.
+                SavrLeaf<sup className="text-xs align-super">®</sup> is a cannabis discount-discovery platform built exclusively for discounted and sale-priced products from licensed dispensaries. The platform is intentionally simple — helping shoppers 21+ find real discounts by location or ingestion type, without accounts, logins, or clutter.
               </p>
               <p className="text-gray-700 leading-relaxed text-lg">
-                SavrLeaf does not process transactions and does not sell cannabis. All deals redirect users directly to participating dispensaries, allowing retailers to move discounted inventory efficiently while maintaining full control of pricing and fulfillment.
+                SavrLeaf does not process transactions and does not sell cannabis. All discounts redirect users directly to participating dispensaries, allowing retailers to move discounted inventory efficiently while maintaining full control of pricing and fulfillment.
               </p>
             </section>
 
@@ -69,7 +69,7 @@ const AboutPage = () => {
                 Compliance & Transparency
               </h2>
               <p className="text-gray-700 leading-relaxed">
-                SavrLeaf displays deal information provided by licensed dispensaries and redirects users off-site for all transactions. Users must be 21 years of age or older to access cannabis deals. Availability, pricing, and product details are managed entirely by each participating dispensary.
+                SavrLeaf displays discount information provided by licensed dispensaries and redirects users off-site for all transactions. Users must be 21 years of age or older to access cannabis discounts. Availability, pricing, and product details are managed entirely by each participating dispensary.
               </p>
             </section>
 

@@ -438,7 +438,7 @@ function DispensaryDetailsContent() {
         <div className="bg-white rounded-2xl shadow-lg p-6 md:p-8">
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-2xl font-bold text-orange-700">
-              Deals ({deals.length})
+              Discounts ({deals.length})
             </h2>
             <button
               onClick={handleAddDeal}
@@ -455,7 +455,7 @@ function DispensaryDetailsContent() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
               </svg>
-              Add Deal
+              Add Discount
             </button>
           </div>
 
@@ -475,7 +475,7 @@ function DispensaryDetailsContent() {
                   d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"
                 />
               </svg>
-              <p className="text-gray-500 text-lg">No deals available for this dispensary</p>
+              <p className="text-gray-500 text-lg">No discounts available for this dispensary</p>
               {/* <button
                 onClick={handleAddDeal}
                 className="mt-4 inline-flex items-center gap-2 bg-orange-600 hover:bg-orange-700 text-white font-semibold px-6 py-2 rounded-lg shadow-md transition"
@@ -490,7 +490,7 @@ function DispensaryDetailsContent() {
                 >
                   <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
                 </svg>
-                Add Deal
+                Add Discount
               </button> */}
             </div>
           ) : (
@@ -513,7 +513,7 @@ function DispensaryDetailsContent() {
                     <div className="relative h-48 w-full">
                       <Image
                         src={dealImageSrc}
-                        alt={deal.title || 'Deal'}
+                        alt={deal.title || 'Discount'}
                         fill
                         className="object-cover"
                       />
@@ -525,7 +525,7 @@ function DispensaryDetailsContent() {
                     </div>
                     <div className="p-4">
                       <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-1">
-                        {deal.title || 'Deal'}
+                        {deal.title || 'Discount'}
                       </h3>
                       {deal.brand && (
                         <p className="text-sm text-gray-600 mb-2">Brand: {deal.brand}</p>

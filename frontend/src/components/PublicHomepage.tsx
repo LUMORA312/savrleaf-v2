@@ -35,6 +35,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
     brand: '',
     strain: '',
     category: '',
+    tags: [],
   });
   const [activeTab, setActiveTab] = useState<'deal' | 'dispensary'>('deal');
   const [viewMode, setViewMode] = useState<'list' | 'map'>('list');
@@ -42,7 +43,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
   const [userLocation, setUserLocation] = useState<GeolocationCoordinates | null>(null);
   const [locationError, setLocationError] = useState<string | null>(null);
   const [zipCoordinates, setZipCoordinates] = useState<{ latitude: number; longitude: number } | null>(null);
-  const [valueSort, setValueSort] = useState<'bestValue' | 'biggestSavings' | 'under25' | ''>('');
+  const [valueSort, setValueSort] = useState<'under20' | 'under25' | 'biggestSavings' | ''>('');
 
   // Geolocation
   useEffect(() => {
@@ -102,6 +103,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
         if (filters.thcMin !== undefined) params.thcMin = filters.thcMin;
         if (filters.thcMax !== undefined) params.thcMax = filters.thcMax;
         if (filters.searchTerm) params.search = filters.searchTerm;
+        if (filters.tags && filters.tags.length > 0) params.tags = filters.tags.join(',');
 
         // Add location-based filtering only when location is available
         if (currentLocation && filters.radius) {
@@ -113,27 +115,24 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
           }
         }
 
-        // Add value-based filters/sorts
-        if (valueSort === 'bestValue') {
-          params.sortBy = 'best_value';
-        } else if (valueSort === 'biggestSavings') {
-          params.sortBy = 'biggest_savings';
-        } else {
-          // Standard sorting
-          if (filters.sortBy === 'priceAsc') {
-            params.sortBy = 'price_asc';
-          } else if (filters.sortBy === 'priceDesc') {
-            params.sortBy = 'price_desc';
-          } else if (filters.sortBy === 'newest') {
-            params.sortBy = 'newest';
-          } else if (currentLocation && filters.radius && Number(filters.radius) > 0) {
-            params.sortBy = 'distance';
-          }
+        // Price quick chips
+        if (valueSort === 'under20') {
+          params.maxSalePrice = 20;
+        } else if (valueSort === 'under25') {
+          params.maxSalePrice = 25;
         }
 
-        // Under $25
-        if (valueSort === 'under25') {
-          params.maxSalePrice = 25;
+        // Sort
+        if (valueSort === 'biggestSavings') {
+          params.sortBy = 'biggest_savings';
+        } else if (filters.sortBy === 'priceAsc') {
+          params.sortBy = 'price_asc';
+        } else if (filters.sortBy === 'priceDesc') {
+          params.sortBy = 'price_desc';
+        } else if (filters.sortBy === 'newest') {
+          params.sortBy = 'newest';
+        } else if (currentLocation && filters.radius && Number(filters.radius) > 0) {
+          params.sortBy = 'distance';
         }
 
         if (!Object.keys(params).length) return;
@@ -283,10 +282,10 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
                 <div className="bg-orange-600 text-white rounded-full w-10 h-10 flex items-center justify-center font-bold text-lg mr-4">
                   1
                 </div>
-                <h3 className="text-xl font-semibold text-gray-900">Search for Deals</h3>
+                <h3 className="text-xl font-semibold text-gray-900">Search for Discounts</h3>
               </div>
               <p className="text-gray-700 leading-relaxed">
-                Use the search bar to find discounted cannabis deals by title, category, or brand. Enter your ZIP code or use your current location to find deals near you. Filter by distance, price, strain, and more to find exactly what you're looking for.
+                Use the search bar to find discounted cannabis items by title, category, or brand. Enter your ZIP code or use your current location to find discounts near you. Filter by distance, price, strain, and more to find exactly what you're looking for.
               </p>
             </div>
             <div className="bg-orange-50 rounded-2xl p-6 border border-orange-100">
@@ -297,7 +296,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
                 <h3 className="text-xl font-semibold text-gray-900">Click to Visit Dispensary</h3>
               </div>
               <p className="text-gray-700 leading-relaxed">
-                When you find a deal you like, click on it to view details. Clicking on a deal will redirect you to the dispensary's website where you can complete your purchase. All purchases are made directly through the licensed dispensary.
+                When you find a discount you like, click on it to view details. Clicking on a discount will redirect you to the dispensary's website where you can complete your purchase. All purchases are made directly through the licensed dispensary.
               </p>
             </div>
           </div>
@@ -317,7 +316,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
           <div className="flex flex-col gap-3">
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
               <h2 className="text-xl font-semibold text-gray-800">
-                {loading ? 'Loading...' : `${deals.length} ${deals.length === 1 ? 'Deal' : 'Deals'} Found`}
+                {loading ? 'Loading...' : `${deals.length} ${deals.length === 1 ? 'Discount' : 'Discounts'} Found`}
               </h2>
               <div className="flex space-x-2 bg-gray-100 rounded-lg p-1">
                 <button
@@ -343,29 +342,18 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
               </div>
             </div>
 
-            {/* Value Buttons */}
+            {/* Price Quick Chips */}
             <div className="flex flex-wrap gap-2">
               <button
                 type="button"
-                onClick={() => setValueSort(valueSort === 'bestValue' ? '' : 'bestValue')}
+                onClick={() => setValueSort(valueSort === 'under20' ? '' : 'under20')}
                 className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
-                  valueSort === 'bestValue'
+                  valueSort === 'under20'
                     ? 'bg-green-600 text-white border-green-600'
                     : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
                 }`}
               >
-                Best Value
-              </button>
-              <button
-                type="button"
-                onClick={() => setValueSort(valueSort === 'biggestSavings' ? '' : 'biggestSavings')}
-                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
-                  valueSort === 'biggestSavings'
-                    ? 'bg-green-600 text-white border-green-600'
-                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
-                }`}
-              >
-                Biggest Savings
+                Under $20
               </button>
               <button
                 type="button"
@@ -378,6 +366,17 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
               >
                 Under $25
               </button>
+              <button
+                type="button"
+                onClick={() => setValueSort(valueSort === 'biggestSavings' ? '' : 'biggestSavings')}
+                className={`px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold border cursor-pointer ${
+                  valueSort === 'biggestSavings'
+                    ? 'bg-green-600 text-white border-green-600'
+                    : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                Biggest Savings
+              </button>
             </div>
           </div>
         </div>
@@ -388,7 +387,7 @@ export default function PublicHomepage({ ticker }: PublicHomepageProps) {
         <div className="max-w-7xl mx-auto px-6">
           {loading ? (
             <div className="w-full h-[calc(100vh-300px)] min-h-[500px] rounded-lg overflow-hidden shadow-lg border border-gray-200 bg-gray-100 flex items-center justify-center">
-              <div className="text-gray-500">Loading deals...</div>
+              <div className="text-gray-500">Loading discounts...</div>
             </div>
           ) : (
             <DealsMapView 

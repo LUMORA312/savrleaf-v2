@@ -116,11 +116,11 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
   }, [searchFilteredDeals]);
 
   if (deals.length === 0) {
-    return <p className="text-gray-500">No deals found.</p>;
+    return <p className="text-gray-500">No discounts found.</p>;
   }
 
   const handleDelete = async (dealId: string) => {
-    if (!confirm('Are you sure you want to delete this deal?')) return;
+    if (!confirm('Are you sure you want to delete this discount?')) return;
 
     try {
       const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/deals/${dealId}`, {
@@ -131,11 +131,11 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
       if (data.success) {
         setDeals(deals.filter((deal) => deal._id !== dealId));
       } else {
-        alert(data.message || 'Failed to delete deal.');
+        alert(data.message || 'Failed to delete discount.');
       }
     } catch (err) {
-      console.error('Error deleting deal:', err);
-      alert('Error deleting deal.');
+      console.error('Error deleting discount:', err);
+      alert('Error deleting discount.');
     }
   };
 
@@ -202,7 +202,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
         <div className="h-50 w-full rounded-xl overflow-hidden mb-4">
           <Image
             src={deal.images?.[0] || defaultDealImg.src}
-            alt={deal.title || 'Deal'}
+            alt={deal.title || 'Discount'}
             width={400}
             height={160}
             className="h-full w-full object-cover"
@@ -211,7 +211,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
 
         <div className="flex justify-between items-center">
           <div>
-            <h3 className="text-lg font-bold mb-1">{deal.title || 'Deal'}</h3>
+            <h3 className="text-lg font-bold mb-1">{deal.title || 'Discount'}</h3>
             <p className="text-sm text-gray-600 line-clamp-2">{deal.description}</p>
           </div>
           <div>
@@ -343,7 +343,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
         {/* Search Input */}
         <div>
           <label htmlFor="deal-search" className="block text-sm font-medium text-gray-700 mb-2">
-            Search Deals
+            Search Discounts
           </label>
           <div className="relative">
             <input
@@ -383,7 +383,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
           </div>
           {searchQuery && (
             <p className="mt-1 text-sm text-gray-500">
-              Found {searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'deal' : 'deals'} matching &quot;{searchQuery}&quot;
+              Found {searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'discount' : 'discounts'} matching &quot;{searchQuery}&quot;
             </p>
           )}
         </div>
@@ -399,12 +399,12 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
             onChange={(e) => setSelectedDispensaryId(e.target.value)}
             className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 rounded-lg min-w-[250px]"
           >
-            <option value="all">All Dispensaries ({searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'deal' : 'deals'})</option>
+            <option value="all">All Dispensaries ({searchFilteredDeals.length} {searchFilteredDeals.length === 1 ? 'discount' : 'discounts'})</option>
             {dispensaryIds.map((dispensaryId) => {
               const count = groupedDeals[dispensaryId]?.length || 0;
               return (
                 <option key={dispensaryId} value={dispensaryId}>
-                  {getDispensaryName(dispensaryId)} ({count} {count === 1 ? 'deal' : 'deals'})
+                  {getDispensaryName(dispensaryId)} ({count} {count === 1 ? 'discount' : 'discounts'})
                 </option>
               );
             })}
@@ -417,8 +417,8 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
         <div className="bg-white p-8 rounded-lg shadow text-center">
           <p className="text-gray-500">
             {searchQuery
-              ? `No deals found matching "${searchQuery}"${selectedDispensaryId !== 'all' ? ` for ${getDispensaryName(selectedDispensaryId)}` : ''}.`
-              : 'No deals found.'}
+              ? `No discounts found matching "${searchQuery}"${selectedDispensaryId !== 'all' ? ` for ${getDispensaryName(selectedDispensaryId)}` : ''}.`
+              : 'No discounts found.'}
           </p>
         </div>
       ) : selectedDispensaryId === 'all' ? (
@@ -429,7 +429,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
               <h3 className="text-2xl font-bold text-orange-700 mb-4 pb-2 border-b-2 border-orange-200">
                 {getDispensaryName(dispensaryId)}
                 <span className="ml-2 text-lg font-normal text-gray-500">
-                  ({dispensaryDeals.length} {dispensaryDeals.length === 1 ? 'deal' : 'deals'})
+                  ({dispensaryDeals.length} {dispensaryDeals.length === 1 ? 'discount' : 'discounts'})
                 </span>
               </h3>
               <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -444,7 +444,7 @@ export default function DealsList({ deals, setDeals, onEdit, dispensaries }: Dea
           <h3 className="text-2xl font-bold text-orange-700 mb-4 pb-2 border-b-2 border-orange-200">
             {getDispensaryName(selectedDispensaryId)}
             <span className="ml-2 text-lg font-normal text-gray-500">
-              ({filteredDeals.length} {filteredDeals.length === 1 ? 'deal' : 'deals'})
+              ({filteredDeals.length} {filteredDeals.length === 1 ? 'discount' : 'discounts'})
             </span>
           </h3>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">

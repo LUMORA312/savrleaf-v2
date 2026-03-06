@@ -52,8 +52,8 @@ const PrivacyPage = () => {
                       </p>
                       <ul>
                         <li>Age verification data (21+ confirmation)</li>
-                        <li>Location data (to show nearby deals)</li>
-                        <li>Basic usage analytics (page views, deal interactions)</li>
+                        <li>Location data (to show nearby discounts)</li>
+                        <li>Basic usage analytics (page views, discount interactions)</li>
                         <li>
                           Partner account information (for dispensary partners only)
                         </li>
@@ -68,7 +68,7 @@ const PrivacyPage = () => {
                       <p>We use collected information solely to:</p>
                       <ul>
                         <li>Verify age requirements (21+)</li>
-                        <li>Show relevant deals in your area</li>
+                        <li>Show relevant discounts in your area</li>
                         <li>Improve our platform and user experience</li>
                         <li>Communicate with our business partners</li>
                       </ul>

@@ -249,7 +249,7 @@ export default function DispensaryDetailPage() {
           {showDeals && (
             <div>
               <h2 className="text-2xl font-bold text-gray-900 mb-6">
-                Deals ({deals.length})
+                Discounts ({deals.length})
               </h2>
 
               {deals.length > 0 ? (
@@ -261,7 +261,7 @@ export default function DispensaryDetailPage() {
               ) : (
                 <div className="bg-white rounded-2xl shadow-lg p-12 text-center">
                   <p className="text-gray-600 text-lg">
-                    {isGeneric ? 'Generic dispensaries do not list deals here.' : 'No deals available at this dispensary at the moment.'}
+                    {isGeneric ? 'Generic dispensaries do not list discounts here.' : 'No discounts available at this dispensary at the moment.'}
                   </p>
                   {isGeneric && dispensary.websiteUrl ? (
                     <a

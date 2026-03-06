@@ -142,7 +142,7 @@ export default function Analytics() {
             <BarChart3 className="w-6 h-6 text-orange-600" />
             Analytics
           </h1>
-          <p className="text-sm text-gray-500 mt-1">ADMIN ONLY - Deal click tracking and statistics</p>
+          <p className="text-sm text-gray-500 mt-1">ADMIN ONLY - Discount click tracking and statistics</p>
         </div>
       </div>
 
@@ -160,7 +160,7 @@ export default function Analytics() {
         <div className="bg-white rounded-lg shadow p-6">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-sm text-gray-500">Unique Deals</p>
+              <p className="text-sm text-gray-500">Unique Discounts</p>
               <p className="text-2xl font-bold text-gray-900 mt-1">{data.statistics.uniqueDeals}</p>
             </div>
             <Package className="w-8 h-8 text-blue-600" />
@@ -217,7 +217,7 @@ export default function Analytics() {
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Top Deals */}
         <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Deals by Clicks</h2>
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">Top Discounts by Clicks</h2>
           <div className="space-y-3">
             {data.topDeals.length > 0 ? (
               data.topDeals.map((deal, index) => (
@@ -270,7 +270,7 @@ export default function Analytics() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date/Time</th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Deal</th>
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Discount</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Dispensary</th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Distance</th>
               </tr>
