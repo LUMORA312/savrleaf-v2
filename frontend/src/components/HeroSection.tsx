@@ -82,13 +82,13 @@ export default function HeroSection({
           <Image src={logo} alt="SavrLeaf Logo" width={120} height={120} className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
         </div>
         {/* Headline — LOCKED: exact copy only */}
-        <div className="max-w-4xl mb-12 text-left">
-          <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 leading-tight">
-            Discounted cannabis sale items only. <span className="text-base font-medium text-gray-500">(21+)</span>
+        <div className="max-w-5xl mb-12 text-left">
+          <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black tracking-tight text-gray-900 leading-tight whitespace-nowrap">
+            Discounted cannabis sale items only. <span className="text-sm sm:text-base font-medium text-gray-500">(21+)</span>
           </h1>
 
-          <p className="mt-4 text-xl sm:text-2xl font-semibold text-gray-900">
-            No regular-priced items. No menus. No clutter. Just local discounts—fast. <span className="text-base font-medium text-gray-500">(21+)</span>
+          <p className="mt-4 text-lg sm:text-xl lg:text-2xl font-semibold text-gray-900 whitespace-nowrap">
+            No regular-priced items. No menus. No clutter. Just local discounts—fast. <span className="text-sm sm:text-base font-medium text-gray-500">(21+)</span>
           </p>
 
           <p className="mt-4 text-base sm:text-lg font-medium text-gray-700">
