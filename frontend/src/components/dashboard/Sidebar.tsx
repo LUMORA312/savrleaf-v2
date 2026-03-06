@@ -33,7 +33,7 @@ export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpe
   const navItems: { key: TabKey; label: string }[] = isAdmin
     ? [
         { key: 'adminOverview', label: 'Overview' },
-        { key: 'deals', label: 'Deals' },
+        { key: 'deals', label: 'Discounts' },
         { key: 'users', label: 'Users' },
         { key: 'dispensary', label: 'Dispensaries' },
         { key: 'genericDispensaries', label: 'Generic Dispensaries' },
@@ -43,7 +43,7 @@ export default function Sidebar({ activeTab, onTabChange, isAdmin = false, isOpe
       ]
     : [
         { key: 'overview', label: 'Overview' },
-        { key: 'deals', label: 'Deals' },
+        { key: 'deals', label: 'Discounts' },
         { key: 'dispensary', label: 'Dispensary Info' },
         // { key: 'mapView', label: 'Map View' },
         { key: 'user', label: 'User Info' },

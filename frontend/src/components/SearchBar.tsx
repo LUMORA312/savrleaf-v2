@@ -23,7 +23,7 @@
       <div className={`max-w-full mx-auto mb-8 px-6 sm:px-8 flex flex-row items-center justify-center ${className}`}>
         <div className="flex flex-col items-center justify-center min-w-70">
 
-          <span className="block mt-1 text-gray-700 font-light font-semibold max-w-2xl text-center">Use filters to narrow deals - or browse all discounts near you.</span>
+          <span className="block mt-1 text-gray-700 font-light font-semibold max-w-2xl text-center">Use filters to narrow discounts - or browse all discounts near you.</span>
         </div>
         <div className="flex flex-col sm:flex-row items-stretch gap-5 justify-center">
           {/* Search input */}

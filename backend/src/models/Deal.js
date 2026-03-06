@@ -6,7 +6,17 @@ const dealSchema = new mongoose.Schema(
   {
     title: { type: String },
     brand: { type: String },
-    tags: [String],
+    tags: {
+      type: [String],
+      validate: {
+        validator: function (arr) {
+          if (!arr) return true;
+          const allowed = ['Clearance', 'Manager Special', 'Overstock', 'Last-Chance', 'Weekend Drop', 'Daily Deal'];
+          return arr.length <= 2 && arr.every(t => allowed.includes(t));
+        },
+        message: 'Tags must be from the allowed set (max 2): Clearance, Manager Special, Overstock, Last-Chance, Weekend Drop, Daily Deal',
+      },
+    },
     description: { type: String },
     originalPrice: { type: Number },
     salePrice: {

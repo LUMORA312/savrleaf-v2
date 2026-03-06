@@ -89,7 +89,7 @@ export default function DispensaryCard({ dispensary }: { dispensary: Dispensary 
               }
             }}
           >
-            {dispensary.type ? 'View Deals' : 'Get Directions'}
+            {dispensary.type ? 'View Discounts' : 'Get Directions'}
           </button>
         </div>
 

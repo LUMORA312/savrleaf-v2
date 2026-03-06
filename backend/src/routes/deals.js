@@ -56,6 +56,7 @@ router.get('/', async (req, res) => {
       thcMax,
       strain,
       maxSalePrice,
+      tags,
     } = req.query;
 
     const filters = {};
@@ -114,6 +115,14 @@ router.get('/', async (req, res) => {
     // Strain filter
     if (strain) {
       filters.strain = strain;
+    }
+
+    // Tags filter (comma-separated)
+    if (tags) {
+      const tagList = tags.split(',').map(t => t.trim()).filter(Boolean);
+      if (tagList.length > 0) {
+        filters.tags = { $in: tagList };
+      }
     }
 
     if (priceRange) {

@@ -32,7 +32,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     description: '',
     salePrice: '',
     originalPrice: '',
-    tags: '',
+    tags: [] as string[],
     images: '', // comma-separated URLs
     dispensary: '',
     deal_purchase_link: '',
@@ -62,7 +62,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         description: initialData.description || '',
         salePrice: initialData.salePrice?.toString() || '',
         originalPrice: initialData.originalPrice?.toString() || '',
-        tags: initialData.tags?.join(', ') || '',
+        tags: initialData.tags || [],
         images: imageUrls.join(', '),
         dispensary: typeof initialData.dispensary === 'string'
           ? initialData.dispensary
@@ -98,7 +98,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       description: '',
       salePrice: '',
       originalPrice: '',
-      tags: '',
+      tags: [],
       images: '',
       dispensary: '',
       deal_purchase_link: '',
@@ -198,7 +198,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     setFormError('');
 
     if (!form.salePrice) {
-      setFormError('Deal price is required.');
+      setFormError('Discount price is required.');
       return;
     }
 
@@ -227,7 +227,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
     const allImages = [...uploadedImages, ...manualUrls.filter(url => !uploadedImages.includes(url))];
 
     if (allImages.length === 0) {
-      setFormError('Please upload at least one deal image or provide an image URL.');
+      setFormError('Please upload at least one image or provide an image URL.');
       return;
     }
 
@@ -236,7 +236,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
       salePrice: Number(form.salePrice),
       originalPrice: form.originalPrice ? Number(form.originalPrice) : undefined,
       discountTier: form.discountTier ? Number(form.discountTier) : undefined,
-      tags: form.tags.split(',').map((t) => t.trim()).filter(Boolean),
+      tags: form.tags,
       images: allImages,
       manuallyActivated: form.manuallyActivated,
       userId: userId,
@@ -264,7 +264,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         resetForm();
         return;
       } else {
-        setFormError(data.message || 'Error saving deal.');
+        setFormError(data.message || 'Error saving discount.');
       }
     } catch (err) {
       console.error(err);
@@ -275,7 +275,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
   return (
     <form onSubmit={handleSubmit} className="space-y-5">
       <h3 className="text-xl font-bold text-orange-700">
-        {initialData?._id ? 'Edit Deal' : 'Create New Deal'}
+        {initialData?._id ? 'Edit Discount' : 'Create New Discount'}
       </h3>
 
       {/* Helper Box */}
@@ -288,13 +288,13 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </h4>
         <div className="text-sm text-blue-800 space-y-2">
           <div>
-            <strong>Required:</strong> <strong>Photo</strong>, <strong>Deal Price</strong>, <strong>Discount Tier</strong>, and <strong>Size / Strength</strong> are required. All other fields are optional.
+            <strong>Required:</strong> <strong>Photo</strong>, <strong>Discount Price</strong>, <strong>Discount Tier</strong>, and <strong>Size / Strength</strong> are required. All other fields are optional.
           </div>
           <div>
-            <strong>Discount:</strong> We’ll show “X% off” and “Save $X” from your deal price and chosen tier. Do not label any derived original as “regular price”; we display it as “Est. price” when shown.
+            <strong>Discount:</strong> We’ll show “X% off” and “Save $X” from your discount price and chosen tier. Do not label any derived original as “regular price”; we display it as “Est. price” when shown.
           </div>
           <div>
-            <strong>Image:</strong> Upload at least one deal image or paste an image URL. You can add more images or fill optional details (title, category, dates, etc.) if you like.
+            <strong>Image:</strong> Upload at least one image or paste an image URL. You can add more images or fill optional details (title, category, dates, etc.) if you like.
           </div>
         </div>
       </div>
@@ -306,7 +306,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           name="title"
           value={form.title}
           onChange={handleChange}
-          placeholder="Deal title (optional)"
+          placeholder="Discount title (optional)"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
         />
       </div>
@@ -406,7 +406,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           name="description"
           value={form.description}
           onChange={handleChange}
-          placeholder="Short description of the deal"
+          placeholder="Short description of the discount"
           className="border border-gray-300 focus:border-orange-500 focus:ring focus:ring-orange-200 p-2 w-full rounded-lg"
           rows={3}
         />
@@ -467,7 +467,47 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           ))}
         </div>
         <p className="mt-1 text-xs text-gray-500">
-          Select the closest discount tier for this deal. We’ll estimate the original price from the deal price and discount.
+          Select the closest discount tier. We’ll estimate the original price from the discount price and tier.
+        </p>
+      </div>
+
+      {/* Discount Tags */}
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">
+          Discount Tags (optional, max 2)
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {['Clearance', 'Manager Special', 'Overstock', 'Last-Chance', 'Weekend Drop', 'Daily Deal'].map((tag) => {
+            const selected = form.tags.includes(tag);
+            const disabled = !selected && form.tags.length >= 2;
+            return (
+              <button
+                key={tag}
+                type="button"
+                disabled={disabled}
+                onClick={() => {
+                  setForm((prev) => ({
+                    ...prev,
+                    tags: selected
+                      ? prev.tags.filter((t) => t !== tag)
+                      : [...prev.tags, tag],
+                  }));
+                }}
+                className={`px-3 py-1 rounded-full text-sm font-semibold border cursor-pointer transition ${
+                  selected
+                    ? 'bg-orange-600 text-white border-orange-600'
+                    : disabled
+                      ? 'bg-gray-100 text-gray-400 border-gray-200 cursor-not-allowed'
+                      : 'bg-white text-gray-800 border-gray-300 hover:bg-gray-50'
+                }`}
+              >
+                {tag}
+              </button>
+            );
+          })}
+        </div>
+        <p className="mt-1 text-xs text-gray-500">
+          Select up to 2 tags that describe the type of discount.
         </p>
       </div>
 
@@ -587,9 +627,9 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
         </select>
       </div>
 
-      {/* Deal Purchase Link */}
+      {/* Purchase Link */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Deal Purchase Link</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">Purchase Link</label>
         <input
           name="deal_purchase_link"
           value={form.deal_purchase_link}
@@ -715,7 +755,7 @@ export default function DealForm({ initialData, dispensaryOptions, onSave, onCan
           type="submit"
           className="px-5 py-2 rounded-lg bg-orange-600 text-white font-semibold hover:bg-orange-700 focus:ring focus:ring-orange-300 transition cursor-pointer"
         >
-          {initialData?._id ? 'Update Deal' : 'Create Deal'}
+          {initialData?._id ? 'Update Discount' : 'Create Discount'}
         </button>
       </div>
     </form>

@@ -29,7 +29,7 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
           }`}
           onClick={() => setActiveTab('deals')}
         >
-          Deals
+          Discounts
         </button>
         <button
           className={`px-6 py-2 rounded-full text-sm font-semibold transition cursor-pointer ${
@@ -68,7 +68,7 @@ export default function DealsDispensariesTabs({ deals, dispensaries, loading = f
               );
             })
           ) : (
-            <p key="no-deals" className="col-span-full text-center text-gray-500 py-8">No deals found.</p>
+            <p key="no-deals" className="col-span-full text-center text-gray-500 py-8">No discounts found.</p>
           )
         ) : dispensaries.length ? (
           dispensaries.map((dispensary, index) => (

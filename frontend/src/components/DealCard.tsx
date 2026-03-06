@@ -16,9 +16,9 @@ function getValueBadge(discountPercent: number | undefined | null): {
     return { label: '🟢 Steal', className: 'bg-green-100 text-green-700 border border-green-300' };
   }
   if (discountPercent >= 20) {
-    return { label: '🟡 Solid Deal', className: 'bg-yellow-100 text-yellow-700 border border-yellow-300' };
+    return { label: '🟡 Solid Discount', className: 'bg-yellow-100 text-yellow-700 border border-yellow-300' };
   }
-  return { label: '⚪ Light Deal', className: 'bg-gray-100 text-gray-500 border border-gray-200' };
+  return { label: '⚪ Light Discount', className: 'bg-gray-100 text-gray-500 border border-gray-200' };
 }
 
 interface DealCardProps {
@@ -104,7 +104,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
           <div className="h-40 w-full rounded-xl overflow-hidden mb-3">
             <Image
               src={imageSrc}
-              alt={deal.title || 'Deal'}
+              alt={deal.title || 'Discount'}
               width={400}
               height={160}
               className="h-full w-full object-cover"
@@ -116,8 +116,19 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
             <p className="text-xs text-gray-500 font-medium uppercase tracking-wide">{dispensaryName}</p>
           </div>
 
+          {/* Discount Tags */}
+          {deal.tags && deal.tags.length > 0 && (
+            <div className="flex flex-wrap gap-1 mb-1">
+              {deal.tags.map((tag) => (
+                <span key={tag} className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 border border-orange-200">
+                  {tag}
+                </span>
+              ))}
+            </div>
+          )}
+
           {/* Product Name */}
-          <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title || 'Deal'}</h3>
+          <h3 className="text-lg font-bold mb-1 line-clamp-1">{deal.title || 'Discount'}</h3>
 
           {/* Value Badge + Savings */}
           {(typeof savingsPercent === 'number' || typeof savingsAmount === 'number') && (
@@ -200,7 +211,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
               <div className="flex-shrink-0 w-full md:w-1/2 h-64 md:h-auto rounded-xl overflow-hidden">
                 <Image
                   src={imageSrc}
-                  alt={deal.title || 'Deal'}
+                  alt={deal.title || 'Discount'}
                   width={600}
                   height={400}
                   className="w-full h-full object-cover"
@@ -212,9 +223,20 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                   <p className="text-sm text-gray-500 font-medium uppercase tracking-wide">{dispensaryName}</p>
                 </div>
                 
+                {/* Discount Tags */}
+                {deal.tags && deal.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-1">
+                    {deal.tags.map((tag) => (
+                      <span key={tag} className="px-2 py-0.5 rounded-full text-xs font-bold bg-orange-100 text-orange-700 border border-orange-200">
+                        {tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {/* Product Name */}
-                <h2 className="text-2xl font-bold">{deal.title || 'Deal'}</h2>
-                
+                <h2 className="text-2xl font-bold">{deal.title || 'Discount'}</h2>
+
                 {/* Brand */}
                 {deal.brand && <p className="text-gray-600"><strong>Brand:</strong> {deal.brand}</p>}
                 
@@ -294,7 +316,7 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       rel="noopener noreferrer"
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
                     >
-                      Get Deal — Visit {dispensaryName}
+                      View Discount — Visit {dispensaryName}
                     </a>
                   ) : typeof deal.dispensary === 'object' && deal.dispensary?.websiteUrl ? (
                     <a
@@ -303,13 +325,13 @@ export default function DealCard({ deal, userLocation }: DealCardProps) {
                       rel="noopener noreferrer"
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white hover:bg-orange-700 transition"
                     >
-                      Get Deal — Visit {dispensaryName}
+                      View Discount — Visit {dispensaryName}
                     </a>
                   ) : (
                     <span
                       className="block w-full py-3 px-4 text-center font-semibold rounded-xl bg-orange-600 text-white cursor-default"
                     >
-                      Get Deal
+                      View Discount
                     </span>
                   )}
                 </div>

@@ -36,7 +36,7 @@ export default function Footer() {
               <h2 className="text-2xl font-bold text-white">SavrLeaf<sup className="text-xs align-super">®</sup></h2>
             </div>
             <p className="text-gray-300 mb-4 max-w-md">
-              Find the best verified cannabis deals from trusted dispensaries near you. Explore new products and compare prices with confidence.
+              Find the best verified cannabis discounts from trusted dispensaries near you. Explore new products and compare prices with confidence.
             </p>
             <div className="text-sm text-green-200 space-y-1">
               <p>Verified dispensaries only</p>
@@ -89,7 +89,7 @@ export default function Footer() {
         <div className="border-t border-green-800 pt-8 pb-6">
           <div className="bg-gradient-to-r from-orange-600 to-orange-700 rounded-xl p-6 text-center">
             <p className="text-white text-lg font-semibold mb-4">
-              Are you a dispensary? List your discounted deals on SavrLeafDeals.
+              Are you a dispensary? List your discounted items on SavrLeaf.
             </p>
             <Link
               href="/partner-signup"

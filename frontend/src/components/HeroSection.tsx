@@ -84,12 +84,11 @@ export default function HeroSection({
         {/* Headline — LOCKED: exact copy only */}
         <div className="max-w-4xl mb-12 text-left">
           <h1 className="text-3xl sm:text-4xl lg:text-5xl font-black tracking-tight text-gray-900 leading-tight">
-            SavrLeafDeals
+            Discounted cannabis sale items only. <span className="text-base font-medium text-gray-500">(21+)</span>
           </h1>
 
-
           <p className="mt-4 text-xl sm:text-2xl font-semibold text-gray-900">
-            Find the best cannabis deals near you — instantly.
+            No regular-priced items. No menus. No clutter. Just local discounts—fast. <span className="text-base font-medium text-gray-500">(21+)</span>
           </p>
 
           <p className="mt-4 text-base sm:text-lg font-medium text-gray-700">
@@ -123,7 +122,7 @@ export default function HeroSection({
                   }
                 }}
                 className="flex-1 text-gray-900 placeholder:text-gray-400 focus:outline-none text-base min-w-0 bg-transparent"
-                aria-label="Search deals"
+                aria-label="Search discounts"
               />
             </div>
 
@@ -205,7 +204,7 @@ export default function HeroSection({
             className="inline-flex flex-col items-center gap-1 text-gray-800 hover:text-orange-600 transition-colors cursor-pointer bg-white/60 backdrop-blur-sm border border-gray-200 rounded-xl px-5 py-3 shadow-sm hover:shadow-md"
             aria-label="Scroll to deals"
           >
-            <span className="text-sm font-semibold">Browse deals below</span>
+            <span className="text-sm font-semibold">Find Discounts Near Me</span>
             <ChevronDown className="h-5 w-5 animate-bounce" />
           </button>
         </div>

@@ -5,7 +5,7 @@ import { poppins } from "@/fonts";
 
 export const metadata = {
   title: "SavrLeaf",
-  description: "The First Cannabis Platform for Discounted Deals Only",
+  description: "The First Cannabis Platform for Discounts Only",
   icons: {
     icon: '/favicon.ico',
     shortcut: '/favicon.ico',

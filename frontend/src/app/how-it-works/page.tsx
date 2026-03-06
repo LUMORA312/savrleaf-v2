@@ -35,7 +35,7 @@ const HowItWorksPage = () => {
               <ol className="list-decimal pl-6 space-y-2 text-gray-700 leading-relaxed">
                 <li>Browse discounted and sale-only products</li>
                 <li>Filter by location or ingestion type</li>
-                <li>Click a deal to visit the dispensary directly</li>
+                <li>Click a discount to visit the dispensary directly</li>
                 <li>Complete your purchase with the retailer</li>
               </ol>
               <p className="mt-4 text-gray-700 leading-relaxed">
