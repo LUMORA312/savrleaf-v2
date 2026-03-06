@@ -956,7 +956,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
         <>
           <div className="flex justify-between items-center mb-6">
             <h2 className="text-3xl font-extrabold text-orange-700 tracking-tight">
-              Deals
+              Discounts
             </h2>
           </div>
 
@@ -1072,7 +1072,7 @@ const [showAddDispensaryModal, setShowAddDispensaryModal] = useState(false);
             {/* Results Count */}
             {dealSearchQuery || dealCategoryFilter !== 'all' || dealStatusFilter !== 'all' || dealDispensaryFilter !== 'all' ? (
               <p className="text-sm text-gray-500">
-                Showing {filteredDeals.length} of {deals.length} deals
+                Showing {filteredDeals.length} of {deals.length} discounts
               </p>
             ) : null}
           </div>
