@@ -47,7 +47,7 @@ export default function AgeGateOverlay() {
           className="mb-6"
         />
         <h2 className="text-4xl font-extrabold mb-8 drop-shadow-md">
-          Are you 21+ and ready for deals?
+          Are you 21+ and ready for discounts?
         </h2>
         <div className="flex space-x-6">
           <button
