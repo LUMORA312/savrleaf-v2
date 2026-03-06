@@ -55,7 +55,7 @@ export default function AgeGateOverlay() {
             onClick={handleYes}
             disabled={isProcessing}
           >
-            Yes — Show me deals
+            Yes — Show me discounts
           </button>
           <button
             className="px-8 py-4 bg-gray-600 hover:bg-gray-500 text-white text-lg font-semibold rounded-xl shadow-lg transition cursor-pointer"
