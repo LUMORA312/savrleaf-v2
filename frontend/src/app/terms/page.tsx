@@ -340,7 +340,7 @@ const TermsPage = () => {
                 {/* 2 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    2) Accuracy + Honoring Listed Discounts
+                    2) Accuracy responsibility
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -364,7 +364,7 @@ const TermsPage = () => {
                 {/* 4 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    4) Self-Serve Updates (Anytime)
+                    4) Self-Serve Updates Anytime
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -376,7 +376,7 @@ const TermsPage = () => {
                 {/* 5 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    5) Concierge Uploads (Optional Posting by SavrLeaf)
+                    5) Concierge = 2 Scheduled Batches Per Week + Template + Off-Cycle Rolls To Next Drop
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -416,7 +416,7 @@ const TermsPage = () => {
                 {/* 6 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    6) No Transactions Handled by SavrLeaf
+                    6) SavrLeaf Does Not Process Transactions (Redirects Only)
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -428,7 +428,7 @@ const TermsPage = () => {
                 {/* 7 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    7) Compliance + 21+
+                    7) 21+ Compliance
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -440,7 +440,7 @@ const TermsPage = () => {
                 {/* 8 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    8) Moderation / Admin Override
+                    8) Admin Override/Removal Rights
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
@@ -452,7 +452,7 @@ const TermsPage = () => {
                 {/* 9 */}
                 <section>
                   <h3 className="text-xl font-semibold mb-3 text-gray-900">
-                    9) Brand Assets Permission
+                    9) Permission To Display Partner Name/Logo/Images For Listings
                   </h3>
                   <div className="text-gray-700 leading-relaxed">
                     <p>
