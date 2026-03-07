@@ -43,7 +43,7 @@ router.post('/', express.raw({ type: 'application/json' }), async (req, res) => 
         } else {
           const dispensary = await Dispensary.findOne({ subscription: subscription._id });
           if (!dispensary) break;
-          dispensary.skuLimit = 15;
+          dispensary.skuLimit = 21;
           dispensary.isPurchased = true;
           await dispensary.save();
         }

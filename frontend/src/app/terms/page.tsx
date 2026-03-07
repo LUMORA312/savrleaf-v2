@@ -76,7 +76,8 @@ const TermsPage = () => {
                 <div className="text-gray-700 leading-relaxed">
                   <p>Partner subscription pricing:</p>
                   <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li><strong>$89.99/month</strong> per location</li>
+                    <li><strong>$79.99/month</strong> per location — up to 21 discounted items (SKUs)</li>
+                    <li><strong>Concierge Add-On:</strong> $24.99/month per location — includes 2 concierge posting batches per week (scheduled windows; template required). Partners can still self-serve updates anytime.</li>
                   </ul>
                   <p className="mt-2">
                     Each location is treated independently for listing access, discount visibility, and dashboard management.
@@ -299,7 +300,7 @@ const TermsPage = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <div className="space-y-3 text-gray-700">
                   <div>
-                    <strong>Pricing:</strong> $89.99/month per location (approval required for additional locations).
+                    <strong>Pricing:</strong> $79.99/month per location — up to 21 SKUs. Concierge add-on: $24.99/month (approval required for additional locations).
                   </div>
                   <div>
                     <strong>Partner Term Options:</strong> 3 months save 5% • 6 months save 10% • 12 months save 15%*
@@ -386,21 +387,21 @@ const TermsPage = () => {
                       a) Batch Window / Timeframe
                     </h4>
                     <p>
-                      Concierge uploads are processed within the agreed update window/timeframe (e.g., a weekly batch). Updates submitted outside that window may be scheduled for the next batch.
+                      The concierge add-on includes 2 scheduled posting batches per week. Partner must use SavrLeaf&apos;s required template for submissions. Updates submitted outside the scheduled windows will roll to the next batch drop.
                     </p>
 
                     <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
                       b) Submission Format
                     </h4>
                     <p>
-                      Partner must submit all required listing details in SavrLeaf&apos;s requested format. At minimum, each listing must include: product name, product type, discount price, expiration date/time, destination link, and an image (or image URL). SavrLeaf may delay or decline posting incomplete submissions until required fields are provided.
+                      Partner must submit all required listing details using SavrLeaf&apos;s template. At minimum, each listing must include: product name, product type, discount price, expiration date/time, destination link, and an image (or image URL). SavrLeaf may delay or decline posting incomplete submissions until required fields are provided.
                     </p>
 
                     <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
                       c) Off-Cycle / Urgent Requests
                     </h4>
                     <p>
-                      Off-cycle updates outside the normal window are not guaranteed and may be declined or handled as a separate paid add-on (if offered).
+                      Off-cycle updates outside the 2 scheduled batch windows are not guaranteed. Submissions received outside the window will roll to the next scheduled drop.
                     </p>
 
                     <h4 className="text-lg font-semibold mt-4 mb-2 text-gray-800">
