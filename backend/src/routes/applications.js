@@ -258,7 +258,7 @@ router.post('/:id/approve', authMiddleware, adminMiddleware, async (req, res) =>
         user: isMain ? user._id : dispensaryUser._id,
         application: application._id,
         status: 'approved',
-        skuLimit: 15, // Each location gets 15 SKUs
+        skuLimit: 21, // Each location gets 21 SKUs
         isActive: true,
         isPurchased: true,
         type: isMain ? 'main' : 'additional',
