@@ -82,7 +82,7 @@ export default function HeroSection({
           <Image src={logo} alt="SavrLeaf Logo" width={120} height={120} className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
         </div>
         {/* Launching Soon banner */}
-        <p className="text-lg sm:text-xl font-semibold text-orange-600 uppercase tracking-widest mb-4">
+        <p className="text-xl sm:text-2xl font-semibold text-black uppercase tracking-widest mb-4">
           Launching Soon!
         </p>
         {/* Headline — LOCKED: exact copy only */}
