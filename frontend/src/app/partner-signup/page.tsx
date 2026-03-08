@@ -69,7 +69,7 @@ export default function PartnerSignupPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-3 text-center">Pricing</h3>
             <div className="text-center space-y-2 text-gray-700">
               <p className="text-base">
-                <strong>$79.99/month</strong> per location — up to 21 discounted items (SKUs)
+                <strong>$79.99/month</strong> per location — unlimited discounted items (SKUs)
               </p>
               <p className="text-sm text-gray-600 mt-2">
                 <strong>Concierge Add-On:</strong> $24.99/month — 2 posting batches per week

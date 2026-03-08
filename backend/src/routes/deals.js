@@ -308,9 +308,10 @@ router.post('/', async (req, res) => {
     if (!dispensaryObject) {
       return res.status(404).json({ success: false, message: 'Dispensary not found' });
     }
-    if (dispensaryObject.usedSkus >= dispensaryObject.skuLimit + dispensaryObject.additionalSkuLimit) {
-      return res.status(400).json({ success: false, message: 'Discount limit reached' });
-    }
+    // SKU limit removed — unlimited per location
+    // if (dispensaryObject.usedSkus >= dispensaryObject.skuLimit + dispensaryObject.additionalSkuLimit) {
+    //   return res.status(400).json({ success: false, message: 'Discount limit reached' });
+    // }
 
     // if (dealCount >= maxLimit) {
     //   return res.status(400).json({

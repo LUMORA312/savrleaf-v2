@@ -76,7 +76,7 @@ const TermsPage = () => {
                 <div className="text-gray-700 leading-relaxed">
                   <p>Partner subscription pricing:</p>
                   <ul className="list-disc pl-6 mt-2 space-y-1">
-                    <li><strong>$79.99/month</strong> per location — up to 21 discounted items (SKUs)</li>
+                    <li><strong>$79.99/month</strong> per location — unlimited discounted items</li>
                     <li><strong>Concierge Add-On:</strong> $24.99/month per location — includes 2 concierge posting batches per week (scheduled windows; template required). Partners can still self-serve updates anytime.</li>
                   </ul>
                   <p className="mt-2">
@@ -300,7 +300,7 @@ const TermsPage = () => {
               <div className="bg-blue-50 border border-blue-200 rounded-lg p-6">
                 <div className="space-y-3 text-gray-700">
                   <div>
-                    <strong>Pricing:</strong> $79.99/month per location — up to 21 SKUs. Concierge add-on: $24.99/month (approval required for additional locations).
+                    <strong>Pricing:</strong> $79.99/month per location — unlimited discounts. Concierge add-on: $24.99/month (approval required for additional locations).
                   </div>
                   <div>
                     <strong>Partner Term Options:</strong> 3 months save 5% • 6 months save 10% • 12 months save 15%*
