@@ -81,8 +81,8 @@ async function seed() {
       tier: 1,
       monthlyPrice: 79.99,
       annualPrice: 959.88,
-      baseSKULimit: 21,
-      features: ['Up to 21 active discounts'],
+      baseSKULimit: 9999,
+      features: ['Unlimited active discounts'],
     },
     {
       name: 'growth',
