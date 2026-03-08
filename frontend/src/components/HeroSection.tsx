@@ -81,6 +81,10 @@ export default function HeroSection({
         <div className="flex justify-center mb-4">
           <Image src={logo} alt="SavrLeaf Logo" width={120} height={120} className="w-24 h-24 sm:w-32 sm:h-32 object-contain" />
         </div>
+        {/* Launching Soon banner */}
+        <p className="text-sm sm:text-base font-semibold text-orange-600 uppercase tracking-widest mb-4">
+          Launching Soon
+        </p>
         {/* Headline — LOCKED: exact copy only */}
         <div className="max-w-5xl mb-12 text-left">
           <h1 className="text-2xl sm:text-3xl lg:text-4xl xl:text-5xl font-black tracking-tight text-gray-900 leading-tight whitespace-nowrap">
